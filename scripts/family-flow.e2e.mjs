@@ -9,12 +9,16 @@ try {
   await desktop.getByRole("button", { name: "பங்கீட்டைத் தயாரிக்கவும்" }).click();
   await desktop.getByRole("button", { name: "தொடர்க", exact: true }).click();
   await desktop.getByRole("heading", { name: "குடும்பத்தில் யார் உள்ளனர்?" }).waitFor();
-  await desktop.getByLabel("யாரைச் சேர்க்க வேண்டும் என்ற உதவி").waitFor();
+  await desktop.getByLabel("தேர்ந்தெடுத்த குடும்ப உறுப்பினர்கள்").waitFor();
   await desktop.getByText("முதன்மை குடும்பம்", { exact: true }).first().waitFor();
   await desktop.getByText("மற்ற குடும்பம்", { exact: true }).first().waitFor();
-  await desktop.getByText("அப்பாவின் அப்பா", { exact: true }).waitFor();
   await desktop.getByText("மகன் வழி சந்ததியினர்", { exact: true }).waitFor();
   await desktop.getByText("தூரத்து உறவினர்கள்", { exact: true }).waitFor();
+  await desktop.getByLabel("குடும்ப உறவைத் தேடுக").fill("மகனின் மகன்கள்");
+  await desktop.getByRole("button", { name: "மகனின் மகன்கள் அதிகரிக்க" }).click();
+  await desktop.getByLabel("தேர்ந்தெடுத்த குடும்ப உறுப்பினர்கள்").getByText("மகனின் மகன்கள்", { exact: false }).waitFor();
+  await desktop.getByRole("button", { name: "மகன் வழி சந்ததியினர் உறவுகளை அழிக்க" }).click();
+  await desktop.getByLabel("குடும்ப உறவைத் தேடுக").fill("");
   await desktop.screenshot({ path: "/home/ubuntu/screenshots/family-selector-desktop.png", fullPage: true });
   await desktop.getByRole("button", { name: "மகனின் மகன்கள் அதிகரிக்க" }).click();
   await desktop.getByRole("button", { name: "முடிவைப் பார்க்கவும்" }).click();
@@ -25,10 +29,12 @@ try {
   await mobile.goto(url, { waitUntil: "networkidle" });
   await mobile.getByRole("button", { name: "பங்கீட்டைத் தயாரிக்கவும்" }).click();
   await mobile.getByRole("button", { name: "தொடர்க", exact: true }).click();
-  await mobile.getByLabel("யாரைச் சேர்க்க வேண்டும் என்ற உதவி").waitFor();
+  await mobile.getByLabel("தேர்ந்தெடுத்த குடும்ப உறுப்பினர்கள்").waitFor();
   await mobile.getByText("மற்ற குடும்பம்", { exact: true }).first().waitFor();
   await mobile.getByText("தூரத்து உறவினர்கள்", { exact: true }).waitFor();
   await mobile.screenshot({ path: "/home/ubuntu/screenshots/family-selector-mobile.png", fullPage: true });
+  await mobile.getByRole("button", { name: "வெளியேறு" }).click();
+  await mobile.getByRole("heading", { name: "சொத்துப் பங்கீட்டின் காரணத்தைத் தெளிவாகப் பாருங்கள்" }).waitFor();
 
   console.log("Family selector flow passed on desktop and mobile.");
 } finally {

@@ -37,6 +37,14 @@
 - [x] Mark extended-relative combinations that require scholar review rather than fabricating an automatic share.
 - [x] Extend browser checks and regression tests for the complete family flow.
 
+## Family-selection usability controls
+
+- [x] Add Tamil family search that filters all visible relationship groups.
+- [x] Add a reset control for each family section and a separate start-new-calculation action.
+- [x] Add a live selected-family side panel that shows counts and permits removal.
+- [x] Add a clear exit/back control from the family-selection step.
+- [ ] Validate search, reset, summary, and exit behavior on mobile and desktop.
+
 ## Source-book family structure
 
 - [ ] Extract every heir category and relationship group stated in the supplied book.
