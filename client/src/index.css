@@ -71,6 +71,35 @@
     border-bottom: 2px solid oklch(0.55 0.13 256 / 0.55);
     padding-bottom: 0.65rem;
   }
+
+  .page-enter {
+    animation: page-enter 180ms cubic-bezier(0.23, 1, 0.32, 1) both;
+  }
+
+  .worksheet-frame {
+    border: 1px solid oklch(0.88 0.016 250);
+    border-radius: 1.5rem;
+    box-shadow: 0 16px 40px oklch(0.32 0.06 250 / 0.08);
+  }
+
+  .worksheet-spine {
+    background-image: linear-gradient(to bottom, transparent 43px, oklch(0.92 0.014 250 / 0.75) 44px, transparent 45px);
+    background-size: 100% 54px;
+  }
+
+  .worksheet-stages {
+    background-image: linear-gradient(90deg, oklch(0.92 0.014 250 / 0.55) 1px, transparent 1px);
+    background-size: 28px 100%;
+  }
+}
+
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 1ms !important; transition-duration: 1ms !important; scroll-behavior: auto !important; }
 }
 
 @layer base {
