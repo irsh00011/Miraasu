@@ -16,3 +16,10 @@
 - [x] Add a local-only history page to view, reopen, and delete saved calculations.
 - [x] Add automatic local saving after each completed calculation with a clear user confirmation.
 - [x] Verify mobile and desktop navigation, touch targets, and history persistence.
+
+## Family selector clarity update
+
+- [x] Replace formal relationship wording with plain Tamil family labels and short examples.
+- [x] Add emoji cues to the family choices and accessible text labels for every cue.
+- [x] Add a sticky “Who should I add?” guide for the active relationship screen.
+- [x] Run the family-selector browser check on mobile and desktop.

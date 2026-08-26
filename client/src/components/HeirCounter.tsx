@@ -2,6 +2,7 @@
 import { Minus, Plus } from "lucide-react";
 
 type HeirCounterProps = {
+  emoji?: string;
   label: string;
   description?: string;
   value: number;
@@ -9,11 +10,11 @@ type HeirCounterProps = {
   max?: number;
 };
 
-export function HeirCounter({ label, description, value, onChange, max = 20 }: HeirCounterProps) {
+export function HeirCounter({ emoji, label, description, value, onChange, max = 20 }: HeirCounterProps) {
   return (
     <div className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
       <div className="min-w-0">
-        <p className="font-semibold text-slate-900">{label}</p>
+        <p className="flex items-center gap-2 font-semibold text-slate-900">{emoji ? <span aria-hidden="true" className="text-base">{emoji}</span> : null}{label}</p>
         {description ? <p className="mt-0.5 text-xs leading-5 text-slate-500">{description}</p> : null}
       </div>
       <div className="flex shrink-0 items-center gap-2" aria-label={`${label} எண்ணிக்கை`}>
