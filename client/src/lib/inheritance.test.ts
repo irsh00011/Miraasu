@@ -59,4 +59,12 @@ describe("ordinary inheritance calculation", () => {
     expect(result.exclusions.some((item) => item.label.includes("தாய் வழி"))).toBe(true);
     expect(shareFor("maternalSisters", result)).toBe("0");
   });
+
+  it("requires scholar review rather than silently omitting book-based extended relatives", () => {
+    const result = calculateInheritance(estate(), heirs({ sonsSons: 1, paternalUncles: 2, daughtersChildren: 1 }));
+
+    expect(result.requiresScholarReview).toBe(true);
+    expect(result.selectedExtendedHeirs.map((item) => item.key)).toEqual(["sonsSons", "paternalUncles", "daughtersChildren"]);
+    expect(result.notices.some((item) => item.includes("அறிஞர் உறுதிப்படுத்தல்"))).toBe(true);
+  });
 });

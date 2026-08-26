@@ -21,10 +21,12 @@ import {
   WalletCards,
 } from "lucide-react";
 import { HeirCounter } from "@/components/HeirCounter";
+import { BookFamilySections } from "@/components/BookFamilySections";
 import {
   calculateInheritance,
   fractionToNumber,
   fractionToText,
+  type ExtendedHeirKey,
   type EstateInput,
   type HeirInput,
 } from "@/lib/inheritance";
@@ -51,6 +53,28 @@ const initialHeirs: HeirInput = {
   fullSisters: 0,
   maternalBrothers: 0,
   maternalSisters: 0,
+  sonsSons: 0,
+  sonsDaughters: 0,
+  furtherSonsLineDescendants: 0,
+  maternalGrandfather: 0,
+  paternalGrandmothers: 0,
+  maternalGrandmothers: 0,
+  furtherPaternalAncestors: 0,
+  paternalBrothers: 0,
+  paternalSisters: 0,
+  fullBrothersSons: 0,
+  paternalBrothersSons: 0,
+  paternalUncles: 0,
+  paternalUnclesSons: 0,
+  daughtersChildren: 0,
+  sonsDaughtersChildren: 0,
+  fullBrothersDaughters: 0,
+  fullSistersChildren: 0,
+  maternalBrothersChildren: 0,
+  fathersMaternalBrothers: 0,
+  fathersMaternalBrothersDescendants: 0,
+  mothersSiblings: 0,
+  mothersSiblingsDescendants: 0,
 };
 
 const stepLabels = ["தொகை", "உறவுகள்", "முடிவு"];
@@ -98,7 +122,7 @@ function StepProgress({ step, onBack }: { step: Step; onBack: (target: Step) => 
 function FamilyGuide() {
   const groups = [
     { title: "முதன்மை குடும்பம்", items: [{ emoji: "💑", label: "கணவன் / மனைவி", detail: "இறந்தவரின் துணைவர்" }, { emoji: "👨‍👩‍👧‍👦", label: "அப்பா, அம்மா, பிள்ளைகள்", detail: "முதலில் இவர்களைச் சேர்க்கவும்" }] },
-    { title: "மற்ற குடும்பம்", items: [{ emoji: "👴", label: "அப்பாவின் அப்பா", detail: "அப்பா இல்லை என்றால் மட்டும்" }, { emoji: "🧑‍🤝‍🧑", label: "சகோதரர் / சகோதரி", detail: "மேலே உள்ள உறவுகளைச் சேர்த்த பிறகு பார்க்கவும்" }] },
+    { title: "மற்ற குடும்பம்", items: [{ emoji: "👴", label: "அப்பாவின் அப்பா", detail: "அப்பா இல்லை என்றால் மட்டும்" }, { emoji: "🧑‍🤝‍🧑", label: "சகோதரர் / சகோதரி", detail: "மேலே உள்ள உறவுகளைச் சேர்த்த பிறகு பார்க்கவும்" }, { emoji: "📚", label: "புத்தகத்தில் உள்ள அனைத்து உறவுகள்", detail: "கீழே ஒவ்வொரு குழுவாகவும் சேர்க்கப்பட்டுள்ளன" }] },
   ];
 
   return (
@@ -130,6 +154,7 @@ export default function Home() {
 
   const updateEstate = (key: keyof EstateInput, value: number) => setEstate((current) => ({ ...current, [key]: Math.max(0, value) }));
   const updateHeir = (key: keyof HeirInput, value: number) => setHeirs((current) => ({ ...current, [key]: value }));
+  const updateExtendedHeir = (key: ExtendedHeirKey, value: number) => setHeirs((current) => ({ ...current, [key]: Math.max(0, value) }));
   const chooseSpouse = (choice: "none" | "husband" | "wives") => setHeirs((current) => ({ ...current, husband: choice === "husband" ? 1 : 0, wives: choice === "wives" ? Math.max(1, current.wives) : 0 }));
 
   const saveCalculation = () => {
@@ -301,6 +326,8 @@ export default function Home() {
                   <div className="space-y-7 pb-24 lg:pb-0">
                     <div><div className="mb-4 flex items-center gap-2 border-b border-blue-100 pb-3"><span aria-hidden="true" className="text-lg">👪</span><div><p className="text-sm font-extrabold text-[#133D76]">முதன்மை குடும்பம்</p><p className="text-xs text-slate-500">முதலில் இவர்கள் அனைவரையும் பாருங்கள்.</p></div></div><div className="space-y-5"><div><p className="mb-3 flex items-center gap-2 text-sm font-extrabold text-slate-900"><span aria-hidden="true">💑</span> துணைவர்</p><div className="grid grid-cols-3 gap-2 rounded-2xl bg-slate-100 p-2">{[["none", "யாருமில்லை"], ["husband", "கணவன்"], ["wives", "மனைவி"]].map(([value, label]) => { const active = (value === "none" && heirs.husband === 0 && heirs.wives === 0) || (value === "husband" && heirs.husband > 0) || (value === "wives" && heirs.wives > 0); return <button key={value} type="button" onClick={() => chooseSpouse(value as "none" | "husband" | "wives")} className={`min-h-11 rounded-xl px-2 text-sm font-bold ${active ? "bg-[#133D76] text-white shadow-sm" : "text-slate-600 hover:bg-white"}`}>{label}</button>; })}</div>{heirs.wives > 0 ? <div className="mt-3"><HeirCounter emoji="💑" label="மனைவிகள்" value={heirs.wives} onChange={(value) => updateHeir("wives", value)} max={4} /></div> : null}</div><div><p className="mb-3 flex items-center gap-2 text-sm font-extrabold text-slate-900"><span aria-hidden="true">👨‍👩‍👧‍👦</span> அப்பா, அம்மா, பிள்ளைகள்</p><div className="grid gap-3"><HeirCounter emoji="👨" label="அப்பா" value={heirs.father} onChange={(value) => updateHeir("father", Math.min(value, 1))} max={1} /><HeirCounter emoji="👩" label="அம்மா" value={heirs.mother} onChange={(value) => updateHeir("mother", Math.min(value, 1))} max={1} /><HeirCounter emoji="👦" label="மகன்கள்" value={heirs.sons} onChange={(value) => updateHeir("sons", value)} /><HeirCounter emoji="👧" label="மகள்கள்" value={heirs.daughters} onChange={(value) => updateHeir("daughters", value)} /></div></div></div></div>
                     <div><div className="mb-4 flex items-center gap-2 border-b border-slate-200 pb-3"><span aria-hidden="true" className="text-lg">👥</span><div><p className="text-sm font-extrabold text-[#133D76]">மற்ற குடும்பம்</p><p className="text-xs text-slate-500">இவர்களும் இருந்தால் எண்ணிக்கையைச் சேர்க்கவும்.</p></div></div><div className="grid gap-3 rounded-2xl bg-slate-50 p-3"><HeirCounter emoji="👴" label="அப்பாவின் அப்பா" description="அப்பா இல்லாதபோது மட்டும்." value={heirs.paternalGrandfather} onChange={(value) => updateHeir("paternalGrandfather", Math.min(value, 1))} max={1} /><HeirCounter emoji="👨‍🦱" label="உடன்பிறந்த சகோதரர்கள்" value={heirs.fullBrothers} onChange={(value) => updateHeir("fullBrothers", value)} /><HeirCounter emoji="👩‍🦰" label="உடன்பிறந்த சகோதரிகள்" value={heirs.fullSisters} onChange={(value) => updateHeir("fullSisters", value)} /><HeirCounter emoji="🧑" label="தாய் வழி சகோதரர்கள்" description="தாய் ஒரேவர்; அப்பா வேறாக இருக்கலாம்." value={heirs.maternalBrothers} onChange={(value) => updateHeir("maternalBrothers", value)} /><HeirCounter emoji="👩" label="தாய் வழி சகோதரிகள்" description="தாய் ஒரேவர்; அப்பா வேறாக இருக்கலாம்." value={heirs.maternalSisters} onChange={(value) => updateHeir("maternalSisters", value)} /></div></div>
+                    <div><div className="mb-4 flex items-center gap-2 border-b border-slate-200 pb-3"><span aria-hidden="true" className="text-lg">👥</span><div><p className="text-sm font-extrabold text-[#133D76]">மற்ற குடும்பம்</p><p className="text-xs text-slate-500">இவர்களும் இருந்தால் எண்ணிக்கையைச் சேர்க்கவும்.</p></div></div><div className="grid gap-3 rounded-2xl bg-slate-50 p-3"><HeirCounter emoji="👴" label="அப்பாவின் அப்பா" description="அப்பா இல்லாதபோது மட்டும்." value={heirs.paternalGrandfather} onChange={(value) => updateHeir("paternalGrandfather", Math.min(value, 1))} max={1} /><HeirCounter emoji="👨‍🦱" label="உடன்பிறந்த சகோதரர்கள்" value={heirs.fullBrothers} onChange={(value) => updateHeir("fullBrothers", value)} /><HeirCounter emoji="👩‍🦰" label="உடன்பிறந்த சகோதரிகள்" value={heirs.fullSisters} onChange={(value) => updateHeir("fullSisters", value)} /><HeirCounter emoji="🧑" label="தாய் வழி சகோதரர்கள்" description="தாய் ஒரேவர்; அப்பா வேறாக இருக்கலாம்." value={heirs.maternalBrothers} onChange={(value) => updateHeir("maternalBrothers", value)} /><HeirCounter emoji="👩" label="தாய் வழி சகோதரிகள்" description="தாய் ஒரேவர்; அப்பா வேறாக இருக்கலாம்." value={heirs.maternalSisters} onChange={(value) => updateHeir("maternalSisters", value)} /></div></div>
+                    <div><div className="mb-4 flex items-center gap-2 border-b border-blue-100 pb-3"><span aria-hidden="true" className="text-lg">📚</span><div><p className="text-sm font-extrabold text-[#133D76]">புத்தகத்தில் உள்ள மற்ற உறவுகள்</p><p className="text-xs text-slate-500">ஒவ்வொரு புத்தக-குழுவும் கீழே உள்ளது. தேர்வு செய்தால் அறிஞர் உறுதிப்படுத்தல் தேவைப்படும்.</p></div></div><BookFamilySections heirs={heirs} onChange={updateExtendedHeir} /></div>
                   </div>
                   <FamilyGuide />
                 </div>
@@ -312,6 +339,7 @@ export default function Home() {
               <div className="space-y-4">
                 <div className="ledger-summary rounded-3xl bg-[#133D76] p-5 text-white shadow-xl shadow-blue-200 sm:p-7"><p className="text-sm font-bold text-blue-100">படி 3 / 3</p><div className="mt-2 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><h1 className="text-2xl font-extrabold tracking-tight">பங்கீட்டு முடிவு</h1><p className="mt-1 text-sm text-blue-100">ஒவ்வொருவரின் பங்கும் கீழே உள்ளது.</p></div><p className="rounded-2xl bg-white/10 px-4 py-3 text-xl font-extrabold tabular-nums">{money(result.netEstate)}</p></div>{justSaved ? <p className="mt-4 inline-flex items-center gap-2 rounded-xl bg-white/10 px-3 py-2 text-xs font-bold"><Check size={14} /> இந்தக் கணக்கு வரலாற்றில் சேமிக்கப்பட்டது</p> : null}</div>
                 {result.notices.length > 0 ? <div className="space-y-2">{result.notices.map((notice) => <p key={notice} className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">{notice}</p>)}</div> : null}
+                {result.requiresScholarReview ? <div className="rounded-3xl border border-amber-200 bg-amber-50 p-5"><p className="text-sm font-extrabold text-amber-950">அறிஞர் உறுதிப்படுத்தல் தேவை</p><p className="mt-2 text-sm leading-6 text-amber-900">புத்தகத்தில் உள்ள கூடுதல் உறவுகள் தேர்வு செய்யப்பட்டுள்ளன. அவர்களின் முன்னுரிமை மற்றும் துல்லியமான பங்கை உறுதிப்படுத்தாமல் இம்முடிவை இறுதியானதாகப் பயன்படுத்த வேண்டாம்.</p><div className="mt-4 flex flex-wrap gap-2">{result.selectedExtendedHeirs.map((item) => <span key={item.key} className="rounded-lg border border-amber-200 bg-white px-2.5 py-1.5 text-xs font-bold text-amber-900">{item.emoji} {item.label} · {item.count}</span>)}</div></div> : null}
                 <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7"><div className="flex items-center justify-between gap-3 border-b border-slate-100 pb-4"><h2 className="text-lg font-extrabold text-slate-950">யாருக்கு எவ்வளவு?</h2><div className="inline-flex rounded-xl bg-slate-100 p-1"><button type="button" onClick={() => setDisplayMode("fraction")} className={`rounded-lg px-3 py-2 text-xs font-bold ${displayMode === "fraction" ? "bg-white text-[#133D76] shadow-sm" : "text-slate-500"}`}>பின்னம்</button><button type="button" onClick={() => setDisplayMode("percent")} className={`rounded-lg px-3 py-2 text-xs font-bold ${displayMode === "percent" ? "bg-white text-[#133D76] shadow-sm" : "text-slate-500"}`}>%</button></div></div>{result.allocations.length > 0 ? <div className="mt-4 space-y-3">{result.allocations.map((item) => { const amount = result.netEstate * fractionToNumber(item.share); const perPerson = item.count > 1 ? amount / item.count : null; return <article key={item.key} className="rounded-2xl border border-slate-100 bg-slate-50/70 p-4"><div className="flex flex-wrap items-start justify-between gap-3"><div><p className="font-extrabold text-slate-950">{item.label}{item.count > 1 ? ` (${item.count})` : ""}</p><p className="mt-1 text-xs leading-5 text-slate-500">{item.reason}</p></div><div className="text-right"><p className="rounded-lg bg-blue-100 px-2.5 py-1 text-sm font-extrabold text-[#133D76]">{displayMode === "fraction" ? fractionToText(item.share) : percentage(fractionToNumber(item.share))}</p><p className="mt-2 font-extrabold tabular-nums text-slate-950">{money(amount)}</p>{perPerson !== null ? <p className="mt-1 text-xs text-slate-500">ஒருவருக்கு {money(perPerson)}</p> : null}</div></div></article>; })}</div> : <div className="py-8 text-center"><UsersRound className="mx-auto text-slate-300" size={30} /><p className="mt-3 font-bold text-slate-700">வாரிசுகளைச் சேர்க்கவும்.</p><button type="button" onClick={() => setStep(2)} className="mt-2 text-sm font-bold text-[#133D76] hover:underline">உறவுகளை மாற்றுக</button></div>}</div>
                 {result.exclusions.length > 0 ? <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm"><h2 className="font-extrabold text-slate-950">பங்கு கிடைக்காதவர்கள்</h2><div className="mt-3 space-y-2">{result.exclusions.map((item) => <div key={item.label} className="rounded-xl bg-slate-50 px-3 py-3"><p className="text-sm font-bold text-slate-800">{item.label}</p><p className="mt-1 text-xs leading-5 text-slate-500">{item.reason}</p></div>)}</div></div> : null}
                 <div className="rounded-3xl border border-blue-100 bg-blue-50 p-5"><div className="flex items-center gap-2 border-b-2 border-blue-200 pb-3 text-[#102B52]"><Check size={19} /><h2 className="font-extrabold">கணக்கு சரிபார்ப்பு</h2></div><div className="mt-4 grid grid-cols-3 gap-2 text-center"><div><p className="text-[11px] font-bold text-slate-500">சொத்து</p><p className="mt-1 text-sm font-extrabold tabular-nums text-slate-950">{money(result.netEstate)}</p></div><div><p className="text-[11px] font-bold text-slate-500">பகிர்வு</p><p className="mt-1 text-sm font-extrabold tabular-nums text-slate-950">{money(allocatedAmount)}</p></div><div><p className="text-[11px] font-bold text-slate-500">நிறுத்தி வைப்பு</p><p className="mt-1 text-sm font-extrabold tabular-nums text-slate-950">{money(heldAmount)}</p></div></div></div>

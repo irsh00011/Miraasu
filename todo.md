@@ -29,3 +29,16 @@
 - [x] Show every currently supported relationship without hiding the other-family section.
 - [x] Separate the selection screen into Primary Family and Other Family groups with plain Tamil headings.
 - [x] Update the contextual guide and browser check for the always-visible complete family list.
+
+## Full book-family expansion
+
+- [x] Add every book-based immediate, descendant, sibling, uncle-line, and distant-relative group to the family input model.
+- [x] Present all groups through simple progressive sections without hiding or silently ignoring a relationship.
+- [x] Mark extended-relative combinations that require scholar review rather than fabricating an automatic share.
+- [x] Extend browser checks and regression tests for the complete family flow.
+
+## Source-book family structure
+
+- [ ] Extract every heir category and relationship group stated in the supplied book.
+- [ ] Map the book’s hierarchy into Primary Family, Secondary Family, and extended residuary groups.
+- [ ] Identify which book-based groups are already in the calculator and which remain future work.

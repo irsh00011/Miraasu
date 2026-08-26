@@ -25,7 +25,100 @@ export type HeirInput = {
   fullSisters: number;
   maternalBrothers: number;
   maternalSisters: number;
+  sonsSons?: number;
+  sonsDaughters?: number;
+  furtherSonsLineDescendants?: number;
+  maternalGrandfather?: number;
+  paternalGrandmothers?: number;
+  maternalGrandmothers?: number;
+  furtherPaternalAncestors?: number;
+  paternalBrothers?: number;
+  paternalSisters?: number;
+  fullBrothersSons?: number;
+  paternalBrothersSons?: number;
+  paternalUncles?: number;
+  paternalUnclesSons?: number;
+  daughtersChildren?: number;
+  sonsDaughtersChildren?: number;
+  fullBrothersDaughters?: number;
+  fullSistersChildren?: number;
+  maternalBrothersChildren?: number;
+  fathersMaternalBrothers?: number;
+  fathersMaternalBrothersDescendants?: number;
+  mothersSiblings?: number;
+  mothersSiblingsDescendants?: number;
 };
+
+export type ExtendedHeirKey = Exclude<keyof HeirInput, "husband" | "wives" | "father" | "mother" | "paternalGrandfather" | "sons" | "daughters" | "fullBrothers" | "fullSisters" | "maternalBrothers" | "maternalSisters">;
+
+export type ExtendedHeirDefinition = {
+  key: ExtendedHeirKey;
+  emoji: string;
+  label: string;
+  description: string;
+};
+
+export const EXTENDED_HEIR_SECTIONS: { title: string; helper: string; items: ExtendedHeirDefinition[] }[] = [
+  {
+    title: "மகன் வழி சந்ததியினர்",
+    helper: "மகன் இல்லை என்றால் இந்த உறவுகள் முக்கியமாகலாம்.",
+    items: [
+      { key: "sonsSons", emoji: "👦", label: "மகனின் மகன்கள்", description: "மகன் வழி பேரன்கள்." },
+      { key: "sonsDaughters", emoji: "👧", label: "மகனின் மகள்கள்", description: "மகன் வழி பேத்திகள்." },
+      { key: "furtherSonsLineDescendants", emoji: "🌿", label: "மகன் வழி அடுத்த தலைமுறை", description: "மேலதிக மகன்-வழி சந்ததியினர்." },
+    ],
+  },
+  {
+    title: "தாத்தா, பாட்டி மற்றும் மூதாதையர்",
+    helper: "நெருங்கிய பெற்றோர் இல்லாதபோது இந்த உறவுகள் தொடர்புடையவை.",
+    items: [
+      { key: "maternalGrandfather", emoji: "👴", label: "தாயின் தந்தை", description: "தாய் வழி தாத்தா." },
+      { key: "paternalGrandmothers", emoji: "👵", label: "தந்தையின் தாய்", description: "தந்தை வழி பாட்டி." },
+      { key: "maternalGrandmothers", emoji: "👵", label: "தாயின் தாய்", description: "தாய் வழி பாட்டி." },
+      { key: "furtherPaternalAncestors", emoji: "🌳", label: "தந்தை வழி மூதாதையர்", description: "மேலதிக தந்தை-வழி முன்னோர்." },
+    ],
+  },
+  {
+    title: "தந்தை வழி மற்றும் உடன்பிறந்தோர் சந்ததி",
+    helper: "உடன்பிறந்தோர் வரிசை மற்றும் அவர்களின் அடுத்த தலைமுறை.",
+    items: [
+      { key: "paternalBrothers", emoji: "👨", label: "தந்தை வழி சகோதரர்கள்", description: "தந்தை ஒரேவர்; தாய் வேறாக இருக்கலாம்." },
+      { key: "paternalSisters", emoji: "👩", label: "தந்தை வழி சகோதரிகள்", description: "தந்தை ஒரேவர்; தாய் வேறாக இருக்கலாம்." },
+      { key: "fullBrothersSons", emoji: "👦", label: "உடன்பிறந்த சகோதரரின் மகன்கள்", description: "உடன்பிறந்த சகோதரரின் ஆண் பிள்ளைகள்." },
+      { key: "paternalBrothersSons", emoji: "👦", label: "தந்தை வழி சகோதரரின் மகன்கள்", description: "தந்தை வழி சகோதரரின் ஆண் பிள்ளைகள்." },
+    ],
+  },
+  {
+    title: "தந்தை வழி மாமா வரிசை",
+    helper: "பித்ரு வழி நீண்ட உறவுகள்.",
+    items: [
+      { key: "paternalUncles", emoji: "👨‍🦳", label: "தந்தையின் சகோதரர்கள்", description: "தந்தை வழி மாமாக்கள்." },
+      { key: "paternalUnclesSons", emoji: "👦", label: "தந்தையின் சகோதரரின் மகன்கள்", description: "தந்தை வழி மாமாவின் மகன்கள்." },
+    ],
+  },
+  {
+    title: "தூரத்து உறவினர்கள்",
+    helper: "முதல் இரண்டு வாரிசு வகைகள் இல்லாத நிலைகளில் தொடர்புடையவர்கள்.",
+    items: [
+      { key: "daughtersChildren", emoji: "🧒", label: "மகளின் குழந்தைகள்", description: "மகள் வழி குழந்தைகள் மற்றும் அவர்களின் வரிசை." },
+      { key: "sonsDaughtersChildren", emoji: "🧒", label: "மகனின் மகளின் குழந்தைகள்", description: "மகன்-மகள் வழி குழந்தைகள்." },
+      { key: "fullBrothersDaughters", emoji: "👧", label: "சகோதரரின் மகள்கள்", description: "உடன்பிறந்த சகோதரரின் மகள்கள்." },
+      { key: "fullSistersChildren", emoji: "🧒", label: "சகோதரிகளின் குழந்தைகள்", description: "உடன்பிறந்த சகோதரிகளின் பிள்ளைகள்." },
+      { key: "maternalBrothersChildren", emoji: "🧒", label: "தாய் வழி சகோதரரின் குழந்தைகள்", description: "தாய் வழி சகோதரரின் பிள்ளைகள்." },
+      { key: "fathersMaternalBrothers", emoji: "👨‍🦳", label: "தந்தையின் தாய் வழி சகோதரர்", description: "தந்தையின் தாய் வழி சகோதரர்." },
+      { key: "fathersMaternalBrothersDescendants", emoji: "🌿", label: "அவர்களின் சந்ததியினர்", description: "தந்தையின் தாய் வழி சகோதரரின் வரிசை." },
+      { key: "mothersSiblings", emoji: "👥", label: "தாயின் சகோதரர் / சகோதரி", description: "தாய் வழி மாமா அல்லது அத்தை." },
+      { key: "mothersSiblingsDescendants", emoji: "🌿", label: "அவர்களின் சந்ததியினர்", description: "தாயின் சகோதரர் / சகோதரியின் பிள்ளைகள்." },
+    ],
+  },
+];
+
+export type SelectedExtendedHeir = ExtendedHeirDefinition & { count: number };
+
+export const getSelectedExtendedHeirs = (heirs: HeirInput): SelectedExtendedHeir[] =>
+  EXTENDED_HEIR_SECTIONS.flatMap((section) => section.items)
+    .map((item) => ({ ...item, count: heirs[item.key] ?? 0 }))
+    .filter((item) => item.count > 0);
 
 export type Allocation = {
   key: string;
@@ -50,6 +143,8 @@ export type CalculationResult = {
   unallocatedShare: Fraction;
   notices: string[];
   fixedSharesAdjusted: boolean;
+  requiresScholarReview: boolean;
+  selectedExtendedHeirs: SelectedExtendedHeir[];
 };
 
 const gcd = (a: number, b: number): number => {
@@ -119,6 +214,7 @@ export function calculateInheritance(estate: EstateInput, heirs: HeirInput): Cal
   const remainder: Allocation[] = [];
   const exclusions: Exclusion[] = [];
   const notices: string[] = [];
+  const selectedExtendedHeirs = getSelectedExtendedHeirs(heirs);
 
   const hasSpouse = heirs.husband > 0 || heirs.wives > 0;
   const hasChildren = heirs.sons > 0 || heirs.daughters > 0;
@@ -134,6 +230,9 @@ export function calculateInheritance(estate: EstateInput, heirs: HeirInput): Cal
   }
   if (heirs.husband > 0 && heirs.wives > 0) {
     notices.push("கணவன் மற்றும் மனைவிகள் இருவரையும் ஒரே நேரத்தில் தேர்வு செய்ய முடியாது; மனைவி தேர்வு கணக்கில் பயன்படுத்தப்பட்டுள்ளது.");
+  }
+  if (selectedExtendedHeirs.length > 0) {
+    notices.push("கூடுதல் புத்தக-வாரிசுகள் தேர்வு செய்யப்பட்டுள்ளனர். இந்த உறவுகளின் துல்லியமான பங்குகள் அறிஞர் உறுதிப்படுத்தலுடன் கணக்கிடப்பட வேண்டும்; கீழுள்ள தானியங்கி முடிவை இறுதியானதாகப் பயன்படுத்த வேண்டாம்.");
   }
 
   const spouseShare = heirs.wives > 0
@@ -357,5 +456,7 @@ export function calculateInheritance(estate: EstateInput, heirs: HeirInput): Cal
     unallocatedShare,
     notices,
     fixedSharesAdjusted,
+    requiresScholarReview: selectedExtendedHeirs.length > 0,
+    selectedExtendedHeirs,
   };
 }

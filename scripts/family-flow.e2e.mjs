@@ -13,7 +13,13 @@ try {
   await desktop.getByText("முதன்மை குடும்பம்", { exact: true }).first().waitFor();
   await desktop.getByText("மற்ற குடும்பம்", { exact: true }).first().waitFor();
   await desktop.getByText("அப்பாவின் அப்பா", { exact: true }).waitFor();
+  await desktop.getByText("மகன் வழி சந்ததியினர்", { exact: true }).waitFor();
+  await desktop.getByText("தூரத்து உறவினர்கள்", { exact: true }).waitFor();
   await desktop.screenshot({ path: "/home/ubuntu/screenshots/family-selector-desktop.png", fullPage: true });
+  await desktop.getByRole("button", { name: "மகனின் மகன்கள் அதிகரிக்க" }).click();
+  await desktop.getByRole("button", { name: "முடிவைப் பார்க்கவும்" }).click();
+  await desktop.getByText("அறிஞர் உறுதிப்படுத்தல் தேவை", { exact: true }).waitFor();
+  await desktop.screenshot({ path: "/home/ubuntu/screenshots/extended-family-review-desktop.png", fullPage: true });
 
   const mobile = await browser.newPage({ viewport: { width: 390, height: 844 } });
   await mobile.goto(url, { waitUntil: "networkidle" });
@@ -21,6 +27,7 @@ try {
   await mobile.getByRole("button", { name: "தொடர்க", exact: true }).click();
   await mobile.getByLabel("யாரைச் சேர்க்க வேண்டும் என்ற உதவி").waitFor();
   await mobile.getByText("மற்ற குடும்பம்", { exact: true }).first().waitFor();
+  await mobile.getByText("தூரத்து உறவினர்கள்", { exact: true }).waitFor();
   await mobile.screenshot({ path: "/home/ubuntu/screenshots/family-selector-mobile.png", fullPage: true });
 
   console.log("Family selector flow passed on desktop and mobile.");
