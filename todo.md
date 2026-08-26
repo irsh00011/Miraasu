@@ -23,3 +23,9 @@
 - [x] Add emoji cues to the family choices and accessible text labels for every cue.
 - [x] Add a sticky “Who should I add?” guide for the active relationship screen.
 - [x] Run the family-selector browser check on mobile and desktop.
+
+## Complete family grouping update
+
+- [x] Show every currently supported relationship without hiding the other-family section.
+- [x] Separate the selection screen into Primary Family and Other Family groups with plain Tamil headings.
+- [x] Update the contextual guide and browser check for the always-visible complete family list.

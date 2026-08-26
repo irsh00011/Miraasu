@@ -95,21 +95,16 @@ function StepProgress({ step, onBack }: { step: Step; onBack: (target: Step) => 
   );
 }
 
-function FamilyGuide({ showMore }: { showMore: boolean }) {
-  const simpleFamily = [
-    { emoji: "💑", label: "கணவன் / மனைவி", detail: "இறந்தவரின் துணைவர்" },
-    { emoji: "👨‍👩‍👧‍👦", label: "அப்பா, அம்மா, பிள்ளைகள்", detail: "முதலில் இவர்களைச் சேர்க்கவும்" },
+function FamilyGuide() {
+  const groups = [
+    { title: "முதன்மை குடும்பம்", items: [{ emoji: "💑", label: "கணவன் / மனைவி", detail: "இறந்தவரின் துணைவர்" }, { emoji: "👨‍👩‍👧‍👦", label: "அப்பா, அம்மா, பிள்ளைகள்", detail: "முதலில் இவர்களைச் சேர்க்கவும்" }] },
+    { title: "மற்ற குடும்பம்", items: [{ emoji: "👴", label: "அப்பாவின் அப்பா", detail: "அப்பா இல்லை என்றால் மட்டும்" }, { emoji: "🧑‍🤝‍🧑", label: "சகோதரர் / சகோதரி", detail: "மேலே உள்ள உறவுகளைச் சேர்த்த பிறகு பார்க்கவும்" }] },
   ];
-  const moreFamily = [
-    { emoji: "👴", label: "அப்பாவின் அப்பா", detail: "அப்பா இல்லை என்றால் மட்டும்" },
-    { emoji: "🧑‍🤝‍🧑", label: "சகோதரர் / சகோதரி", detail: "உடன்பிறந்தவர் அல்லது தாய் வழி" },
-  ];
-  const items = showMore ? [...simpleFamily, ...moreFamily] : simpleFamily;
 
   return (
     <aside className="family-guide mt-5 rounded-2xl border border-blue-200 bg-white p-4 shadow-sm lg:sticky lg:top-6 lg:mt-0" aria-label="யாரைச் சேர்க்க வேண்டும் என்ற உதவி">
       <div className="flex items-start gap-2"><span className="grid size-7 shrink-0 place-items-center rounded-lg bg-blue-100 text-sm" aria-hidden="true">💡</span><div><p className="font-extrabold text-[#133D76]">யாரைச் சேர்க்க வேண்டும்?</p><p className="mt-0.5 text-xs leading-5 text-slate-500">இறந்தவருக்கு உயிருடன் இருப்பவர்களை மட்டும் தேர்வு செய்யுங்கள்.</p></div></div>
-      <div className="mt-3 space-y-2">{items.map((item) => <div key={item.label} className="flex gap-2 text-xs"><span className="grid size-7 shrink-0 place-items-center rounded-lg bg-slate-50" aria-hidden="true">{item.emoji}</span><p className="leading-5 text-slate-600"><strong className="text-slate-800">{item.label}</strong> · {item.detail}</p></div>)}</div>
+      <div className="mt-3 space-y-3">{groups.map((group) => <div key={group.title}><p className="mb-1 text-[11px] font-extrabold text-slate-400">{group.title}</p>{group.items.map((item) => <div key={item.label} className="flex gap-2 py-1 text-xs"><span className="grid size-7 shrink-0 place-items-center rounded-lg bg-slate-50" aria-hidden="true">{item.emoji}</span><p className="leading-5 text-slate-600"><strong className="text-slate-800">{item.label}</strong> · {item.detail}</p></div>)}</div>)}</div>
     </aside>
   );
 }
@@ -121,7 +116,6 @@ export default function Home() {
   const [heirs, setHeirs] = useState<HeirInput>(initialHeirs);
   const [history, setHistory] = useState<SavedCalculation[]>([]);
   const [showOptionalEstate, setShowOptionalEstate] = useState(false);
-  const [showMoreRelations, setShowMoreRelations] = useState(false);
   const [displayMode, setDisplayMode] = useState<DisplayMode>("fraction");
   const [justSaved, setJustSaved] = useState(false);
 
@@ -173,7 +167,6 @@ export default function Home() {
     setEstate(initialEstate);
     setHeirs(initialHeirs);
     setShowOptionalEstate(false);
-    setShowMoreRelations(false);
     setDisplayMode("fraction");
     openCalculator();
   };
@@ -305,13 +298,11 @@ export default function Home() {
                 <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-slate-950">குடும்பத்தில் யார் உள்ளனர்?</h1>
                 <p className="mt-2 text-sm leading-6 text-slate-600">இறந்தவருக்கு உயிருடன் இருப்பவர்களை மட்டும் சேர்க்கவும். எண்ணிக்கையை + மற்றும் − அழுத்தி மாற்றலாம்.</p>
                 <div className="mt-7 lg:grid lg:grid-cols-[minmax(0,1fr)_235px] lg:gap-6">
-                  <div className="space-y-6 pb-24 lg:pb-0">
-                    <div><p className="mb-3 flex items-center gap-2 text-sm font-extrabold text-slate-900"><span aria-hidden="true">💑</span> துணைவர்</p><div className="grid grid-cols-3 gap-2 rounded-2xl bg-slate-100 p-2">{[["none", "யாருமில்லை"], ["husband", "கணவன்"], ["wives", "மனைவி"]].map(([value, label]) => { const active = (value === "none" && heirs.husband === 0 && heirs.wives === 0) || (value === "husband" && heirs.husband > 0) || (value === "wives" && heirs.wives > 0); return <button key={value} type="button" onClick={() => chooseSpouse(value as "none" | "husband" | "wives")} className={`min-h-11 rounded-xl px-2 text-sm font-bold ${active ? "bg-[#133D76] text-white shadow-sm" : "text-slate-600 hover:bg-white"}`}>{label}</button>; })}</div>{heirs.wives > 0 ? <div className="mt-3"><HeirCounter emoji="💑" label="மனைவிகள்" value={heirs.wives} onChange={(value) => updateHeir("wives", value)} max={4} /></div> : null}</div>
-                    <div><p className="mb-3 flex items-center gap-2 text-sm font-extrabold text-slate-900"><span aria-hidden="true">👨‍👩‍👧‍👦</span> நெருங்கிய குடும்பம்</p><div className="grid gap-3 xl:grid-cols-2"><HeirCounter emoji="👨" label="அப்பா" value={heirs.father} onChange={(value) => updateHeir("father", Math.min(value, 1))} max={1} /><HeirCounter emoji="👩" label="அம்மா" value={heirs.mother} onChange={(value) => updateHeir("mother", Math.min(value, 1))} max={1} /><HeirCounter emoji="👦" label="மகன்கள்" value={heirs.sons} onChange={(value) => updateHeir("sons", value)} /><HeirCounter emoji="👧" label="மகள்கள்" value={heirs.daughters} onChange={(value) => updateHeir("daughters", value)} /></div></div>
-                    <button type="button" onClick={() => setShowMoreRelations((current) => !current)} className="inline-flex min-h-10 items-center gap-2 rounded-xl px-2 text-sm font-bold text-[#133D76] hover:bg-blue-50"><ChevronDown className={`transition ${showMoreRelations ? "rotate-180" : ""}`} size={17} /> 👥 மேலும் உறவுகளைச் சேர்க்கவும்</button>
-                    {showMoreRelations ? <div className="grid gap-3 rounded-2xl bg-slate-50 p-3 xl:grid-cols-2"><HeirCounter emoji="👴" label="அப்பாவின் அப்பா" description="அப்பா இல்லாதபோது மட்டும்." value={heirs.paternalGrandfather} onChange={(value) => updateHeir("paternalGrandfather", Math.min(value, 1))} max={1} /><HeirCounter emoji="👨‍🦱" label="உடன்பிறந்த சகோதரர்கள்" value={heirs.fullBrothers} onChange={(value) => updateHeir("fullBrothers", value)} /><HeirCounter emoji="👩‍🦰" label="உடன்பிறந்த சகோதரிகள்" value={heirs.fullSisters} onChange={(value) => updateHeir("fullSisters", value)} /><HeirCounter emoji="🧑" label="தாய் வழி சகோதரர்கள்" description="தாய் ஒரேவர்; அப்பா வேறாக இருக்கலாம்." value={heirs.maternalBrothers} onChange={(value) => updateHeir("maternalBrothers", value)} /><HeirCounter emoji="👩" label="தாய் வழி சகோதரிகள்" description="தாய் ஒரேவர்; அப்பா வேறாக இருக்கலாம்." value={heirs.maternalSisters} onChange={(value) => updateHeir("maternalSisters", value)} /></div> : null}
+                  <div className="space-y-7 pb-24 lg:pb-0">
+                    <div><div className="mb-4 flex items-center gap-2 border-b border-blue-100 pb-3"><span aria-hidden="true" className="text-lg">👪</span><div><p className="text-sm font-extrabold text-[#133D76]">முதன்மை குடும்பம்</p><p className="text-xs text-slate-500">முதலில் இவர்கள் அனைவரையும் பாருங்கள்.</p></div></div><div className="space-y-5"><div><p className="mb-3 flex items-center gap-2 text-sm font-extrabold text-slate-900"><span aria-hidden="true">💑</span> துணைவர்</p><div className="grid grid-cols-3 gap-2 rounded-2xl bg-slate-100 p-2">{[["none", "யாருமில்லை"], ["husband", "கணவன்"], ["wives", "மனைவி"]].map(([value, label]) => { const active = (value === "none" && heirs.husband === 0 && heirs.wives === 0) || (value === "husband" && heirs.husband > 0) || (value === "wives" && heirs.wives > 0); return <button key={value} type="button" onClick={() => chooseSpouse(value as "none" | "husband" | "wives")} className={`min-h-11 rounded-xl px-2 text-sm font-bold ${active ? "bg-[#133D76] text-white shadow-sm" : "text-slate-600 hover:bg-white"}`}>{label}</button>; })}</div>{heirs.wives > 0 ? <div className="mt-3"><HeirCounter emoji="💑" label="மனைவிகள்" value={heirs.wives} onChange={(value) => updateHeir("wives", value)} max={4} /></div> : null}</div><div><p className="mb-3 flex items-center gap-2 text-sm font-extrabold text-slate-900"><span aria-hidden="true">👨‍👩‍👧‍👦</span> அப்பா, அம்மா, பிள்ளைகள்</p><div className="grid gap-3"><HeirCounter emoji="👨" label="அப்பா" value={heirs.father} onChange={(value) => updateHeir("father", Math.min(value, 1))} max={1} /><HeirCounter emoji="👩" label="அம்மா" value={heirs.mother} onChange={(value) => updateHeir("mother", Math.min(value, 1))} max={1} /><HeirCounter emoji="👦" label="மகன்கள்" value={heirs.sons} onChange={(value) => updateHeir("sons", value)} /><HeirCounter emoji="👧" label="மகள்கள்" value={heirs.daughters} onChange={(value) => updateHeir("daughters", value)} /></div></div></div></div>
+                    <div><div className="mb-4 flex items-center gap-2 border-b border-slate-200 pb-3"><span aria-hidden="true" className="text-lg">👥</span><div><p className="text-sm font-extrabold text-[#133D76]">மற்ற குடும்பம்</p><p className="text-xs text-slate-500">இவர்களும் இருந்தால் எண்ணிக்கையைச் சேர்க்கவும்.</p></div></div><div className="grid gap-3 rounded-2xl bg-slate-50 p-3"><HeirCounter emoji="👴" label="அப்பாவின் அப்பா" description="அப்பா இல்லாதபோது மட்டும்." value={heirs.paternalGrandfather} onChange={(value) => updateHeir("paternalGrandfather", Math.min(value, 1))} max={1} /><HeirCounter emoji="👨‍🦱" label="உடன்பிறந்த சகோதரர்கள்" value={heirs.fullBrothers} onChange={(value) => updateHeir("fullBrothers", value)} /><HeirCounter emoji="👩‍🦰" label="உடன்பிறந்த சகோதரிகள்" value={heirs.fullSisters} onChange={(value) => updateHeir("fullSisters", value)} /><HeirCounter emoji="🧑" label="தாய் வழி சகோதரர்கள்" description="தாய் ஒரேவர்; அப்பா வேறாக இருக்கலாம்." value={heirs.maternalBrothers} onChange={(value) => updateHeir("maternalBrothers", value)} /><HeirCounter emoji="👩" label="தாய் வழி சகோதரிகள்" description="தாய் ஒரேவர்; அப்பா வேறாக இருக்கலாம்." value={heirs.maternalSisters} onChange={(value) => updateHeir("maternalSisters", value)} /></div></div>
                   </div>
-                  <FamilyGuide showMore={showMoreRelations} />
+                  <FamilyGuide />
                 </div>
                 <div className="mt-8 flex items-center justify-between border-t border-slate-100 pt-5"><button type="button" onClick={() => setStep(1)} className="inline-flex min-h-11 items-center gap-2 rounded-xl px-3 text-sm font-bold text-slate-500 hover:bg-slate-100"><ArrowLeft size={17} /> பின்செல்</button><button type="button" onClick={finishCalculation} className="inline-flex min-h-12 items-center gap-2 rounded-2xl bg-[#133D76] px-5 py-3 font-extrabold text-white shadow-lg shadow-blue-200 transition hover:bg-[#102F5E] active:scale-[0.98]"><Calculator size={18} /> முடிவைப் பார்க்கவும்</button></div>
               </div>
