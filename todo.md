@@ -77,6 +77,14 @@
 - [x] Use the supplied book-cover image as the PWA installation icon and favicon.
 - [x] Verify the exact book-cover icon is readable in the website header and install metadata.
 
+## Source audit and calculator correction
+
+- [x] Extract the book’s exact share tables, blocking rules, remainder rules, and worked sums into a testable rule matrix.
+- [x] Compare every implemented calculation branch to the source matrix and correct any mismatch.
+- [x] Add coverage for book rules that can be safely automated and flag the rest as review-only.
+- [ ] Rebuild the family selector into a calm single-column hierarchy with clear relationship-type headings.
+- [ ] Add source-based regression tests, sum checks, and Tamil/English responsive browser validation.
+
 ## Source-book family structure
 
 - [ ] Extract every heir category and relationship group stated in the supplied book.

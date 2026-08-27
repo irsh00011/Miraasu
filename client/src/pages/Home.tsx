@@ -6,7 +6,6 @@ import { useEffect, useMemo, useState } from "react";
 import {
   ArrowLeft,
   ArrowRight,
-  BookOpen,
   Calculator,
   Check,
   ChevronDown,
@@ -25,6 +24,7 @@ import {
 import { HeirCounter } from "@/components/HeirCounter";
 import { BookFamilySections } from "@/components/BookFamilySections";
 import { FamilySelectionSummary } from "@/components/FamilySelectionSummary";
+import { LedgerBrandMark } from "@/components/LedgerBrandMark";
 import {
   calculateInheritance,
   fractionToNumber,
@@ -252,12 +252,12 @@ export default function Home() {
             <div className="worksheet-frame book-cover-background overflow-hidden bg-white">
               <div className="grid lg:grid-cols-[1.15fr_0.85fr]">
                 <div className="worksheet-spine px-6 py-8 sm:px-10 sm:py-11">
-                  <div className="flex items-center gap-3 text-[#133D76]"><span className="grid size-11 place-items-center rounded-xl border border-blue-200 bg-blue-50"><BookOpen size={21} /></span><p className="text-sm font-extrabold tracking-wide">மீராஸ் பங்கீட்டு பதிவு</p></div>
+                  <div className="flex items-center gap-3 text-[#133D76]"><span className="grid size-11 place-items-center border-y-2 border-[#133D76] bg-blue-50"><LedgerBrandMark className="size-7" /></span><p className="text-sm font-extrabold tracking-wide">மீராஸ் பங்கீட்டு பதிவு</p></div>
                   <p className="mt-8 text-sm font-bold text-[#133D76]">முதலில் தகவலைத் தயாரிக்கவும்</p>
                   <h1 className="mt-2 font-serif text-3xl font-bold leading-tight tracking-tight text-slate-950 sm:text-4xl">சொத்துப் பங்கீட்டின் காரணத்தைத் தெளிவாகப் பாருங்கள்</h1>
                   <p className="mt-4 max-w-xl text-base leading-7 text-slate-600">சொத்து தொகை மற்றும் உறவுகளை பதிவு செய்த பின், ஒவ்வொருவருக்கும் ஏன் அந்தப் பங்கு வருகிறது என்பதைக் காட்டுகிறோம்.</p>
                   <button type="button" onClick={openCalculator} className="mt-8 inline-flex min-h-12 items-center gap-2 rounded-xl bg-[#133D76] px-5 py-3 font-extrabold text-white shadow-sm transition hover:bg-[#102F5E] active:scale-[0.98]">
-                    பங்கீட்டைத் தயாரிக்கவும் <ArrowRight size={18} />
+                    சொத்தைத் தயார் செய்து வாரிசுகளைச் சேர்க்கவும் <ArrowRight size={18} />
                   </button>
                   <div className="mt-7 flex gap-2 border-l-2 border-[#133D76] bg-blue-50/80 px-3 py-2.5 text-sm leading-6 text-slate-600"><Check className="mt-1 shrink-0 text-[#133D76]" size={16} /><p><strong className="text-slate-900">கற்றல் உதவி மட்டும்.</strong> உண்மையான பங்கீட்டிற்கு முன் தகுதியான அறிஞர் மற்றும் சட்ட நிபுணரிடம் உறுதி செய்யுங்கள்.</p></div>
                 </div>
