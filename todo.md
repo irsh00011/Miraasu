@@ -98,3 +98,12 @@
 - [x] Replace the dense family-entry experience with a simple staged grid that uses short headings, plain labels, and a visible selected-family check.
 - [x] Create a new balance-and-fractions app mark inspired by the supplied book while preserving its supplied cover as the source-book/PWA visual.
 - [x] Validate Tamil, English, and Arabic routes on desktop and mobile; then update GitHub and production.
+
+## Complete family search and category repair
+
+- [x] Recheck the supplied book’s full family-member hierarchy against the current input catalogue and make any missing labels visible.
+- [x] Repair search so it finds close family, grandparents, siblings, and every book-listed extended relationship in Tamil, English, and Arabic.
+- [x] Add simple click-to-open family categories that show only the chosen section while keeping a clear full-family view available.
+- [x] Make the supplied book cover more prominent on the introduction screen without reducing reading contrast or changing its PWA role.
+- [x] Add browser tests for close-family and extended-family searches, category switching, clear controls, and all language routes.
+- [ ] Publish the repaired family navigation and provide the final production link.

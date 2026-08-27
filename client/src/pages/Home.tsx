@@ -25,6 +25,7 @@ import { HeirCounter } from "@/components/HeirCounter";
 import { BookFamilySections } from "@/components/BookFamilySections";
 import { FamilySelectionSummary } from "@/components/FamilySelectionSummary";
 import { LedgerBrandMark } from "@/components/LedgerBrandMark";
+import { BookSourceCard } from "@/components/BookSourceCard";
 import {
   calculateInheritance,
   fractionToNumber,
@@ -265,6 +266,7 @@ export default function Home() {
                 <div className="worksheet-stages border-t border-slate-200 bg-slate-50/70 px-6 py-7 sm:px-10 lg:border-l lg:border-t-0">
                   <p className="text-xs font-extrabold uppercase tracking-[0.14em] text-slate-400">பதிவு ஒழுங்கு</p>
                   <ol className="mt-4 divide-y divide-slate-200">{[["01", "சொத்து", "பகிரக்கூடிய தொகையைத் தயாரிக்கவும்"], ["02", "வாரிசுகள்", "உள்ள உறவுகளை மட்டும் பதிவு செய்யவும்"], ["03", "சரிபார்ப்பு", "பங்கு, காரணம், தொகை ஆகியவற்றைப் பார்க்கவும்"]].map(([number, title, detail]) => <li key={number} className="flex gap-3 py-4 first:pt-0"><span className="font-serif text-lg font-bold text-[#133D76]">{number}</span><div><p className="font-extrabold text-slate-900">{title}</p><p className="mt-1 text-xs leading-5 text-slate-500">{detail}</p></div></li>)}</ol>
+                  <BookSourceCard />
                   <div className="mt-5 border-t border-slate-200 pt-4"><p className="text-xs leading-5 text-slate-500">இந்தச் சாதனத்தில் மட்டுமே கணக்குகள் சேமிக்கப்படும்.</p>{history.length > 0 ? <button type="button" onClick={() => setView("history")} className="mt-2 text-sm font-bold text-[#133D76] hover:underline">சேமித்த {history.length} பதிவுகள்</button> : null}</div>
                 </div>
               </div>

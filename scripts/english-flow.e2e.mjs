@@ -9,6 +9,12 @@ try {
   await desktop.getByRole("button", { name: "Prepare the estate and add heirs" }).click();
   await desktop.getByRole("button", { name: "Continue" }).click();
   await desktop.getByRole("heading", { name: "Which family members are alive?" }).waitFor();
+  await desktop.getByLabel("Search family relationships").fill("Father");
+  await desktop.getByRole("button", { name: "Father increase", exact: true }).click();
+  await desktop.getByLabel("Selected family members").getByText("Father", { exact: false }).waitFor();
+  await desktop.getByRole("button", { name: "Father decrease", exact: true }).click();
+  await desktop.getByLabel("Search family relationships").fill("");
+  await desktop.getByRole("button", { name: "Descendants through sons" }).last().click();
   await desktop.getByLabel("Search family relationships").fill("Sons of sons");
   await desktop.getByRole("button", { name: "Sons of sons increase" }).click();
   await desktop.getByLabel("Selected family members").getByText("Sons of sons", { exact: false }).waitFor();

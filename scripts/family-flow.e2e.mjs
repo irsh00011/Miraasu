@@ -12,8 +12,14 @@ try {
   await desktop.getByLabel("தேர்ந்தெடுத்த குடும்ப உறுப்பினர்கள்").waitFor();
   await desktop.getByText("முதன்மை குடும்பம்", { exact: true }).first().waitFor();
   await desktop.getByText("மற்ற குடும்பம்", { exact: true }).first().waitFor();
-  await desktop.getByText("மகன் வழி சந்ததியினர்", { exact: true }).waitFor();
-  await desktop.getByText("தூரத்து உறவினர்கள்", { exact: true }).waitFor();
+  await desktop.getByRole("button", { name: "மகன் வழி சந்ததியினர்", exact: true }).waitFor();
+  await desktop.getByRole("button", { name: "தூரத்து உறவினர்கள்", exact: true }).waitFor();
+  await desktop.getByLabel("குடும்ப உறவைத் தேடுக").fill("அப்பா");
+  await desktop.getByRole("button", { name: "அப்பா அதிகரிக்க", exact: true }).click();
+  await desktop.getByLabel("தேர்ந்தெடுத்த குடும்ப உறுப்பினர்கள்").getByText("அப்பா", { exact: false }).waitFor();
+  await desktop.getByRole("button", { name: "அப்பா குறைக்க", exact: true }).click();
+  await desktop.getByLabel("குடும்ப உறவைத் தேடுக").fill("");
+  await desktop.getByRole("button", { name: "மகன் வழி சந்ததியினர்" }).last().click();
   await desktop.getByLabel("குடும்ப உறவைத் தேடுக").fill("மகனின் மகன்கள்");
   await desktop.getByRole("button", { name: "மகனின் மகன்கள் அதிகரிக்க" }).click();
   await desktop.getByLabel("தேர்ந்தெடுத்த குடும்ப உறுப்பினர்கள்").getByText("மகனின் மகன்கள்", { exact: false }).waitFor();
@@ -33,7 +39,7 @@ try {
   await mobile.getByRole("button", { name: "தொடர்க", exact: true }).click();
   await mobile.getByLabel("தேர்ந்தெடுத்த குடும்ப உறுப்பினர்கள்").waitFor();
   await mobile.getByText("மற்ற குடும்பம்", { exact: true }).first().waitFor();
-  await mobile.getByText("தூரத்து உறவினர்கள்", { exact: true }).waitFor();
+  await mobile.getByRole("button", { name: "தூரத்து உறவினர்கள்", exact: true }).waitFor();
   await mobile.screenshot({ path: "/home/ubuntu/screenshots/family-selector-mobile.png", fullPage: true });
   await mobile.getByRole("button", { name: "வெளியேறு" }).click();
   await mobile.getByRole("heading", { name: "சொத்துப் பங்கீட்டின் காரணத்தைத் தெளிவாகப் பாருங்கள்" }).waitFor();

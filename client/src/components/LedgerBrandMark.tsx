@@ -3,6 +3,6 @@ type LedgerBrandMarkProps = { className?: string };
 
 export function LedgerBrandMark({ className = "size-6" }: LedgerBrandMarkProps) {
   return (
-    <img src="/manus-storage/mirath-balance-icon-primary_62d86f73.png" alt="" className={`${className} object-contain`} />
+    <span className={`relative inline-grid place-items-center ${className}`}><img src="/manus-storage/mirath-balance-icon-primary_62d86f73.png" alt="" className="size-full scale-125 object-contain" /><span className="absolute bottom-0 size-1.5 rounded-full bg-[#B8892D]" /></span>
   );
 }
