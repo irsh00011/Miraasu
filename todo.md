@@ -65,6 +65,12 @@
 - [x] Deploy the repository to Vercel and verify the production URL.
 - [x] Confirm the install prompt requirements and provide user installation steps.
 
+## Book-cover visual update
+
+- [x] Generate a clean app icon inspired by the book cover’s blue, gold, and scales motif.
+- [x] Add a subtle, readable book-cover-inspired background to the welcome screens.
+- [x] Replace PWA install icons and validate the new visual treatment on desktop and mobile.
+
 ## Source-book family structure
 
 - [ ] Extract every heir category and relationship group stated in the supplied book.

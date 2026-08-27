@@ -88,13 +88,7 @@ const formatDate = (value: string) => new Intl.DateTimeFormat("ta-IN", { day: "n
 
 function BrandMark() {
   return (
-    <div className="grid size-10 shrink-0 place-items-center rounded-2xl bg-[#133D76] text-white shadow-lg shadow-blue-200">
-      <svg viewBox="0 0 48 48" aria-hidden="true" className="size-6 fill-none" stroke="currentColor" strokeWidth="2.45" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M6 34V16c5-3.8 11-3.4 18 1v17c-7-4.3-13-4.5-18 0Z" />
-        <path d="M42 34V16c-5-3.8-11-3.4-18 1v17c7-4.3 13-4.5 18 0Z" />
-        <path d="M14 10c2.1-2.7 5.2-4 10-4s7.9 1.3 10 4M18 9.5c1.4-1.2 3.4-1.8 6-1.8s4.6.6 6 1.8" stroke="#B9D5FF" />
-      </svg>
-    </div>
+    <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663614458043/hYbgxbKxuWdYKBQs.png" alt="" className="size-10 shrink-0 rounded-2xl object-cover shadow-lg shadow-blue-200" />
   );
 }
 
@@ -255,7 +249,7 @@ export default function Home() {
       <main className="mx-auto max-w-5xl px-4 py-7 sm:px-6 sm:py-10">
         {view === "welcome" ? (
           <section className="page-enter mx-auto max-w-3xl py-4 sm:py-10">
-            <div className="worksheet-frame overflow-hidden bg-white">
+            <div className="worksheet-frame book-cover-background overflow-hidden bg-white">
               <div className="grid lg:grid-cols-[1.15fr_0.85fr]">
                 <div className="worksheet-spine px-6 py-8 sm:px-10 sm:py-11">
                   <div className="flex items-center gap-3 text-[#133D76]"><span className="grid size-11 place-items-center rounded-xl border border-blue-200 bg-blue-50"><BookOpen size={21} /></span><p className="text-sm font-extrabold tracking-wide">மீராஸ் பங்கீட்டு பதிவு</p></div>
