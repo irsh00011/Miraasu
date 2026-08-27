@@ -100,3 +100,5 @@ The custom balance-and-fractions mark is the product identity inside every works
 
 - The supplied book cover is a small labelled source reference and the PWA/header icon; it is not used as a decorative full-panel watermark behind worksheet content.
 - The calculator’s own balance-and-fractions mark is the worksheet symbol, with a single restrained warm-gold balance point. Deep Legal Blue remains the only action and navigation colour.
+- Deep Legal Blue is fixed at `#164F86` for primary actions, active steps, headings, and audit lines. Pale blue is limited to quiet explanation surfaces and completed states.
+- Every language uses an editorial wordmark treatment in its own script. The internal calculator symbol is an open ledger with fraction panels and one gold balance point; it is never replaced by a generic scale or legal icon.

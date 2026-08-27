@@ -63,6 +63,59 @@
     background-size: 100% 48px;
   }
 
+  .worksheet-mark {
+    filter: drop-shadow(0 2px 2px oklch(0.31 0.08 256 / 0.14));
+  }
+
+  /* Open ledger with fraction panels: the worksheet's own calculation symbol. */
+  .worksheet-spine > div:first-child > span {
+    border-color: #164F86 !important;
+    background: linear-gradient(135deg, oklch(0.985 0.006 250), oklch(0.94 0.03 246)) !important;
+    box-shadow: inset 0 -2px 0 oklch(0.35 0.12 255 / 0.16);
+  }
+
+  .worksheet-spine > div:first-child > p {
+    position: relative;
+    padding-inline-start: 0.75rem;
+    color: #164F86;
+    font-family: "Source Sans 3", "Noto Sans Tamil", "Noto Naskh Arabic", sans-serif;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+  }
+
+  .worksheet-spine > div:first-child > p::before {
+    position: absolute;
+    inset-inline-start: 0;
+    top: 0.15rem;
+    width: 3px;
+    height: 0.85rem;
+    background: #B8892D;
+    content: "";
+  }
+
+  /* Wordmarks are editorial identifiers, not ordinary navigation labels. */
+  header button > .min-w-0 > p:first-child {
+    color: #102B52;
+    font-family: "Noto Serif Tamil", "Noto Naskh Arabic", "Source Serif 4", serif;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    line-height: 1.05;
+  }
+
+  header button > .min-w-0 > p:nth-child(2) {
+    margin-top: 0.18rem;
+    color: #527094;
+    font-weight: 700;
+    letter-spacing: 0.025em;
+  }
+
+  html[dir="rtl"] header button > .min-w-0 > p:first-child {
+    font-family: "Noto Naskh Arabic", "Noto Serif Tamil", "Source Serif 4", serif;
+    font-size: 1.2rem;
+    letter-spacing: 0;
+  }
+
   .ledger-summary {
     background-image: linear-gradient(90deg, oklch(1 0 0 / 0.06) 1px, transparent 1px), linear-gradient(180deg, oklch(1 0 0 / 0.05) 1px, transparent 1px);
     background-size: 40px 40px;
@@ -108,6 +161,49 @@
   .family-guide {
     border-left: 3px solid oklch(0.46 0.15 256);
   }
+
+  /* Blue rules connect progress, review, and calculation totals into one ledger. */
+  .ledger-panel > p:first-child,
+  .ledger-summary > p:first-child {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: #D9E9FA;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+  }
+
+  .ledger-panel > p:first-child { color: #164F86; }
+
+  .ledger-panel > p:first-child::before,
+  .ledger-summary > p:first-child::before {
+    display: inline-block;
+    width: 0.42rem;
+    height: 0.42rem;
+    border-radius: 999px;
+    background: #B8892D;
+    box-shadow: 0 0 0 3px oklch(0.83 0.07 84 / 0.25);
+    content: "";
+  }
+
+  .worksheet-stages li > span {
+    position: relative;
+    color: #164F86 !important;
+  }
+
+  .worksheet-stages li > span::after {
+    display: block;
+    width: 100%;
+    height: 2px;
+    margin-top: 0.15rem;
+    background: #B8892D;
+    content: "";
+  }
+
+  .bg-\[\#133D76\] { background-color: #164F86 !important; }
+  .text-\[\#133D76\] { color: #164F86 !important; }
+  .border-\[\#133D76\] { border-color: #164F86 !important; }
+  .hover\:bg-\[\#102F5E\]:hover { background-color: #103D69 !important; }
 }
 
 @keyframes page-enter {

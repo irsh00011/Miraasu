@@ -19,14 +19,22 @@ export function HeirCounter({ emoji, label, description, value, onChange, max = 
   const [familySearch, setFamilySearch] = useState("");
 
   useEffect(() => {
-    const updateSearch = (event: Event) => {
-      const target = event.target;
-      if (!(target instanceof HTMLInputElement)) return;
-      const isFamilySearch = target.placeholder.includes("தேடுக") || target.placeholder.includes("Search:") || target.placeholder.includes("ابحث:");
-      if (isFamilySearch) setFamilySearch(target.value.trim().toLocaleLowerCase());
+    const readFamilySearch = () => {
+      const input = Array.from(document.querySelectorAll("input")).find((candidate) => {
+        const placeholder = candidate.placeholder;
+        return placeholder.includes("தேடுக") || placeholder.includes("Search:") || placeholder.includes("ابحث:");
+      });
+      setFamilySearch(input?.value.trim().toLocaleLowerCase() ?? "");
     };
-    document.addEventListener("input", updateSearch);
-    return () => document.removeEventListener("input", updateSearch);
+
+    // Capturing catches keyboard, paste, autofill, and browser-driven input events before any nested component can stop them.
+    document.addEventListener("input", readFamilySearch, true);
+    document.addEventListener("change", readFamilySearch, true);
+    readFamilySearch();
+    return () => {
+      document.removeEventListener("input", readFamilySearch, true);
+      document.removeEventListener("change", readFamilySearch, true);
+    };
   }, []);
 
   const isSearchMatch = !familySearch || `${label} ${description ?? ""}`.toLocaleLowerCase().includes(familySearch);

@@ -15,7 +15,10 @@ try {
   await desktop.getByRole("button", { name: "Father increase", exact: true }).click();
   await desktop.getByLabel("Selected family members").getByText("Father", { exact: false }).waitFor();
   await desktop.getByRole("button", { name: "Father decrease", exact: true }).click();
-  await desktop.getByLabel("Search family relationships").fill("");
+  await desktop.getByLabel("Search family relationships").fill("not a relationship");
+  await desktop.getByRole("status").getByText("No book-family relationship matches this search", { exact: false }).waitFor();
+  await desktop.getByRole("button", { name: "Clear search", exact: true }).click();
+  await desktop.getByRole("button", { name: "Distant relatives", exact: true }).waitFor();
   await desktop.getByRole("button", { name: "Descendants through sons" }).last().click();
   await desktop.getByLabel("Search family relationships").fill("Sons of sons");
   await desktop.getByRole("button", { name: "Sons of sons increase" }).click();

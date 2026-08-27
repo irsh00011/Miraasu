@@ -1,6 +1,6 @@
 /** Design: Full book-family coverage in short, labeled groups; every extended selection leads to a visible review state. */
 /** Design: Ledger of Justice — a numbered family map and short, visibly classified relationship cards for first-time users. */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ARABIC_EXTENDED_COPY, ARABIC_SECTION_COPY, EXTENDED_HEIR_SECTIONS, VERIFIED_EXTENDED_KEYS, type AppLanguage, type ExtendedHeirKey, type HeirInput } from "@/lib/inheritance";
 import { AsabaGuide } from "@/components/AsabaGuide";
 import { HeirCounter } from "@/components/HeirCounter";
@@ -17,6 +17,10 @@ type BookFamilySectionsProps = {
 export function BookFamilySections({ heirs, onChange, query, onReset, language = "ta" }: BookFamilySectionsProps) {
   const normalizedQuery = query.trim().toLocaleLowerCase();
   const [activeSection, setActiveSection] = useState<string>("all");
+  useEffect(() => {
+    // A cleared search must always restore the complete book-family list, not leave a previous category hiding it.
+    if (!normalizedQuery) setActiveSection("all");
+  }, [normalizedQuery]);
   const familyMap = language === "en" ? [["1", "Spouse", "Choose husband or wife/wives"], ["2", "Children & parents", "Add close family first"], ["3", "Grandparents & siblings", "Add anyone alive"], ["4", "Book relatives", "Automatic rule or review is shown"]] : language === "ar" ? [["1", "الزوج أو الزوجة", "اختر الزوج أو الزوجة"], ["2", "الأبناء والوالدان", "أضف العائلة القريبة أولاً"], ["3", "الأجداد والإخوة", "أضف من هو حي"], ["4", "أقارب الكتاب", "ستظهر القاعدة أو المراجعة"]] : [["1", "துணைவர்", "கணவன் அல்லது மனைவியைத் தேர்வு செய்க"], ["2", "பிள்ளைகள் மற்றும் பெற்றோர்", "நெருங்கிய குடும்பத்தை முதலில் சேர்க்கவும்"], ["3", "தாத்தா, பாட்டி மற்றும் உடன்பிறந்தோர்", "உயிருடன் இருப்பவர்களைச் சேர்க்கவும்"], ["4", "புத்தக உறவுகள்", "விதி அல்லது உறுதிப்படுத்தல் காட்டப்படும்"]];
   const sections = EXTENDED_HEIR_SECTIONS
     .map((section) => ({
@@ -24,10 +28,18 @@ export function BookFamilySections({ heirs, onChange, query, onReset, language =
       items: section.items.filter((item) => !normalizedQuery || `${section.title} ${section.helper} ${section.titleEn} ${section.helperEn} ${item.label} ${item.description} ${item.labelEn} ${item.descriptionEn} ${ARABIC_EXTENDED_COPY[item.key].label} ${ARABIC_EXTENDED_COPY[item.key].description}`.toLocaleLowerCase().includes(normalizedQuery)),
     }))
     .filter((section) => section.items.length > 0 && (normalizedQuery.length > 0 || activeSection === "all" || section.titleEn === activeSection));
-
-  if (sections.length === 0) {
-    return <p className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-center text-sm text-slate-500">{language === "en" ? "No relationship matches this search." : language === "ar" ? "لا توجد قرابة مطابقة لهذا البحث." : "இந்தத் தேடலுக்கு பொருத்தமான உறவு இல்லை."}</p>;
-  }
+  const clearSearch = () => {
+    const input = Array.from(document.querySelectorAll("input")).find((candidate) => {
+      const placeholder = candidate.placeholder;
+      return placeholder.includes("தேடுக") || placeholder.includes("Search:") || placeholder.includes("ابحث:");
+    });
+    if (!input) return;
+    const setValue = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")?.set;
+    setValue?.call(input, "");
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    input.focus();
+    setActiveSection("all");
+  };
 
   return (
     <div className="space-y-7">
@@ -35,8 +47,8 @@ export function BookFamilySections({ heirs, onChange, query, onReset, language =
         {familyMap.map(([number, title, helper]) => <div key={number} className="flex min-h-16 items-center gap-3 border border-blue-100 bg-blue-50/60 px-3 py-2"><span className="grid size-7 shrink-0 place-items-center rounded-full bg-[#133D76] text-xs font-bold text-white">{number}</span><div><p className="text-sm font-extrabold text-[#133D76]">{title}</p><p className="mt-0.5 text-[11px] leading-4 text-slate-500">{helper}</p></div></div>)}
       </div>
       <AsabaGuide language={language} />
-      <div className="border-y border-slate-100 py-3"><p className="text-xs font-bold text-slate-500">{language === "en" ? "Choose a book-family group" : language === "ar" ? "اختر مجموعة من أقارب الكتاب" : "புத்தக உறவுக் குழுவைத் தேர்வு செய்க"}</p><div className="mt-2 flex flex-wrap gap-2"><button type="button" onClick={() => setActiveSection("all")} className={`min-h-10 rounded-xl border px-3 text-xs font-bold ${activeSection === "all" ? "border-[#133D76] bg-[#133D76] text-white" : "border-blue-100 bg-white text-[#133D76] hover:bg-blue-50"}`}>{language === "en" ? "All groups" : language === "ar" ? "كل المجموعات" : "அனைத்துக் குழுக்கள்"}</button>{EXTENDED_HEIR_SECTIONS.map((section) => { const title = language === "en" ? section.titleEn : language === "ar" ? ARABIC_SECTION_COPY[section.titleEn].title : section.title; const active = activeSection === section.titleEn; return <button key={section.titleEn} type="button" onClick={() => setActiveSection(section.titleEn)} className={`min-h-10 rounded-xl border px-3 text-xs font-bold ${active ? "border-[#133D76] bg-[#133D76] text-white" : "border-blue-100 bg-white text-[#133D76] hover:bg-blue-50"}`}>{title}</button>; })}</div></div>
-      {sections.map((section) => {
+      <div className="border-y border-slate-100 py-3"><div className="flex flex-wrap items-center justify-between gap-2"><p className="text-xs font-bold text-slate-500">{language === "en" ? "Choose a book-family group" : language === "ar" ? "اختر مجموعة من أقارب الكتاب" : "புத்தக உறவுக் குழுவைத் தேர்வு செய்க"}</p>{normalizedQuery ? <button type="button" onClick={clearSearch} className="min-h-9 rounded-lg border border-blue-100 bg-white px-2.5 text-xs font-extrabold text-[#133D76] hover:bg-blue-50">{language === "en" ? "Clear search" : language === "ar" ? "مسح البحث" : "தேடலை அழி"}</button> : null}</div><div className="mt-2 flex flex-wrap gap-2"><button type="button" onClick={() => setActiveSection("all")} className={`min-h-10 rounded-xl border px-3 text-xs font-bold ${activeSection === "all" ? "border-[#133D76] bg-[#133D76] text-white" : "border-blue-100 bg-white text-[#133D76] hover:bg-blue-50"}`}>{language === "en" ? "All groups" : language === "ar" ? "كل المجموعات" : "அனைத்துக் குழுக்கள்"}</button>{EXTENDED_HEIR_SECTIONS.map((section) => { const title = language === "en" ? section.titleEn : language === "ar" ? ARABIC_SECTION_COPY[section.titleEn].title : section.title; const active = activeSection === section.titleEn; return <button key={section.titleEn} type="button" onClick={() => setActiveSection(section.titleEn)} className={`min-h-10 rounded-xl border px-3 text-xs font-bold ${active ? "border-[#133D76] bg-[#133D76] text-white" : "border-blue-100 bg-white text-[#133D76] hover:bg-blue-50"}`}>{title}</button>; })}</div></div>
+      {sections.length === 0 ? <p role="status" className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-center text-sm text-slate-500">{language === "en" ? "No book-family relationship matches this search. Clear the search to see every group again." : language === "ar" ? "لا توجد قرابة من أقارب الكتاب مطابقة للبحث. امسح البحث لرؤية كل المجموعات مرة أخرى." : "புத்தக உறவுகளில் இந்தத் தேடலுக்கு பொருத்தம் இல்லை. தேடலை அழித்தால் எல்லாக் குழுக்களும் மீண்டும் தெரியும்."}</p> : sections.map((section) => {
         const automated = section.items.filter((item) => VERIFIED_EXTENDED_KEYS.has(item.key)).length;
         const reviewOnly = section.items.length - automated;
         const sectionArabic = ARABIC_SECTION_COPY[section.titleEn];

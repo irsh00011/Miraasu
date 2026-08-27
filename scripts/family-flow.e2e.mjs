@@ -20,7 +20,10 @@ try {
   await desktop.getByRole("button", { name: "அப்பா அதிகரிக்க", exact: true }).click();
   await desktop.getByLabel("தேர்ந்தெடுத்த குடும்ப உறுப்பினர்கள்").getByText("அப்பா", { exact: false }).waitFor();
   await desktop.getByRole("button", { name: "அப்பா குறைக்க", exact: true }).click();
-  await desktop.getByLabel("குடும்ப உறவைத் தேடுக").fill("");
+  await desktop.getByLabel("குடும்ப உறவைத் தேடுக").fill("இல்லாத உறவு");
+  await desktop.getByRole("status").getByText("புத்தக உறவுகளில் இந்தத் தேடலுக்கு பொருத்தம் இல்லை", { exact: false }).waitFor();
+  await desktop.getByRole("button", { name: "தேடலை அழி", exact: true }).click();
+  await desktop.getByRole("button", { name: "தூரத்து உறவினர்கள்", exact: true }).waitFor();
   await desktop.getByRole("button", { name: "மகன் வழி சந்ததியினர்" }).last().click();
   await desktop.getByLabel("குடும்ப உறவைத் தேடுக").fill("மகனின் மகன்கள்");
   await desktop.getByRole("button", { name: "மகனின் மகன்கள் அதிகரிக்க" }).click();

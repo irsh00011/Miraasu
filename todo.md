@@ -130,6 +130,13 @@
 - [x] Automate only the fully source-verified paternal-uncle residue path; preserve explicit review for any unresolved precedence case.
 - [x] Add unit and browser tests for eligible, blocked, and review-only uncle-line scenarios; publish the verified update.
 
+## Multilingual search repair
+
+- [x] Reproduce the reported empty-search behavior after category changes in Tamil, English, and Arabic.
+- [x] Ensure search always scans all relationship groups rather than being restricted by the last selected category.
+- [x] Add a visible clear-search action and restore the complete family list after clearing a query.
+- [x] Add browser regressions for close and extended relationships in Tamil, English, and Arabic; publish the verified repair.
+
 ## ‘Asaba structure update
 
 - [ ] Add the four degree headings for ‘Asaba bi-nafsihi: descendants, ascendants, same-parent/father collaterals, and uncles.

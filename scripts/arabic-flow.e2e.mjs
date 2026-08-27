@@ -17,7 +17,10 @@ try {
   await page.getByRole("button", { name: "الأم زيادة", exact: true }).click();
   await page.getByLabel("أفراد العائلة المختارون").getByText("الأم", { exact: false }).waitFor();
   await page.getByRole("button", { name: "الأم إنقاص", exact: true }).click();
-  await page.getByLabel("البحث عن قرابة").fill("");
+  await page.getByLabel("البحث عن قرابة").fill("قرابة غير موجودة");
+  await page.getByRole("status").getByText("لا توجد قرابة من أقارب الكتاب مطابقة للبحث", { exact: false }).waitFor();
+  await page.getByRole("button", { name: "مسح البحث", exact: true }).click();
+  await page.getByRole("button", { name: "ذوو الأرحام", exact: true }).waitFor();
   await page.getByRole("button", { name: "الأبناء زيادة" }).click();
   await page.getByLabel("أفراد العائلة المختارون").getByText("الأبناء", { exact: false }).waitFor();
   await page.screenshot({ path: "/home/ubuntu/screenshots/arabic-family-mobile.png", fullPage: true });
