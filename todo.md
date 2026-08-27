@@ -52,6 +52,12 @@
 - [x] Ensure browser history remains local and usable across both language versions.
 - [x] Validate the complete English and Tamil experience on desktop and mobile.
 
+## Direct English duplicate
+
+- [x] Compare the Tamil and English routes for every visible screen and action.
+- [x] Align any English route feature or layout that differs from the Tamil route.
+- [x] Validate that the English route mirrors the Tamil journey while using English text only.
+
 ## Source-book family structure
 
 - [ ] Extract every heir category and relationship group stated in the supplied book.

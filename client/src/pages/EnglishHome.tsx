@@ -67,7 +67,11 @@ export default function EnglishHome() {
   const allocatedAmount = result.allocations.reduce((total, item) => total + result.netEstate * fractionToNumber(item.share), 0);
   const heldAmount = result.netEstate * fractionToNumber(result.unallocatedShare);
 
-  useEffect(() => setHistory(readCalculationHistory()), []);
+  useEffect(() => {
+    document.documentElement.lang = "en";
+    document.title = "Mīrāth Calculator | English";
+    setHistory(readCalculationHistory());
+  }, []);
   const updateEstate = (key: keyof EstateInput, value: number) => setEstate((current) => ({ ...current, [key]: Math.max(0, value) }));
   const updateHeir = (key: keyof HeirInput, value: number) => setHeirs((current) => ({ ...current, [key]: Math.max(0, value) }));
   const resetHeirKeys = (keys: (keyof HeirInput)[]) => setHeirs((current) => Object.fromEntries(Object.entries(current).map(([key, value]) => [key, keys.includes(key as keyof HeirInput) ? 0 : value])) as HeirInput);
