@@ -26,7 +26,7 @@ const formatDate = (value: string) => new Intl.DateTimeFormat("en-IN", { day: "n
 const labels: Record<string, string> = { husband: "Husband", wives: "Wife / wives", mother: "Mother", father: "Father", paternalGrandfather: "Father’s father", sons: "Sons", daughters: "Daughters", fullBrothers: "Full brothers", fullSisters: "Full sisters", maternalBrothers: "Maternal half-brothers", maternalSisters: "Maternal half-sisters" };
 
 function BrandMark() {
-  return <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663614458043/hYbgxbKxuWdYKBQs.png" alt="" className="size-10 shrink-0 rounded-2xl object-cover shadow-lg shadow-blue-200" />;
+  return <img src="/book-cover-icon-192.png" alt="" className="size-10 shrink-0 rounded-2xl object-cover shadow-lg shadow-blue-200" />;
 }
 
 function StepProgress({ step, onBack }: { step: Step; onBack: (step: Step) => void }) {

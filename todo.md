@@ -71,6 +71,12 @@
 - [x] Add a subtle, readable book-cover-inspired background to the welcome screens.
 - [x] Replace PWA install icons and validate the new visual treatment on desktop and mobile.
 
+## Exact book-cover icon
+
+- [x] Use the supplied book-cover image as the header icon on both language routes.
+- [x] Use the supplied book-cover image as the PWA installation icon and favicon.
+- [x] Verify the exact book-cover icon is readable in the website header and install metadata.
+
 ## Source-book family structure
 
 - [ ] Extract every heir category and relationship group stated in the supplied book.

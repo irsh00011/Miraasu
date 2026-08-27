@@ -88,7 +88,7 @@ const formatDate = (value: string) => new Intl.DateTimeFormat("ta-IN", { day: "n
 
 function BrandMark() {
   return (
-    <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663614458043/hYbgxbKxuWdYKBQs.png" alt="" className="size-10 shrink-0 rounded-2xl object-cover shadow-lg shadow-blue-200" />
+    <img src="/book-cover-icon-192.png" alt="" className="size-10 shrink-0 rounded-2xl object-cover shadow-lg shadow-blue-200" />
   );
 }
 
