@@ -1,6 +1,6 @@
 import { chromium } from "playwright";
 
-const productionUrl = "https://miraasu-irshad-s-projects3.vercel.app";
+const productionUrl = "https://miraasu.vercel.app";
 const browser = await chromium.launch({ headless: true });
 
 try {
@@ -22,7 +22,13 @@ try {
     throw new Error("PWA manifest is missing standalone display mode or the required installation icon.");
   }
 
-  console.log("Production PWA verified: HTTPS, manifest, installation icon, and active service worker are present.");
+  await page.getByRole("heading", { name: "சொத்துப் பங்கீட்டின் காரணத்தைத் தெளிவாகப் பாருங்கள்" }).waitFor();
+  const englishPage = await browser.newPage();
+  await englishPage.goto(`${productionUrl}/en`, { waitUntil: "networkidle" });
+  await englishPage.getByRole("heading", { name: "See the reason behind every inheritance share." }).waitFor();
+  await englishPage.close();
+
+  console.log("Production PWA verified: stable HTTPS routes, Tamil and English pages, manifest, installation icon, and active service worker are present.");
 } finally {
   await browser.close();
 }
