@@ -57,7 +57,7 @@ Source lines: 843–918.
 | Paternal sister(s) | One only. | 1/2 | 1189–1192 |
 | Paternal sister(s) | Two or more only. | 2/3 collectively | 1193–1196 |
 | Paternal sister(s) | With one full sister. | 1/6 | 1197–1200 |
-| Paternal brother + sister | Residue. | 2:1 male:female | 1201–1203 |
+| Paternal brother + sister | Residue. | 2:1 male:female when no son-line descendant, father, paternal grandfather, or full sibling is selected. Other combinations remain visibly qualified for review. | 1201–1203; 1207–1230 |
 | Paternal sister(s) | Son, son-line male descendant, father, qualifying full sibling, or two+ full sisters. | Blocked | 1207–1226 |
 | Grandmother(s) | Mother absent, subject to nearer-parent/grandparent conditions. | 1/6 | 1305–1320 |
 

@@ -137,6 +137,21 @@
 - [x] Add a visible clear-search action and restore the complete family list after clearing a query.
 - [x] Add browser regressions for close and extended relationships in Tamil, English, and Arabic; publish the verified repair.
 
+## Photographed Arabic rule-table audit
+
+- [x] Extract every visible condition and fraction from the photographed father, paternal-grandfather, and mother tables without relying on unreadable image assumptions.
+- [x] Extract the readable full-sister, paternal-sister, grandmother, father, and paternal-grandfather conditions from the additional photographed tables.
+- [x] Compare each photographed rule against the current audited engine and rule matrix; label it as already supported, missing, or scholar-reviewed.
+- [x] Implement only clearly verified missing conditions and show their explanations in Tamil, English, and Arabic.
+- [x] Add exact-fraction regressions for each automated photographed-table rule and browser checks for the explanatory labels.
+- [ ] Publish the validated audit update with a simple coverage summary.
+
+## Direct photographed-table inclusion
+
+- [x] Add each readable missing photographed-table relationship and condition directly to the family selector and rule guide.
+- [x] Convert complete photographed-table conditions from broad review-only status into automatic calculation paths where corroborated by the supplied book source.
+- [x] Limit scholar-review labels to the precise photographed interpretation-difference cases, rather than applying them to an entire family category.
+
 ## ‘Asaba structure update
 
 - [ ] Add the four degree headings for ‘Asaba bi-nafsihi: descendants, ascendants, same-parent/father collaterals, and uncles.

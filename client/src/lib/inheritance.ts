@@ -96,7 +96,7 @@ export const EXTENDED_HEIR_SECTIONS: ExtendedHeirSection[] = [
     titleEn: "Paternal siblings and sibling descendants",
     helperEn: "Siblings through the father and the next generation of siblings.",
     items: [
-      { key: "paternalBrothers", emoji: "👨", label: "தந்தை வழி சகோதரர்கள்", description: "தந்தை ஒரேவர்; தாய் வேறாக இருக்கலாம்.", labelEn: "Paternal half-brothers", descriptionEn: "Same father; may have a different mother." },
+      { key: "paternalBrothers", emoji: "👨", label: "தந்தை வழி சகோதரர்கள்", description: "தந்தை வழி சகோதரியுடன், நெருங்கிய தடை இல்லாதபோது 2:1 விதி.", labelEn: "Paternal half-brothers", descriptionEn: "With a paternal half-sister, 2:1 applies when no closer listed heir blocks it." },
       { key: "paternalSisters", emoji: "👩", label: "தந்தை வழி சகோதரிகள்", description: "தந்தை ஒரேவர்; தாய் வேறாக இருக்கலாம்.", labelEn: "Paternal half-sisters", descriptionEn: "Same father; may have a different mother." },
       { key: "fullBrothersSons", emoji: "👦", label: "உடன்பிறந்த சகோதரரின் மகன்கள்", description: "உடன்பிறந்த சகோதரரின் ஆண் பிள்ளைகள்.", labelEn: "Sons of full brothers", descriptionEn: "Male children of full brothers." },
       { key: "paternalBrothersSons", emoji: "👦", label: "தந்தை வழி சகோதரரின் மகன்கள்", description: "தந்தை வழி சகோதரரின் ஆண் பிள்ளைகள்.", labelEn: "Sons of paternal half-brothers", descriptionEn: "Male children of paternal half-brothers." },
@@ -149,7 +149,7 @@ export const ARABIC_EXTENDED_COPY: Record<ExtendedHeirKey, { label: string; desc
   paternalGrandmothers: { label: "جدة الأب", description: "أم الأب." },
   maternalGrandmothers: { label: "جدة الأم", description: "أم الأم." },
   furtherPaternalAncestors: { label: "أصول أبعد من جهة الأب", description: "أجداد أبعد من خط الأب." },
-  paternalBrothers: { label: "إخوة لأب", description: "يشتركون في الأب وقد تختلف الأم." },
+  paternalBrothers: { label: "إخوة لأب", description: "مع الأخت لأب: 2:1 عند عدم وجود وارث أقرب حاجب." },
   paternalSisters: { label: "أخوات لأب", description: "يشتركن في الأب وقد تختلف الأم." },
   fullBrothersSons: { label: "أبناء الإخوة الأشقاء", description: "الأبناء الذكور للإخوة الأشقاء." },
   paternalBrothersSons: { label: "أبناء الإخوة لأب", description: "الأبناء الذكور للإخوة لأب." },
@@ -549,10 +549,9 @@ function calculateAuditedInheritance(estate: EstateInput, heirs: HeirInput): Cal
   const remainder: Allocation[] = [];
   const exclusions: Exclusion[] = [];
   const notices: string[] = [];
-  const selectedExtendedHeirs = getSelectedExtendedHeirs(heirs);
-  const selectedReviewOnlyHeirs = getSelectedReviewOnlyHeirs(heirs);
   const sonsSons = heirs.sonsSons ?? 0;
   const sonsDaughters = heirs.sonsDaughters ?? 0;
+  const paternalBrothers = heirs.paternalBrothers ?? 0;
   const paternalSisters = heirs.paternalSisters ?? 0;
   const paternalGrandmothers = heirs.paternalGrandmothers ?? 0;
   const maternalGrandmothers = heirs.maternalGrandmothers ?? 0;
@@ -561,8 +560,12 @@ function calculateAuditedInheritance(estate: EstateInput, heirs: HeirInput): Cal
   const hasFemaleSonLineDescendant = heirs.daughters > 0 || sonsDaughters > 0;
   const hasAnyDescendant = hasMaleSonLineDescendant || hasFemaleSonLineDescendant;
   const hasSpouse = heirs.husband > 0 || heirs.wives > 0;
-  const siblingCount = heirs.fullBrothers + heirs.fullSisters + heirs.maternalBrothers + heirs.maternalSisters + (heirs.paternalBrothers ?? 0) + paternalSisters;
-  const grandfatherSiblingDifference = heirs.paternalGrandfather > 0 && (heirs.fullBrothers + heirs.fullSisters + (heirs.paternalBrothers ?? 0) + paternalSisters > 0);
+  const fullSiblingCount = heirs.fullBrothers + heirs.fullSisters;
+  const paternalSiblingPairEligible = paternalBrothers > 0 && paternalSisters > 0 && !hasAnyDescendant && heirs.father === 0 && heirs.paternalGrandfather === 0 && fullSiblingCount === 0;
+  const selectedExtendedHeirs = getSelectedExtendedHeirs(heirs);
+  const selectedReviewOnlyHeirs = getSelectedReviewOnlyHeirs(heirs).filter((item) => item.key !== "paternalBrothers" || !paternalSiblingPairEligible);
+  const siblingCount = fullSiblingCount + heirs.maternalBrothers + heirs.maternalSisters + paternalBrothers + paternalSisters;
+  const grandfatherSiblingDifference = heirs.paternalGrandfather > 0 && (fullSiblingCount + paternalBrothers + paternalSisters > 0);
 
   if (grossEstate === 0) notices.push("சொத்து மதிப்பை உள்ளிடவும்.");
   if (grossEstate > 0 && funeralCosts + debts >= grossEstate) notices.push("செலவுகள் மற்றும் கடன்கள் காரணமாகப் பகிரக்கூடிய சொத்து இல்லை.");
@@ -629,7 +632,6 @@ function calculateAuditedInheritance(estate: EstateInput, heirs: HeirInput): Cal
     if (heirs.maternalSisters > 0) fixed.push(allocation("maternalSisters", "தாய் வழி சகோதரி", heirs.maternalSisters, multiply(maternalTotal, fraction(heirs.maternalSisters, maternalCount)), maternalCount === 1 ? "ஒரு தாய் வழி சகோதரி; பங்கு 1/6." : "தாய் வழி சகோதரர்/சகோதரிகளின் மொத்தப் பங்கு 1/3; சமமாகப் பகிரப்படும்.", "fixed"));
   }
 
-  const fullSiblingCount = heirs.fullBrothers + heirs.fullSisters;
   const fullSiblingsEligible = fullSiblingCount > 0 && heirs.father === 0 && heirs.paternalGrandfather === 0 && !hasMaleSonLineDescendant;
   if (fullSiblingCount > 0 && !fullSiblingsEligible) exclusions.push({ label: "உடன் பிறந்த சகோதரர் / சகோதரி", reason: hasMaleSonLineDescendant ? "மகன் அல்லது மகன் வழி ஆண் சந்ததியினர் இருப்பதால் உடன்பிறந்த சகோதரர்களுக்கு பங்கு இல்லை." : "தந்தை அல்லது தந்தையின் தந்தை இருப்பதால் உடன்பிறந்த சகோதரர்களுக்கு பங்கு இல்லை." });
   else if (fullSiblingsEligible) {
@@ -638,11 +640,13 @@ function calculateAuditedInheritance(estate: EstateInput, heirs: HeirInput): Cal
     else if (heirs.fullSisters > 1) fixed.push(allocation("fullSisters", "உடன் பிறந்த சகோதரிகள்", heirs.fullSisters, fraction(2, 3), "இரண்டு அல்லது அதற்கு மேற்பட்ட உடன்பிறந்த சகோதரிகள்; மொத்தப் பங்கு 2/3.", "fixed"));
   }
 
+  let paternalSiblingsGetRemainder = false;
   const paternalSisterEligible = paternalSisters > 0 && !hasMaleSonLineDescendant && heirs.father === 0 && heirs.paternalGrandfather === 0;
   if (paternalSisters > 0 && !paternalSisterEligible) exclusions.push({ label: "தந்தை வழி சகோதரி", reason: hasMaleSonLineDescendant ? "மகன் அல்லது மகன் வழி ஆண் சந்ததியினர் இருப்பதால் தந்தை வழி சகோதரிக்கு பங்கு இல்லை." : "தந்தை அல்லது தந்தையின் தந்தை இருப்பதால் இவ்வமைப்பில் தானியங்கி முடிவு இல்லை." });
   else if (paternalSisterEligible) {
-    if (heirs.fullBrothers > 0 || fullSiblingsGetRemainder || heirs.fullSisters >= 2) exclusions.push({ label: "தந்தை வழி சகோதரி", reason: "தகுதியுள்ள உடன்பிறந்த சகோதரர் அல்லது சகோதரி இருப்பதால் தந்தை வழி சகோதரிக்கு பங்கு இல்லை." });
-    else if ((heirs.paternalBrothers ?? 0) > 0) notices.push("தந்தை வழி சகோதரர் மற்றும் சகோதரி தேர்வு செய்யப்பட்டுள்ளனர்; இந்த மீதப்பங்கு அமைப்பு அறிஞர் உறுதிப்படுத்தலுடன் கணக்கிடப்பட வேண்டும்.");
+    if (paternalSiblingPairEligible) paternalSiblingsGetRemainder = true;
+    else if (heirs.fullBrothers > 0 || fullSiblingsGetRemainder || heirs.fullSisters >= 2) exclusions.push({ label: "தந்தை வழி சகோதரி", reason: "தகுதியுள்ள உடன்பிறந்த சகோதரர் அல்லது சகோதரி இருப்பதால் தந்தை வழி சகோதரிக்கு பங்கு இல்லை." });
+    else if (paternalBrothers > 0) notices.push("தந்தை வழி சகோதரர் மற்றும் சகோதரி தேர்வு செய்யப்பட்டுள்ளனர். இந்த அட்டவணையில் குறிப்பிடாத நெருக்கமான வாரிசு அமைப்பு இருப்பதால் அறிஞர் உறுதிப்படுத்தல் தேவை.");
     else if (hasFemaleSonLineDescendant) paternalSistersGetRemainder = true;
     else if (heirs.fullSisters === 1) fixed.push(allocation("paternalSisters", "தந்தை வழி சகோதரி", paternalSisters, fraction(1, 6), "ஒரு உடன்பிறந்த சகோதரியுடன் இருப்பதால் தந்தை வழி சகோதரிகளின் மொத்தப் பங்கு 1/6.", "fixed"));
     else fixed.push(allocation("paternalSisters", "தந்தை வழி சகோதரி", paternalSisters, paternalSisters === 1 ? fraction(1, 2) : fraction(2, 3), paternalSisters === 1 ? "ஒரு தந்தை வழி சகோதரி மட்டும்; பங்கு 1/2." : "இரண்டு அல்லது அதற்கு மேற்பட்ட தந்தை வழி சகோதரிகள்; மொத்தப் பங்கு 2/3.", "fixed"));
@@ -674,6 +678,10 @@ function calculateAuditedInheritance(estate: EstateInput, heirs: HeirInput): Cal
       const units = heirs.fullBrothers * 2 + heirs.fullSisters;
       if (heirs.fullBrothers > 0) remainder.push(allocation("fullBrothers", "உடன் பிறந்த சகோதரர்", heirs.fullBrothers, multiply(availableRemainder, fraction(heirs.fullBrothers * 2, units)), "மீதமான சொத்தில் சகோதரருக்கு இரண்டு பங்கு.", "remainder"));
       if (heirs.fullSisters > 0) remainder.push(allocation("fullSisters", "உடன் பிறந்த சகோதரி", heirs.fullSisters, multiply(availableRemainder, fraction(heirs.fullSisters, units)), heirs.fullBrothers > 0 ? "மீதமான சொத்தில் சகோதரிக்கு ஒரு பங்கு." : "மகள் அல்லது மகன் வழி மகளுடன் இருப்பதால் மீதமான பங்கு உடன்பிறந்த சகோதரிக்கு செல்கிறது.", "remainder"));
+    } else if (paternalSiblingsGetRemainder) {
+      const units = paternalBrothers * 2 + paternalSisters;
+      remainder.push(allocation("paternalBrothers", "தந்தை வழி சகோதரர்", paternalBrothers, multiply(availableRemainder, fraction(paternalBrothers * 2, units)), "தந்தை வழி சகோதரியுடன் இருப்பதால் மீதமான சொத்தில் சகோதரருக்கு இரண்டு பங்கு.", "remainder"));
+      remainder.push(allocation("paternalSisters", "தந்தை வழி சகோதரி", paternalSisters, multiply(availableRemainder, fraction(paternalSisters, units)), "தந்தை வழி சகோதரருடன் இருப்பதால் மீதமான சொத்தில் சகோதரிக்கு ஒரு பங்கு.", "remainder"));
     } else if (paternalSistersGetRemainder) remainder.push(allocation("paternalSisters", "தந்தை வழி சகோதரி", paternalSisters, availableRemainder, "மகள் அல்லது மகன் வழி மகளுடன் இருப்பதால் மீதமான பங்கு தந்தை வழி சகோதரிக்கு செல்கிறது.", "remainder"));
   }
 

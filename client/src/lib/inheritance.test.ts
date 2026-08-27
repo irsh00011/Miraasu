@@ -92,6 +92,22 @@ describe("ordinary inheritance calculation", () => {
     expect(totalShare(result)).toBeCloseTo(1, 12);
   });
 
+  it("automatically splits the estate 2:1 between a paternal brother and paternal sister when no closer listed heir is present", () => {
+    const result = calculateInheritance(estate(), heirs({ paternalBrothers: 1, paternalSisters: 1 }));
+
+    expect(result.requiresScholarReview).toBe(false);
+    expect(shareFor("paternalBrothers", result)).toBe("2/3");
+    expect(shareFor("paternalSisters", result)).toBe("1/3");
+    expect(exactAllocationTotal(result)).toBe("1");
+  });
+
+  it("keeps a paternal-sibling pair reviewable when a full sister creates an unlisted precedence combination", () => {
+    const result = calculateInheritance(estate(), heirs({ fullSisters: 1, paternalBrothers: 1, paternalSisters: 1 }));
+
+    expect(result.requiresScholarReview).toBe(true);
+    expect(result.selectedReviewOnlyHeirs.map((item) => item.key)).toContain("paternalBrothers");
+  });
+
   it("keeps the three-daughter Qur’anic fixed share visible before any applicable redistribution", () => {
     const result = calculateInheritance(estate(), heirs({ father: 1, daughters: 3 }));
 

@@ -25,7 +25,7 @@ const money = (value: number) => new Intl.NumberFormat("en-IN", { style: "curren
 const percentage = (value: number) => `${(value * 100).toLocaleString("en-IN", { maximumFractionDigits: 2 })}%`;
 const heirCount = (heirs: HeirInput) => Object.values(heirs).reduce((total, item) => total + item, 0);
 const formatDate = (value: string) => new Intl.DateTimeFormat("en-IN", { day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(value));
-const labels: Record<string, string> = { husband: "Husband", wives: "Wife / wives", mother: "Mother", father: "Father", paternalGrandfather: "Father’s father", sons: "Sons", daughters: "Daughters", sonsSons: "Sons of sons", sonsDaughters: "Daughters of sons", paternalGrandmothers: "Father’s mother", maternalGrandmothers: "Mother’s mother", fullBrothers: "Full brothers", fullSisters: "Full sisters", paternalSisters: "Paternal half-sisters", maternalBrothers: "Maternal half-brothers", maternalSisters: "Maternal half-sisters" };
+const labels: Record<string, string> = { husband: "Husband", wives: "Wife / wives", mother: "Mother", father: "Father", paternalGrandfather: "Father’s father", sons: "Sons", daughters: "Daughters", sonsSons: "Sons of sons", sonsDaughters: "Daughters of sons", paternalGrandmothers: "Father’s mother", maternalGrandmothers: "Mother’s mother", fullBrothers: "Full brothers", fullSisters: "Full sisters", paternalBrothers: "Paternal half-brothers", paternalSisters: "Paternal half-sisters", maternalBrothers: "Maternal half-brothers", maternalSisters: "Maternal half-sisters" };
 
 function BrandMark() {
   return <img src="/book-cover-icon-192.png" alt="" className="size-10 shrink-0 rounded-2xl object-cover shadow-lg shadow-blue-200" />;
