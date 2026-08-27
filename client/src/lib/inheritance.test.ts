@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { calculateInheritance, fractionToText, type EstateInput, type HeirInput } from "./inheritance";
+import { calculateInheritance, fraction, fractionToText, type EstateInput, type HeirInput } from "./inheritance";
 
 const estate = (overrides: Partial<EstateInput> = {}): EstateInput => ({
   grossEstate: 15000,
@@ -30,7 +30,51 @@ const shareFor = (key: string, result = calculateInheritance(estate(), heirs()))
 const totalShare = (result: ReturnType<typeof calculateInheritance>) =>
   result.allocations.reduce((total, item) => total + item.share.n / item.share.d, 0) + result.unallocatedShare.n / result.unallocatedShare.d;
 
+const exactAllocationTotal = (result: ReturnType<typeof calculateInheritance>) => {
+  const total = result.allocations.reduce(
+    (current, item) => ({ n: current.n * item.share.d + item.share.n * current.d, d: current.d * item.share.d }),
+    { n: 0, d: 1 },
+  );
+  return fractionToText(fraction(total.n, total.d));
+};
+
 describe("ordinary inheritance calculation", () => {
+  it("reconciles a comprehensive automatic family case: two wives, mother, father, two sons, and one daughter", () => {
+    const result = calculateInheritance(
+      estate({ grossEstate: 120000 }),
+      heirs({ wives: 2, mother: 1, father: 1, sons: 2, daughters: 1 }),
+    );
+    const valueFor = (key: string) => {
+      const share = result.allocations.find((item) => item.key === key)?.share ?? { n: 0, d: 1 };
+      return result.netEstate * share.n / share.d;
+    };
+
+    expect(result.requiresScholarReview).toBe(false);
+    expect(shareFor("wives", result)).toBe("1/8");
+    expect(shareFor("mother", result)).toBe("1/6");
+    expect(shareFor("father", result)).toBe("1/6");
+    expect(shareFor("sons", result)).toBe("13/30");
+    expect(shareFor("daughters", result)).toBe("13/120");
+    expect(valueFor("wives")).toBe(15000);
+    expect(valueFor("mother")).toBe(20000);
+    expect(valueFor("father")).toBe(20000);
+    expect(valueFor("sons")).toBe(52000);
+    expect(valueFor("daughters")).toBe(13000);
+    expect(exactAllocationTotal(result)).toBe("1");
+  });
+
+  it("keeps the same core calculation visible but requires review when a consanguine paternal uncle is added", () => {
+    const result = calculateInheritance(
+      estate({ grossEstate: 120000 }),
+      heirs({ wives: 2, mother: 1, father: 1, sons: 2, daughters: 1, consanguinePaternalUncles: 1 }),
+    );
+
+    expect(result.requiresScholarReview).toBe(true);
+    expect(result.selectedReviewOnlyHeirs.map((item) => item.key)).toContain("consanguinePaternalUncles");
+    expect(result.allocations.some((item) => item.key === "consanguinePaternalUncles")).toBe(false);
+    expect(exactAllocationTotal(result)).toBe("1");
+  });
+
   it("matches the guide’s wife, mother, father, and son example", () => {
     const result = calculateInheritance(estate(), heirs({ wives: 1, mother: 1, father: 1, sons: 1 }));
 

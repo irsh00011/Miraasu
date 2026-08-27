@@ -117,6 +117,12 @@
 - [x] Verify which rules are already automated, expand only source-backed rules, and mark incomplete precedence paths for scholar review.
 - [x] Add calculation and browser tests for the added ‘Asaba explanations and publish the verified update.
 
+## Comprehensive multi-heir test
+
+- [x] Run a representative automatic multi-heir estate calculation and reconcile every exact fraction to the full estate.
+- [x] Run a variation with a review-only family member to confirm the calculator preserves its scholar-review safeguard.
+- [x] Report the calculated shares, cash values, and verification result in simple language.
+
 ## ‘Asaba structure update
 
 - [ ] Add the four degree headings for ‘Asaba bi-nafsihi: descendants, ascendants, same-parent/father collaterals, and uncles.
