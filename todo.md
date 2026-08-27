@@ -128,7 +128,7 @@
 - [x] Re-audit the supplied source text for the paternal-uncle residue order and blockers.
 - [x] Add a clear Arabic, Tamil, and English explanation for full paternal uncle (عم شقيق), consanguine paternal uncle (عم لأب), and their sons.
 - [x] Automate only the fully source-verified paternal-uncle residue path; preserve explicit review for any unresolved precedence case.
-- [ ] Add unit and browser tests for eligible, blocked, and review-only uncle-line scenarios; publish the verified update.
+- [x] Add unit and browser tests for eligible, blocked, and review-only uncle-line scenarios; publish the verified update.
 
 ## ‘Asaba structure update
 
