@@ -30,7 +30,8 @@ try {
   await desktop.screenshot({ path: "/home/ubuntu/screenshots/family-selector-desktop.png", fullPage: true });
   await desktop.getByRole("button", { name: "மகனின் மகன்கள் அதிகரிக்க" }).click();
   await desktop.getByLabel("தேர்ந்தெடுத்த குடும்ப உறுப்பினர்கள்").getByText("மகனின் மகன்கள்", { exact: false }).waitFor();
-  await desktop.getByRole("button", { name: "முழு தந்தை வழி மாமாக்கள் அதிகரிக்க" }).click();
+  await desktop.getByRole("button", { name: "தந்தை வழி மாமா (அம்) வரிசை", exact: true }).click();
+  await desktop.getByRole("button", { name: "முழு தந்தை வழி மாமாக்கள் (அம்) அதிகரிக்க", exact: true }).click();
   await desktop.getByRole("button", { name: "முடிவைப் பார்க்கவும்" }).click();
   await desktop.getByText("அறிஞர் உறுதிப்படுத்தல் தேவை", { exact: true }).waitFor();
   await desktop.screenshot({ path: "/home/ubuntu/screenshots/extended-family-review-desktop.png", fullPage: true });

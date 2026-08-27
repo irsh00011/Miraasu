@@ -29,7 +29,7 @@ try {
   await page.screenshot({ path: "/home/ubuntu/screenshots/comprehensive-family-automatic.png", fullPage: true });
 
   await page.getByRole("button", { name: "மாற்றுக" }).click();
-  await page.getByRole("button", { name: "தந்தை வழி மாமா வரிசை", exact: true }).click();
+  await page.getByRole("button", { name: "தந்தை வழி மாமா (அம்) வரிசை", exact: true }).click();
   await page.getByRole("button", { name: "தந்தை வழி பாதி மாமாக்கள் அதிகரிக்க", exact: true }).click();
   await page.getByRole("button", { name: "முடிவைப் பார்க்கவும்" }).click();
   await page.getByText("அறிஞர் உறுதிப்படுத்தல் தேவை", { exact: true }).waitFor();
