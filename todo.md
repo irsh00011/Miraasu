@@ -144,7 +144,7 @@
 - [x] Compare each photographed rule against the current audited engine and rule matrix; label it as already supported, missing, or scholar-reviewed.
 - [x] Implement only clearly verified missing conditions and show their explanations in Tamil, English, and Arabic.
 - [x] Add exact-fraction regressions for each automated photographed-table rule and browser checks for the explanatory labels.
-- [ ] Publish the validated audit update with a simple coverage summary.
+- [x] Publish the validated audit update with a simple coverage summary.
 
 ## Direct photographed-table inclusion
 
