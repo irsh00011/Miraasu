@@ -56,59 +56,73 @@ export type ExtendedHeirDefinition = {
   emoji: string;
   label: string;
   description: string;
+  labelEn: string;
+  descriptionEn: string;
 };
 
-export const EXTENDED_HEIR_SECTIONS: { title: string; helper: string; items: ExtendedHeirDefinition[] }[] = [
+export type ExtendedHeirSection = { title: string; helper: string; titleEn: string; helperEn: string; items: ExtendedHeirDefinition[] };
+
+export const EXTENDED_HEIR_SECTIONS: ExtendedHeirSection[] = [
   {
     title: "மகன் வழி சந்ததியினர்",
     helper: "மகன் இல்லை என்றால் இந்த உறவுகள் முக்கியமாகலாம்.",
+    titleEn: "Descendants through sons",
+    helperEn: "These relatives may matter when there is no son.",
     items: [
-      { key: "sonsSons", emoji: "👦", label: "மகனின் மகன்கள்", description: "மகன் வழி பேரன்கள்." },
-      { key: "sonsDaughters", emoji: "👧", label: "மகனின் மகள்கள்", description: "மகன் வழி பேத்திகள்." },
-      { key: "furtherSonsLineDescendants", emoji: "🌿", label: "மகன் வழி அடுத்த தலைமுறை", description: "மேலதிக மகன்-வழி சந்ததியினர்." },
+      { key: "sonsSons", emoji: "👦", label: "மகனின் மகன்கள்", description: "மகன் வழி பேரன்கள்.", labelEn: "Sons of sons", descriptionEn: "Grandsons through a son." },
+      { key: "sonsDaughters", emoji: "👧", label: "மகனின் மகள்கள்", description: "மகன் வழி பேத்திகள்.", labelEn: "Daughters of sons", descriptionEn: "Granddaughters through a son." },
+      { key: "furtherSonsLineDescendants", emoji: "🌿", label: "மகன் வழி அடுத்த தலைமுறை", description: "மேலதிக மகன்-வழி சந்ததியினர்.", labelEn: "Further descendants through sons", descriptionEn: "Later descendants in the son’s line." },
     ],
   },
   {
     title: "தாத்தா, பாட்டி மற்றும் மூதாதையர்",
     helper: "நெருங்கிய பெற்றோர் இல்லாதபோது இந்த உறவுகள் தொடர்புடையவை.",
+    titleEn: "Grandparents and ancestors",
+    helperEn: "These relatives may be relevant when closer parents are absent.",
     items: [
-      { key: "maternalGrandfather", emoji: "👴", label: "தாயின் தந்தை", description: "தாய் வழி தாத்தா." },
-      { key: "paternalGrandmothers", emoji: "👵", label: "தந்தையின் தாய்", description: "தந்தை வழி பாட்டி." },
-      { key: "maternalGrandmothers", emoji: "👵", label: "தாயின் தாய்", description: "தாய் வழி பாட்டி." },
-      { key: "furtherPaternalAncestors", emoji: "🌳", label: "தந்தை வழி மூதாதையர்", description: "மேலதிக தந்தை-வழி முன்னோர்." },
+      { key: "maternalGrandfather", emoji: "👴", label: "தாயின் தந்தை", description: "தாய் வழி தாத்தா.", labelEn: "Mother’s father", descriptionEn: "Maternal grandfather." },
+      { key: "paternalGrandmothers", emoji: "👵", label: "தந்தையின் தாய்", description: "தந்தை வழி பாட்டி.", labelEn: "Father’s mother", descriptionEn: "Paternal grandmother." },
+      { key: "maternalGrandmothers", emoji: "👵", label: "தாயின் தாய்", description: "தாய் வழி பாட்டி.", labelEn: "Mother’s mother", descriptionEn: "Maternal grandmother." },
+      { key: "furtherPaternalAncestors", emoji: "🌳", label: "தந்தை வழி மூதாதையர்", description: "மேலதிக தந்தை-வழி முன்னோர்.", labelEn: "Further paternal ancestors", descriptionEn: "More distant ancestors through the father’s line." },
     ],
   },
   {
     title: "தந்தை வழி மற்றும் உடன்பிறந்தோர் சந்ததி",
     helper: "உடன்பிறந்தோர் வரிசை மற்றும் அவர்களின் அடுத்த தலைமுறை.",
+    titleEn: "Paternal siblings and sibling descendants",
+    helperEn: "Siblings through the father and the next generation of siblings.",
     items: [
-      { key: "paternalBrothers", emoji: "👨", label: "தந்தை வழி சகோதரர்கள்", description: "தந்தை ஒரேவர்; தாய் வேறாக இருக்கலாம்." },
-      { key: "paternalSisters", emoji: "👩", label: "தந்தை வழி சகோதரிகள்", description: "தந்தை ஒரேவர்; தாய் வேறாக இருக்கலாம்." },
-      { key: "fullBrothersSons", emoji: "👦", label: "உடன்பிறந்த சகோதரரின் மகன்கள்", description: "உடன்பிறந்த சகோதரரின் ஆண் பிள்ளைகள்." },
-      { key: "paternalBrothersSons", emoji: "👦", label: "தந்தை வழி சகோதரரின் மகன்கள்", description: "தந்தை வழி சகோதரரின் ஆண் பிள்ளைகள்." },
+      { key: "paternalBrothers", emoji: "👨", label: "தந்தை வழி சகோதரர்கள்", description: "தந்தை ஒரேவர்; தாய் வேறாக இருக்கலாம்.", labelEn: "Paternal half-brothers", descriptionEn: "Same father; may have a different mother." },
+      { key: "paternalSisters", emoji: "👩", label: "தந்தை வழி சகோதரிகள்", description: "தந்தை ஒரேவர்; தாய் வேறாக இருக்கலாம்.", labelEn: "Paternal half-sisters", descriptionEn: "Same father; may have a different mother." },
+      { key: "fullBrothersSons", emoji: "👦", label: "உடன்பிறந்த சகோதரரின் மகன்கள்", description: "உடன்பிறந்த சகோதரரின் ஆண் பிள்ளைகள்.", labelEn: "Sons of full brothers", descriptionEn: "Male children of full brothers." },
+      { key: "paternalBrothersSons", emoji: "👦", label: "தந்தை வழி சகோதரரின் மகன்கள்", description: "தந்தை வழி சகோதரரின் ஆண் பிள்ளைகள்.", labelEn: "Sons of paternal half-brothers", descriptionEn: "Male children of paternal half-brothers." },
     ],
   },
   {
     title: "தந்தை வழி மாமா வரிசை",
     helper: "பித்ரு வழி நீண்ட உறவுகள்.",
+    titleEn: "Paternal uncle line",
+    helperEn: "More distant relatives through the father’s line.",
     items: [
-      { key: "paternalUncles", emoji: "👨‍🦳", label: "தந்தையின் சகோதரர்கள்", description: "தந்தை வழி மாமாக்கள்." },
-      { key: "paternalUnclesSons", emoji: "👦", label: "தந்தையின் சகோதரரின் மகன்கள்", description: "தந்தை வழி மாமாவின் மகன்கள்." },
+      { key: "paternalUncles", emoji: "👨‍🦳", label: "தந்தையின் சகோதரர்கள்", description: "தந்தை வழி மாமாக்கள்.", labelEn: "Father’s brothers", descriptionEn: "Paternal uncles." },
+      { key: "paternalUnclesSons", emoji: "👦", label: "தந்தையின் சகோதரரின் மகன்கள்", description: "தந்தை வழி மாமாவின் மகன்கள்.", labelEn: "Sons of paternal uncles", descriptionEn: "Male children of paternal uncles." },
     ],
   },
   {
     title: "தூரத்து உறவினர்கள்",
     helper: "முதல் இரண்டு வாரிசு வகைகள் இல்லாத நிலைகளில் தொடர்புடையவர்கள்.",
+    titleEn: "Distant relatives",
+    helperEn: "These may apply when the first two heir categories are absent.",
     items: [
-      { key: "daughtersChildren", emoji: "🧒", label: "மகளின் குழந்தைகள்", description: "மகள் வழி குழந்தைகள் மற்றும் அவர்களின் வரிசை." },
-      { key: "sonsDaughtersChildren", emoji: "🧒", label: "மகனின் மகளின் குழந்தைகள்", description: "மகன்-மகள் வழி குழந்தைகள்." },
-      { key: "fullBrothersDaughters", emoji: "👧", label: "சகோதரரின் மகள்கள்", description: "உடன்பிறந்த சகோதரரின் மகள்கள்." },
-      { key: "fullSistersChildren", emoji: "🧒", label: "சகோதரிகளின் குழந்தைகள்", description: "உடன்பிறந்த சகோதரிகளின் பிள்ளைகள்." },
-      { key: "maternalBrothersChildren", emoji: "🧒", label: "தாய் வழி சகோதரரின் குழந்தைகள்", description: "தாய் வழி சகோதரரின் பிள்ளைகள்." },
-      { key: "fathersMaternalBrothers", emoji: "👨‍🦳", label: "தந்தையின் தாய் வழி சகோதரர்", description: "தந்தையின் தாய் வழி சகோதரர்." },
-      { key: "fathersMaternalBrothersDescendants", emoji: "🌿", label: "அவர்களின் சந்ததியினர்", description: "தந்தையின் தாய் வழி சகோதரரின் வரிசை." },
-      { key: "mothersSiblings", emoji: "👥", label: "தாயின் சகோதரர் / சகோதரி", description: "தாய் வழி மாமா அல்லது அத்தை." },
-      { key: "mothersSiblingsDescendants", emoji: "🌿", label: "அவர்களின் சந்ததியினர்", description: "தாயின் சகோதரர் / சகோதரியின் பிள்ளைகள்." },
+      { key: "daughtersChildren", emoji: "🧒", label: "மகளின் குழந்தைகள்", description: "மகள் வழி குழந்தைகள் மற்றும் அவர்களின் வரிசை.", labelEn: "Children of daughters", descriptionEn: "Children and later descendants through a daughter." },
+      { key: "sonsDaughtersChildren", emoji: "🧒", label: "மகனின் மகளின் குழந்தைகள்", description: "மகன்-மகள் வழி குழந்தைகள்.", labelEn: "Children of sons’ daughters", descriptionEn: "Children through a son’s daughter." },
+      { key: "fullBrothersDaughters", emoji: "👧", label: "சகோதரரின் மகள்கள்", description: "உடன்பிறந்த சகோதரரின் மகள்கள்.", labelEn: "Daughters of full brothers", descriptionEn: "Female children of full brothers." },
+      { key: "fullSistersChildren", emoji: "🧒", label: "சகோதரிகளின் குழந்தைகள்", description: "உடன்பிறந்த சகோதரிகளின் பிள்ளைகள்.", labelEn: "Children of full sisters", descriptionEn: "Children of full sisters." },
+      { key: "maternalBrothersChildren", emoji: "🧒", label: "தாய் வழி சகோதரரின் குழந்தைகள்", description: "தாய் வழி சகோதரரின் பிள்ளைகள்.", labelEn: "Children of maternal half-brothers", descriptionEn: "Children of brothers who share the same mother." },
+      { key: "fathersMaternalBrothers", emoji: "👨‍🦳", label: "தந்தையின் தாய் வழி சகோதரர்", description: "தந்தையின் தாய் வழி சகோதரர்.", labelEn: "Father’s maternal half-brother", descriptionEn: "A brother of the father who shares his mother." },
+      { key: "fathersMaternalBrothersDescendants", emoji: "🌿", label: "அவர்களின் சந்ததியினர்", description: "தந்தையின் தாய் வழி சகோதரரின் வரிசை.", labelEn: "Their descendants", descriptionEn: "Descendants of the father’s maternal half-brother." },
+      { key: "mothersSiblings", emoji: "👥", label: "தாயின் சகோதரர் / சகோதரி", description: "தாய் வழி மாமா அல்லது அத்தை.", labelEn: "Mother’s siblings", descriptionEn: "Maternal uncles or aunts." },
+      { key: "mothersSiblingsDescendants", emoji: "🌿", label: "அவர்களின் சந்ததியினர்", description: "தாயின் சகோதரர் / சகோதரியின் பிள்ளைகள்.", labelEn: "Their descendants", descriptionEn: "Children of the mother’s siblings." },
     ],
   },
 ];

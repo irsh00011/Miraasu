@@ -45,6 +45,13 @@
 - [x] Add a clear exit/back control from the family-selection step.
 - [ ] Validate search, reset, summary, and exit behavior on mobile and desktop.
 
+## English version
+
+- [x] Add an English/Tamil language switch that preserves the current calculation state.
+- [x] Translate every visible flow, family label, helper, result, history, and safety message into clear English.
+- [x] Ensure browser history remains local and usable across both language versions.
+- [x] Validate the complete English and Tamil experience on desktop and mobile.
+
 ## Source-book family structure
 
 - [ ] Extract every heir category and relationship group stated in the supplied book.

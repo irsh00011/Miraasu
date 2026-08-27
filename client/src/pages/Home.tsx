@@ -89,10 +89,10 @@ const formatDate = (value: string) => new Intl.DateTimeFormat("ta-IN", { day: "n
 function BrandMark() {
   return (
     <div className="grid size-10 shrink-0 place-items-center rounded-2xl bg-[#133D76] text-white shadow-lg shadow-blue-200">
-      <svg viewBox="0 0 48 48" aria-hidden="true" className="size-6 fill-none" stroke="currentColor" strokeWidth="2.7" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M6 14c5-3 10-2.8 18 2v20c-8-4.8-13-5-18-2V14Z" />
-        <path d="M42 14c-5-3-10-2.8-18 2v20c8-4.8 13-5 18-2V14Z" />
-        <path d="M13 10c2-2 4.7-3 7.6-3M35 10c-2-2-4.7-3-7.6-3" stroke="#B9D5FF" />
+      <svg viewBox="0 0 48 48" aria-hidden="true" className="size-6 fill-none" stroke="currentColor" strokeWidth="2.45" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M6 34V16c5-3.8 11-3.4 18 1v17c-7-4.3-13-4.5-18 0Z" />
+        <path d="M42 34V16c-5-3.8-11-3.4-18 1v17c7-4.3 13-4.5 18 0Z" />
+        <path d="M14 10c2.1-2.7 5.2-4 10-4s7.9 1.3 10 4M18 9.5c1.4-1.2 3.4-1.8 6-1.8s4.6.6 6 1.8" stroke="#B9D5FF" />
       </svg>
     </div>
   );
@@ -236,16 +236,19 @@ export default function Home() {
             <BrandMark />
             <div className="min-w-0">
               <p className="truncate text-base font-extrabold tracking-tight text-slate-950">மீராஸ் கணக்கீடு</p>
-              <p className="truncate text-[11px] text-slate-500">எளிய வாரிசுரிமை வழிகாட்டி</p>
+              <p className="truncate text-[11px] text-slate-500">பங்கு காரணம் அறியும் பதிவு</p>
             </div>
           </button>
-          {view !== "history" ? (
-            <button type="button" onClick={() => setView("history")} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-blue-100 bg-blue-50 px-3 text-sm font-bold text-[#133D76] transition hover:bg-blue-100">
-              <History size={17} /> <span className="hidden sm:inline">வரலாறு</span>
-            </button>
-          ) : (
-            <button type="button" onClick={() => setView("welcome")} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-blue-100 bg-blue-50 px-3 text-sm font-bold text-[#133D76] transition hover:bg-blue-100"><ArrowLeft size={17} /> முகப்பு</button>
-          )}
+          <div className="flex gap-1">
+            <a href="/en" className="inline-flex min-h-10 items-center rounded-lg border border-blue-100 bg-blue-50 px-3 text-sm font-bold text-[#133D76] transition hover:bg-blue-100">EN</a>
+            {view !== "history" ? (
+              <button type="button" onClick={() => setView("history")} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-blue-100 bg-blue-50 px-3 text-sm font-bold text-[#133D76] transition hover:bg-blue-100">
+                <History size={17} /> <span className="hidden sm:inline">வரலாறு</span>
+              </button>
+            ) : (
+              <button type="button" onClick={() => setView("welcome")} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-blue-100 bg-blue-50 px-3 text-sm font-bold text-[#133D76] transition hover:bg-blue-100"><ArrowLeft size={17} /> முகப்பு</button>
+            )}
+          </div>
         </div>
       </header>
 
