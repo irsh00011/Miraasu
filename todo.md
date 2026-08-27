@@ -61,9 +61,9 @@
 ## GitHub, installable app, and Vercel deployment
 
 - [x] Add a web-app manifest, icons, and offline service worker for installability.
-- [ ] Push the complete project to github.com/irsh00011/Miraasu.
-- [ ] Deploy the repository to Vercel and verify the production URL.
-- [ ] Confirm the install prompt requirements and provide user installation steps.
+- [x] Push the complete project to github.com/irsh00011/Miraasu.
+- [x] Deploy the repository to Vercel and verify the production URL.
+- [x] Confirm the install prompt requirements and provide user installation steps.
 
 ## Source-book family structure
 
