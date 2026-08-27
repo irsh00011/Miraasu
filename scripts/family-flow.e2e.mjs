@@ -14,6 +14,8 @@ try {
   await desktop.getByText("மற்ற குடும்பம்", { exact: true }).first().waitFor();
   await desktop.getByRole("button", { name: "மகன் வழி சந்ததியினர்", exact: true }).waitFor();
   await desktop.getByRole("button", { name: "தூரத்து உறவினர்கள்", exact: true }).waitFor();
+  await desktop.getByRole("button", { name: "மீதிப் பங்கு வரிசையைப் பார்க்கவும்" }).click();
+  await desktop.getByText("1 மகன் + 1 மகள்", { exact: true }).waitFor();
   await desktop.getByLabel("குடும்ப உறவைத் தேடுக").fill("அப்பா");
   await desktop.getByRole("button", { name: "அப்பா அதிகரிக்க", exact: true }).click();
   await desktop.getByLabel("தேர்ந்தெடுத்த குடும்ப உறுப்பினர்கள்").getByText("அப்பா", { exact: false }).waitFor();
@@ -28,7 +30,7 @@ try {
   await desktop.screenshot({ path: "/home/ubuntu/screenshots/family-selector-desktop.png", fullPage: true });
   await desktop.getByRole("button", { name: "மகனின் மகன்கள் அதிகரிக்க" }).click();
   await desktop.getByLabel("தேர்ந்தெடுத்த குடும்ப உறுப்பினர்கள்").getByText("மகனின் மகன்கள்", { exact: false }).waitFor();
-  await desktop.getByRole("button", { name: "தந்தையின் சகோதரர்கள் அதிகரிக்க" }).click();
+  await desktop.getByRole("button", { name: "முழு தந்தை வழி மாமாக்கள் அதிகரிக்க" }).click();
   await desktop.getByRole("button", { name: "முடிவைப் பார்க்கவும்" }).click();
   await desktop.getByText("அறிஞர் உறுதிப்படுத்தல் தேவை", { exact: true }).waitFor();
   await desktop.screenshot({ path: "/home/ubuntu/screenshots/extended-family-review-desktop.png", fullPage: true });

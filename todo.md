@@ -106,4 +106,21 @@
 - [x] Add simple click-to-open family categories that show only the chosen section while keeping a clear full-family view available.
 - [x] Make the supplied book cover more prominent on the introduction screen without reducing reading contrast or changing its PWA role.
 - [x] Add browser tests for close-family and extended-family searches, category switching, clear controls, and all language routes.
-- [ ] Publish the repaired family navigation and provide the final production link.
+- [x] Publish the repaired family navigation and provide the final production link.
+
+## ‘Asaba structure and worked examples
+
+- [x] Add the four degree headings for ‘Asaba bi-nafsihi: descendants, ascendants, same-parent/father collaterals, and uncles.
+- [x] Add clear ‘Asaba bi-ghayrihi guidance for son/daughter, son’s son/son’s daughter, full siblings, and paternal siblings with the 2:1 ratio.
+- [x] Add clear ‘Asaba ma‘a ghayrihi guidance for full and paternal sisters with daughters or son’s daughters taking their fixed share first.
+- [x] Add clear worked explanations for one son plus one daughter, three daughters without sons, and equal same-rank male heirs.
+- [x] Verify which rules are already automated, expand only source-backed rules, and mark incomplete precedence paths for scholar review.
+- [x] Add calculation and browser tests for the added ‘Asaba explanations and publish the verified update.
+
+## ‘Asaba structure update
+
+- [ ] Add the four degree headings for ‘Asaba bi-nafsihi: descendants, ascendants, same-parent/father collaterals, and uncles.
+- [ ] Add clear ‘Asaba bi-ghayrihi guidance for son/daughter, son’s son/son’s daughter, full siblings, and paternal siblings with the 2:1 ratio.
+- [ ] Add clear ‘Asaba ma‘a ghayrihi guidance for full and paternal sisters with daughters or son’s daughters taking the fixed share first.
+- [ ] Verify which of the above rules are already automated, expand only source-backed rules, and mark incomplete precedence paths for scholar review.
+- [ ] Add calculation and browser tests for the added ‘Asaba explanations and publish the verified update.

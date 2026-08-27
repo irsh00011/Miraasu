@@ -17,7 +17,7 @@ const initialEstate: EstateInput = { grossEstate: 0, funeralCosts: 0, debts: 0, 
 const initialHeirs: HeirInput = {
   husband: 0, wives: 0, father: 0, mother: 0, paternalGrandfather: 0, sons: 0, daughters: 0, fullBrothers: 0, fullSisters: 0, maternalBrothers: 0, maternalSisters: 0,
   sonsSons: 0, sonsDaughters: 0, furtherSonsLineDescendants: 0, maternalGrandfather: 0, paternalGrandmothers: 0, maternalGrandmothers: 0, furtherPaternalAncestors: 0,
-  paternalBrothers: 0, paternalSisters: 0, fullBrothersSons: 0, paternalBrothersSons: 0, paternalUncles: 0, paternalUnclesSons: 0, daughtersChildren: 0, sonsDaughtersChildren: 0,
+  paternalBrothers: 0, paternalSisters: 0, fullBrothersSons: 0, paternalBrothersSons: 0, paternalUncles: 0, paternalUnclesSons: 0, consanguinePaternalUncles: 0, consanguinePaternalUnclesSons: 0, daughtersChildren: 0, sonsDaughtersChildren: 0,
   fullBrothersDaughters: 0, fullSistersChildren: 0, maternalBrothersChildren: 0, fathersMaternalBrothers: 0, fathersMaternalBrothersDescendants: 0, mothersSiblings: 0, mothersSiblingsDescendants: 0,
 };
 

@@ -65,6 +65,19 @@ Source lines: 843–918.
 
 The original calculation engine treated only direct sons and daughters as descendants. That conflicts with the book’s spouse, father, grandfather, mother, maternal-sibling, and full-sister tables, which expressly refer to the son-line descendant conditions. The correction work must first distinguish: **male son-line descendants**, **female son-line descendants**, and **all descendants**, then use those tests in every block/share condition.
 
+## ‘Asaba structure and worked examples
+
+| Structure | Clear user-facing order or rule | Product handling |
+|---|---|---|
+| ‘Asaba bi-nafsihi — first degree | Son → son’s son → lower male son-line descendants. | Son and son’s son residue rules are automated where their full conditions are verified; lower descendants remain review-only. |
+| ‘Asaba bi-nafsihi — second degree | Father → paternal grandfather → higher male paternal ancestors. | Father and paternal-grandfather rules are automated under verified conditions; higher ancestors remain review-only. |
+| ‘Asaba bi-nafsihi — third degree | Full brother → paternal half-brother → their sons. | Full-brother residue rules are automated under verified conditions. Paternal half-brother and sibling-descendant chains remain review-only. |
+| ‘Asaba bi-nafsihi — fourth degree | Full paternal uncle → consanguine paternal uncle → their sons. | All four uncle-line inputs are visible and explicitly review-only until their complete precedence chain is source-encoded. |
+| ‘Asaba bi-ghayrihi | Son/daughter, son’s son/son’s daughter, full brother/full sister, paternal brother/paternal sister. The male/female pair uses 2:1. | The first three source-backed pairings are automatically calculated where conditions are met. The paternal-brother pairing is collected and marked for review. |
+| ‘Asaba ma‘a ghayrihi | A full or paternal sister may take the remainder with a daughter or son’s daughter after the female descendant’s fixed share. | Source-backed full-sister and paternal-sister paths are automated only when no listed blocker applies. |
+
+The guided examples deliberately distinguish a **fixed collective share** from a **residuary share**. One son plus one daughter splits the available residue 2:1. Three daughters with no son collectively receive the verified fixed 2/3 share, divided equally among the three; other eligible heirs and any applicable redistribution affect the final estate picture. Equal male heirs of the same eligible rank divide the residue equally.
+
 ## Product rule
 
 The app must never show a numerical automatic share for a case where the source matrix does not yet define a complete precedence and blocking path. It may collect the relative, show their selection in the structured family list, and label the result **Qualified review required**.

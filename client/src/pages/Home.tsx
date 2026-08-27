@@ -70,6 +70,8 @@ const initialHeirs: HeirInput = {
   paternalBrothersSons: 0,
   paternalUncles: 0,
   paternalUnclesSons: 0,
+  consanguinePaternalUncles: 0,
+  consanguinePaternalUnclesSons: 0,
   daughtersChildren: 0,
   sonsDaughtersChildren: 0,
   fullBrothersDaughters: 0,

@@ -11,6 +11,8 @@ try {
   await page.getByRole("button", { name: "التالي" }).click();
   await page.getByRole("heading", { name: "من الأقارب الأحياء؟" }).waitFor();
   await page.getByText("الأبناء والوالدان", { exact: true }).first().waitFor();
+  await page.getByRole("button", { name: "عرض ترتيب العصبة" }).click();
+  await page.getByText("ابن واحد + بنت واحدة", { exact: true }).waitFor();
   await page.getByLabel("البحث عن قرابة").fill("الأم");
   await page.getByRole("button", { name: "الأم زيادة", exact: true }).click();
   await page.getByLabel("أفراد العائلة المختارون").getByText("الأم", { exact: false }).waitFor();

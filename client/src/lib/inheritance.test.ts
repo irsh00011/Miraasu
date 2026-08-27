@@ -40,6 +40,30 @@ describe("ordinary inheritance calculation", () => {
     expect(shareFor("sons", result)).toBe("13/24");
   });
 
+  it("splits the remainder 2:1 between one son and one daughter", () => {
+    const result = calculateInheritance(estate(), heirs({ sons: 1, daughters: 1 }));
+
+    expect(shareFor("sons", result)).toBe("2/3");
+    expect(shareFor("daughters", result)).toBe("1/3");
+    expect(totalShare(result)).toBeCloseTo(1, 12);
+  });
+
+  it("keeps the three-daughter Qur’anic fixed share visible before any applicable redistribution", () => {
+    const result = calculateInheritance(estate(), heirs({ father: 1, daughters: 3 }));
+
+    expect(shareFor("daughters", result)).toBe("2/3");
+    expect(shareFor("father", result)).toBe("1/3");
+    expect(result.allocations.find((item) => item.key === "daughters")?.count).toBe(3);
+  });
+
+  it("divides the remainder equally among three same-rank full brothers", () => {
+    const result = calculateInheritance(estate(), heirs({ fullBrothers: 3 }));
+
+    expect(shareFor("fullBrothers", result)).toBe("1");
+    expect(result.allocations.find((item) => item.key === "fullBrothers")?.count).toBe(3);
+    expect(totalShare(result)).toBeCloseTo(1, 12);
+  });
+
   it("uses the spouse-first mother remainder rule with husband, mother, and father", () => {
     const result = calculateInheritance(estate(), heirs({ husband: 1, mother: 1, father: 1 }));
 
@@ -109,6 +133,22 @@ describe("ordinary inheritance calculation", () => {
     expect(totalShare(result)).toBeCloseTo(1, 12);
   });
 
+  it("gives a full sister the remainder with a daughter when no male blocker exists", () => {
+    const result = calculateInheritance(estate(), heirs({ daughters: 1, fullSisters: 1 }));
+
+    expect(shareFor("daughters", result)).toBe("1/2");
+    expect(shareFor("fullSisters", result)).toBe("1/2");
+    expect(totalShare(result)).toBeCloseTo(1, 12);
+  });
+
+  it("gives a paternal sister the remainder with a daughter when no closer sibling blocks her", () => {
+    const result = calculateInheritance(estate(), heirs({ daughters: 1, paternalSisters: 1 }));
+
+    expect(shareFor("daughters", result)).toBe("1/2");
+    expect(shareFor("paternalSisters", result)).toBe("1/2");
+    expect(totalShare(result)).toBeCloseTo(1, 12);
+  });
+
   it("includes an eligible grandmother and blocks her when the mother is present", () => {
     const eligible = calculateInheritance(estate(), heirs({ husband: 1, maternalGrandmothers: 1 }));
     const blocked = calculateInheritance(estate(), heirs({ mother: 1, maternalGrandmothers: 1 }));
@@ -145,9 +185,9 @@ describe("ordinary inheritance calculation", () => {
   });
 
   it("records every non-automated selection in the explicit review list", () => {
-    const result = calculateInheritance(estate(), heirs({ paternalUncles: 1, mothersSiblings: 2, furtherSonsLineDescendants: 1 }));
+    const result = calculateInheritance(estate(), heirs({ paternalUncles: 1, consanguinePaternalUncles: 1, mothersSiblings: 2, furtherSonsLineDescendants: 1 }));
 
     expect(result.requiresScholarReview).toBe(true);
-    expect(result.selectedReviewOnlyHeirs.map((item) => item.key)).toEqual(["furtherSonsLineDescendants", "paternalUncles", "mothersSiblings"]);
+    expect(result.selectedReviewOnlyHeirs.map((item) => item.key)).toEqual(["furtherSonsLineDescendants", "paternalUncles", "consanguinePaternalUncles", "mothersSiblings"]);
   });
 });

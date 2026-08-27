@@ -38,6 +38,8 @@ export type HeirInput = {
   paternalBrothersSons?: number;
   paternalUncles?: number;
   paternalUnclesSons?: number;
+  consanguinePaternalUncles?: number;
+  consanguinePaternalUnclesSons?: number;
   daughtersChildren?: number;
   sonsDaughtersChildren?: number;
   fullBrothersDaughters?: number;
@@ -106,8 +108,10 @@ export const EXTENDED_HEIR_SECTIONS: ExtendedHeirSection[] = [
     titleEn: "Paternal uncle line",
     helperEn: "More distant relatives through the father’s line.",
     items: [
-      { key: "paternalUncles", emoji: "👨‍🦳", label: "தந்தையின் சகோதரர்கள்", description: "தந்தை வழி மாமாக்கள்.", labelEn: "Father’s brothers", descriptionEn: "Paternal uncles." },
-      { key: "paternalUnclesSons", emoji: "👦", label: "தந்தையின் சகோதரரின் மகன்கள்", description: "தந்தை வழி மாமாவின் மகன்கள்.", labelEn: "Sons of paternal uncles", descriptionEn: "Male children of paternal uncles." },
+      { key: "paternalUncles", emoji: "👨‍🦳", label: "முழு தந்தை வழி மாமாக்கள்", description: "தந்தையின் முழு உடன்பிறந்த சகோதரர்கள்.", labelEn: "Full paternal uncles", descriptionEn: "Full brothers of the father." },
+      { key: "paternalUnclesSons", emoji: "👦", label: "முழு தந்தை வழி மாமாக்களின் மகன்கள்", description: "முழு தந்தை வழி மாமாவின் ஆண் பிள்ளைகள்.", labelEn: "Sons of full paternal uncles", descriptionEn: "Male children of full paternal uncles." },
+      { key: "consanguinePaternalUncles", emoji: "👨‍🦳", label: "தந்தை வழி பாதி மாமாக்கள்", description: "தந்தையுடன் தந்தை ஒரேவராக உள்ள மாமாக்கள்.", labelEn: "Consanguine paternal uncles", descriptionEn: "Paternal half-brothers of the father." },
+      { key: "consanguinePaternalUnclesSons", emoji: "👦", label: "தந்தை வழி பாதி மாமாக்களின் மகன்கள்", description: "தந்தை வழி பாதி மாமாவின் ஆண் பிள்ளைகள்.", labelEn: "Sons of consanguine paternal uncles", descriptionEn: "Male children of consanguine paternal uncles." },
     ],
   },
   {
@@ -149,8 +153,10 @@ export const ARABIC_EXTENDED_COPY: Record<ExtendedHeirKey, { label: string; desc
   paternalSisters: { label: "أخوات لأب", description: "يشتركن في الأب وقد تختلف الأم." },
   fullBrothersSons: { label: "أبناء الإخوة الأشقاء", description: "الأبناء الذكور للإخوة الأشقاء." },
   paternalBrothersSons: { label: "أبناء الإخوة لأب", description: "الأبناء الذكور للإخوة لأب." },
-  paternalUncles: { label: "أعمام الأب", description: "إخوة الأب." },
-  paternalUnclesSons: { label: "أبناء أعمام الأب", description: "الأبناء الذكور لأعمام الأب." },
+  paternalUncles: { label: "أعمام الأب الأشقاء", description: "إخوة الأب الأشقاء." },
+  paternalUnclesSons: { label: "أبناء أعمام الأب الأشقاء", description: "الأبناء الذكور لأعمام الأب الأشقاء." },
+  consanguinePaternalUncles: { label: "أعمام الأب لأب", description: "إخوة الأب من جهة أبيه." },
+  consanguinePaternalUnclesSons: { label: "أبناء أعمام الأب لأب", description: "الأبناء الذكور لأعمام الأب لأب." },
   daughtersChildren: { label: "أبناء البنات", description: "ذرية البنت وما بعدها." },
   sonsDaughtersChildren: { label: "أبناء بنات الابن", description: "ذرية بنت الابن." },
   fullBrothersDaughters: { label: "بنات الإخوة الأشقاء", description: "البنات للإخوة الأشقاء." },

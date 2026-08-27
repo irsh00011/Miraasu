@@ -95,3 +95,8 @@ The family screen will lead with a short numbered **family map**: spouse, childr
 The new app mark will be a text-free, scalable balance-and-fractions symbol: a deep legal-blue balance scale, two simple fraction panels, and a small warm-gold balance point. It references the supplied book’s calculation theme without copying book text or replacing the supplied cover image that is retained as the source-book/PWA visual.
 
 The custom balance-and-fractions mark is the product identity inside every worksheet, and the supplied book-cover crop continues only as the required source-book, header, and PWA identifier. Tamil, English, and Arabic use their native editorial type pairings. A small warm-gold point may appear only in the product mark or a rare confirmed calculation detail; it never replaces the deep legal-blue action and navigation system.
+
+## Style Decisions
+
+- The supplied book cover is a small labelled source reference and the PWA/header icon; it is not used as a decorative full-panel watermark behind worksheet content.
+- The calculator’s own balance-and-fractions mark is the worksheet symbol, with a single restrained warm-gold balance point. Deep Legal Blue remains the only action and navigation colour.

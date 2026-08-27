@@ -9,6 +9,8 @@ try {
   await desktop.getByRole("button", { name: "Prepare the estate and add heirs" }).click();
   await desktop.getByRole("button", { name: "Continue" }).click();
   await desktop.getByRole("heading", { name: "Which family members are alive?" }).waitFor();
+  await desktop.getByRole("button", { name: "See the residuary-heir order" }).click();
+  await desktop.getByText("One son + one daughter", { exact: true }).waitFor();
   await desktop.getByLabel("Search family relationships").fill("Father");
   await desktop.getByRole("button", { name: "Father increase", exact: true }).click();
   await desktop.getByLabel("Selected family members").getByText("Father", { exact: false }).waitFor();
@@ -19,7 +21,7 @@ try {
   await desktop.getByRole("button", { name: "Sons of sons increase" }).click();
   await desktop.getByLabel("Selected family members").getByText("Sons of sons", { exact: false }).waitFor();
   await desktop.getByLabel("Search family relationships").fill("");
-  await desktop.getByRole("button", { name: "Paternal uncles increase" }).click();
+  await desktop.getByRole("button", { name: "Full paternal uncles increase", exact: true }).click();
   await desktop.getByRole("button", { name: "See result" }).click();
   await desktop.getByText("Scholar review required", { exact: true }).waitFor();
   await desktop.screenshot({ path: "/home/ubuntu/screenshots/english-review-desktop.png", fullPage: true });

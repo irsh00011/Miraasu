@@ -2,6 +2,7 @@
 /** Design: Ledger of Justice — a numbered family map and short, visibly classified relationship cards for first-time users. */
 import { useState } from "react";
 import { ARABIC_EXTENDED_COPY, ARABIC_SECTION_COPY, EXTENDED_HEIR_SECTIONS, VERIFIED_EXTENDED_KEYS, type AppLanguage, type ExtendedHeirKey, type HeirInput } from "@/lib/inheritance";
+import { AsabaGuide } from "@/components/AsabaGuide";
 import { HeirCounter } from "@/components/HeirCounter";
 import { RotateCcw } from "lucide-react";
 
@@ -33,6 +34,7 @@ export function BookFamilySections({ heirs, onChange, query, onReset, language =
       <div className="grid gap-2 sm:grid-cols-2" aria-label={language === "en" ? "Simple family entry order" : language === "ar" ? "ترتيب إدخال العائلة السهل" : "எளிய குடும்ப பதிவு ஒழுங்கு"}>
         {familyMap.map(([number, title, helper]) => <div key={number} className="flex min-h-16 items-center gap-3 border border-blue-100 bg-blue-50/60 px-3 py-2"><span className="grid size-7 shrink-0 place-items-center rounded-full bg-[#133D76] text-xs font-bold text-white">{number}</span><div><p className="text-sm font-extrabold text-[#133D76]">{title}</p><p className="mt-0.5 text-[11px] leading-4 text-slate-500">{helper}</p></div></div>)}
       </div>
+      <AsabaGuide language={language} />
       <div className="border-y border-slate-100 py-3"><p className="text-xs font-bold text-slate-500">{language === "en" ? "Choose a book-family group" : language === "ar" ? "اختر مجموعة من أقارب الكتاب" : "புத்தக உறவுக் குழுவைத் தேர்வு செய்க"}</p><div className="mt-2 flex flex-wrap gap-2"><button type="button" onClick={() => setActiveSection("all")} className={`min-h-10 rounded-xl border px-3 text-xs font-bold ${activeSection === "all" ? "border-[#133D76] bg-[#133D76] text-white" : "border-blue-100 bg-white text-[#133D76] hover:bg-blue-50"}`}>{language === "en" ? "All groups" : language === "ar" ? "كل المجموعات" : "அனைத்துக் குழுக்கள்"}</button>{EXTENDED_HEIR_SECTIONS.map((section) => { const title = language === "en" ? section.titleEn : language === "ar" ? ARABIC_SECTION_COPY[section.titleEn].title : section.title; const active = activeSection === section.titleEn; return <button key={section.titleEn} type="button" onClick={() => setActiveSection(section.titleEn)} className={`min-h-10 rounded-xl border px-3 text-xs font-bold ${active ? "border-[#133D76] bg-[#133D76] text-white" : "border-blue-100 bg-white text-[#133D76] hover:bg-blue-50"}`}>{title}</button>; })}</div></div>
       {sections.map((section) => {
         const automated = section.items.filter((item) => VERIFIED_EXTENDED_KEYS.has(item.key)).length;
