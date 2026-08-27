@@ -235,6 +235,7 @@ export default function Home() {
           </button>
           <div className="flex gap-1">
             <a href="/en" className="inline-flex min-h-10 items-center rounded-lg border border-blue-100 bg-blue-50 px-3 text-sm font-bold text-[#133D76] transition hover:bg-blue-100">EN</a>
+            <a href="/ar" className="inline-flex min-h-10 items-center rounded-lg border border-blue-100 bg-blue-50 px-3 text-sm font-bold text-[#133D76] transition hover:bg-blue-100">عربي</a>
             {view !== "history" ? (
               <button type="button" onClick={() => setView("history")} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-blue-100 bg-blue-50 px-3 text-sm font-bold text-[#133D76] transition hover:bg-blue-100">
                 <History size={17} /> <span className="hidden sm:inline">வரலாறு</span>

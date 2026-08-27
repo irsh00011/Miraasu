@@ -27,8 +27,12 @@ try {
   await englishPage.goto(`${productionUrl}/en`, { waitUntil: "networkidle" });
   await englishPage.getByRole("heading", { name: "See the reason behind every inheritance share." }).waitFor();
   await englishPage.close();
+  const arabicPage = await browser.newPage();
+  await arabicPage.goto(`${productionUrl}/ar`, { waitUntil: "networkidle" });
+  await arabicPage.getByRole("heading", { name: "اعرف سبب كل نصيب في الميراث." }).waitFor();
+  await arabicPage.close();
 
-  console.log("Production PWA verified: stable HTTPS routes, Tamil and English pages, manifest, installation icon, and active service worker are present.");
+  console.log("Production PWA verified: stable HTTPS routes, Tamil, English, and Arabic pages, manifest, installation icon, and active service worker are present.");
 } finally {
   await browser.close();
 }

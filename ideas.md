@@ -85,3 +85,13 @@ The complete-grouping update shows all relationships that the current calculatio
 The brand mark remains an open ledger framed by balanced geometric arcs, never a generic book, bank, shield, courthouse, or standard app icon. Deep Legal Blue anchors every primary action, active worksheet heading, and audit marker; pale blue remains reserved for support and completed states. Every major screen repeats the ledger language through ruled structure, progress framing, and a visible explanation or review statement.
 
 The supplied Tamil book-cover crop remains the required header, favicon, and install icon. The app’s own open-ledger and balanced-arcs symbol appears within the worksheet itself, so the product has a distinct calculation identity without replacing the user-requested source-book icon.
+
+## Arabic and simple-grid update
+
+The third route is **Arabic-first and RTL**. It will use the same three familiar steps as Tamil and English—prepare the estate, add surviving family, then review the result—but each visible heading, helper, action, safety notice, and family label will be Arabic. The calculation engine and browser-only history remain shared so a result is consistent across languages.
+
+The family screen will lead with a short numbered **family map**: spouse, children and parents, grandparents and siblings, then book-listed extended relatives. These are clear navigational cards, not legal conclusions. The detailed choices stay visible in their ordered sections below, with short type labels—automatic rule, mixed rule, or scholar review—so a first-time user can add family members without needing to understand specialist terms.
+
+The new app mark will be a text-free, scalable balance-and-fractions symbol: a deep legal-blue balance scale, two simple fraction panels, and a small warm-gold balance point. It references the supplied book’s calculation theme without copying book text or replacing the supplied cover image that is retained as the source-book/PWA visual.
+
+The custom balance-and-fractions mark is the product identity inside every worksheet, and the supplied book-cover crop continues only as the required source-book, header, and PWA identifier. Tamil, English, and Arabic use their native editorial type pairings. A small warm-gold point may appear only in the product mark or a rare confirmed calculation detail; it never replaces the deep legal-blue action and navigation system.

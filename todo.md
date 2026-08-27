@@ -90,3 +90,11 @@
 - [ ] Extract every heir category and relationship group stated in the supplied book.
 - [ ] Map the book’s hierarchy into Primary Family, Secondary Family, and extended residuary groups.
 - [ ] Identify which book-based groups are already in the calculator and which remain future work.
+
+## Arabic and simple-grid update
+
+- [x] Add an Arabic route with complete visible translations and right-to-left reading support.
+- [x] Add Arabic to the language switch without changing the shared calculation rules or local-only history.
+- [x] Replace the dense family-entry experience with a simple staged grid that uses short headings, plain labels, and a visible selected-family check.
+- [x] Create a new balance-and-fractions app mark inspired by the supplied book while preserving its supplied cover as the source-book/PWA visual.
+- [x] Validate Tamil, English, and Arabic routes on desktop and mobile; then update GitHub and production.

@@ -1,13 +1,14 @@
 /* Design: Simple white-and-blue Tamil-first guided worksheet; high contrast, generous touch targets, minimal ornament. */
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Tamil:wght@400;500;600;700;800&family=Noto+Serif+Tamil:wght@600;700;800&family=Source+Sans+3:wght@400;600;700;800&family=Source+Serif+4:wght@600;700;800&display=swap');
+/* Design: Ledger of Justice — native-script editorial typography, ruled worksheet structure, legal blue actions, and rare gold audit accents. */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@500;600;700&family=Noto+Sans+Tamil:wght@400;500;600;700;800&family=Noto+Serif+Tamil:wght@600;700;800&family=Source+Sans+3:wght@400;600;700;800&family=Source+Serif+4:wght@600;700;800&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-sans: "Noto Sans Tamil", "Source Sans 3", ui-sans-serif, system-ui, sans-serif;
-  --font-serif: "Noto Serif Tamil", "Source Serif 4", ui-serif, Georgia, serif;
+  --font-sans: "Noto Sans Tamil", "Noto Naskh Arabic", "Source Sans 3", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Noto Serif Tamil", "Noto Naskh Arabic", "Source Serif 4", ui-serif, Georgia, serif;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -137,7 +138,7 @@
 @layer base {
   * { @apply border-border outline-ring/50; }
   html { scroll-behavior: smooth; }
-  body { @apply bg-background text-foreground; font-family: "Noto Sans Tamil", "Source Sans 3", ui-sans-serif, system-ui, sans-serif; }
+  body { @apply bg-background text-foreground; font-family: "Noto Sans Tamil", "Noto Naskh Arabic", "Source Sans 3", ui-sans-serif, system-ui, sans-serif; }
   button:not(:disabled), [role="button"]:not([aria-disabled="true"]), input, select { @apply cursor-pointer; }
   button:focus-visible, input:focus-visible { outline: 3px solid oklch(0.72 0.12 254 / 0.7); outline-offset: 2px; }
 }

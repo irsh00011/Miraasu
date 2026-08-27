@@ -62,6 +62,8 @@ export type ExtendedHeirDefinition = {
 
 export type ExtendedHeirSection = { title: string; helper: string; titleEn: string; helperEn: string; items: ExtendedHeirDefinition[] };
 
+export type AppLanguage = "ta" | "en" | "ar";
+
 export const EXTENDED_HEIR_SECTIONS: ExtendedHeirSection[] = [
   {
     title: "மகன் வழி சந்ததியினர்",
@@ -127,6 +129,39 @@ export const EXTENDED_HEIR_SECTIONS: ExtendedHeirSection[] = [
   },
 ];
 
+export const ARABIC_SECTION_COPY: Record<string, { title: string; helper: string }> = {
+  "Descendants through sons": { title: "أحفاد عن طريق الابن", helper: "قد تكون هذه القرابة مهمة عند عدم وجود ابن." },
+  "Grandparents and ancestors": { title: "الأجداد والأصول", helper: "تُضاف هذه القرابة عند عدم وجود الوالد الأقرب." },
+  "Paternal siblings and sibling descendants": { title: "الإخوة لأب وذرية الإخوة", helper: "إخوة من جهة الأب وذرية الإخوة." },
+  "Paternal uncle line": { title: "خط أعمام الأب", helper: "قرابة أبعد من جهة الأب." },
+  "Distant relatives": { title: "ذوو الأرحام", helper: "قد تنطبق عند غياب الفئات الأولى من الورثة." },
+};
+
+export const ARABIC_EXTENDED_COPY: Record<ExtendedHeirKey, { label: string; description: string }> = {
+  sonsSons: { label: "أبناء الابن", description: "أحفاد من جهة الابن." },
+  sonsDaughters: { label: "بنات الابن", description: "حفيدات من جهة الابن." },
+  furtherSonsLineDescendants: { label: "ذرية أبعد من جهة الابن", description: "ذرية لاحقة عبر خط الابن." },
+  maternalGrandfather: { label: "جد الأم", description: "والد الأم." },
+  paternalGrandmothers: { label: "جدة الأب", description: "أم الأب." },
+  maternalGrandmothers: { label: "جدة الأم", description: "أم الأم." },
+  furtherPaternalAncestors: { label: "أصول أبعد من جهة الأب", description: "أجداد أبعد من خط الأب." },
+  paternalBrothers: { label: "إخوة لأب", description: "يشتركون في الأب وقد تختلف الأم." },
+  paternalSisters: { label: "أخوات لأب", description: "يشتركن في الأب وقد تختلف الأم." },
+  fullBrothersSons: { label: "أبناء الإخوة الأشقاء", description: "الأبناء الذكور للإخوة الأشقاء." },
+  paternalBrothersSons: { label: "أبناء الإخوة لأب", description: "الأبناء الذكور للإخوة لأب." },
+  paternalUncles: { label: "أعمام الأب", description: "إخوة الأب." },
+  paternalUnclesSons: { label: "أبناء أعمام الأب", description: "الأبناء الذكور لأعمام الأب." },
+  daughtersChildren: { label: "أبناء البنات", description: "ذرية البنت وما بعدها." },
+  sonsDaughtersChildren: { label: "أبناء بنات الابن", description: "ذرية بنت الابن." },
+  fullBrothersDaughters: { label: "بنات الإخوة الأشقاء", description: "البنات للإخوة الأشقاء." },
+  fullSistersChildren: { label: "أبناء الأخوات الشقيقات", description: "ذرية الأخوات الشقيقات." },
+  maternalBrothersChildren: { label: "أبناء الإخوة لأم", description: "ذرية الإخوة الذين يشتركون في الأم." },
+  fathersMaternalBrothers: { label: "أخ الأب لأم", description: "أخ للأب يشترك معه في الأم." },
+  fathersMaternalBrothersDescendants: { label: "ذرية أخ الأب لأم", description: "ذرية أخ الأب لأم." },
+  mothersSiblings: { label: "إخوة الأم", description: "أخوال أو خالات." },
+  mothersSiblingsDescendants: { label: "ذرية إخوة الأم", description: "أبناء إخوة الأم." },
+};
+
 export type SelectedExtendedHeir = ExtendedHeirDefinition & { count: number };
 
 export const getSelectedExtendedHeirs = (heirs: HeirInput): SelectedExtendedHeir[] =>
@@ -157,6 +192,8 @@ export type Allocation = {
 export type Exclusion = {
   label: string;
   reason: string;
+  /** Optional where legacy/source records only retain the human-readable relationship label. */
+  key?: any;
 };
 
 export type CalculationResult = {

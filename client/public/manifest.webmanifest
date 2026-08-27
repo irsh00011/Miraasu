@@ -1,7 +1,7 @@
 {
   "name": "Mīrāth Calculator",
   "short_name": "Mīrāth",
-  "description": "A Tamil and English Islamic inheritance calculation worksheet.",
+  "description": "A Tamil, English, and Arabic Islamic inheritance calculation worksheet.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
