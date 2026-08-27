@@ -18,7 +18,7 @@ try {
     return response.json();
   });
 
-  if (manifest.display !== "standalone" || !manifest.icons?.some((icon) => icon.src === "/icon-512.png")) {
+  if (manifest.display !== "standalone" || !manifest.icons?.some((icon) => icon.src === "/book-cover-icon-512.png")) {
     throw new Error("PWA manifest is missing standalone display mode or the required installation icon.");
   }
 
