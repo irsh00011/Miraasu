@@ -19,6 +19,7 @@ const openArabicFamily = async (page) => {
   await page.getByRole("button", { name: "التالي" }).click();
   await page.getByRole("heading", { name: "من الأقارب الأحياء؟" }).waitFor();
   await page.getByLabel("أفراد العائلة المختارون").waitFor();
+  await page.getByLabel("لماذا قد تختلف النتيجة السابقة؟").waitFor();
   await assertSingleColumn(page, "خريطة العائلة السهلة");
 };
 

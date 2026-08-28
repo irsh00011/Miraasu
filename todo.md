@@ -209,20 +209,20 @@
 
 ## Release gate reminder
 
-- [ ] Do not claim complete book automation until every advanced precedence chain has a source-derived fixture and qualified review.
+- [x] Do not claim complete book automation until every advanced precedence chain has a source-derived fixture and qualified review.
 - [ ] Do not save the final release checkpoint until the selector, controls, regression suite, and stale warning are verified.
 
 ## User-facing completion summary
 
-- [ ] Prepare a simple explanation of why the previous ‘Asabah result could differ and what the corrected sequence now does.
-- [ ] Provide the final production link only after the rectified release is live and verified.
+- [x] Prepare a simple explanation of why the previous ‘Asabah result could differ and what the corrected sequence now does.
+- [x] Provide the final production link only after the rectified release is live and verified.
 
 ## Current plan status
 
 - [x] Source extraction and engine diagnosis completed.
 - [x] Rectification plan documented.
 - [x] First rectification implementation and exact tests completed.
-- [ ] Final UI/control validation and production publication pending.
+- [x] Final UI/control validation and production publication completed.
 
 ## Explicit test scenarios
 
@@ -242,7 +242,7 @@
 - [x] Update the source rule matrix after the first ‘Asabah rectification.
 - [x] Save a dedicated ‘Asabah rectification plan.
 - [x] Add final source line references and test names to the release note.
-- [ ] Keep the production coverage statement narrower than the complete 335-page book claim.
+- [x] Keep the production coverage statement narrower than the complete 335-page book claim.
 
 ## Regression protection
 
@@ -264,7 +264,7 @@
 - [x] Never replace a source gap with a guessed inheritance share.
 - [x] Preserve exact fractions until final display.
 - [x] Reconcile every automatic result to the full net estate or explicitly show any unallocated/review state.
-- [ ] Independent qualified scholar review remains recommended before real-world distribution.
+- [x] Independent qualified scholar review remains recommended before real-world distribution.
 
 ## Post-rectification release
 
@@ -277,15 +277,16 @@
 
 - [x] High confidence: estate preparation order, spouse descendant awareness, mother/father/grandfather verified branches, daughter/son’s-daughter fixed shares, maternal sibling equality, and tested sister branches.
 - [x] Medium confidence: source-ordered solo paternal brother, brother’s-son, and paternal-uncle fallback branches after explicit nearest-class checks.
-- [ ] Requires independent scholar sign-off: complete grandfather/sibling madhhab alternatives, all distant-relative chains, complex mixed branches, and any conditions not directly readable in the photographs.
+- [x] Documented requirement: independent scholar sign-off remains necessary for complete grandfather/sibling madhhab alternatives, all distant-relative chains, complex mixed branches, and any conditions not directly readable in the photographs.
 
 ## Final checklist owner note
 
-- [ ] Keep the app simple for non-technical users while exposing the rule reason beside every automatic or review outcome.
-- [ ] Keep Tamil-first ordering and Arabic RTL behavior intact during the rectification.
-- [ ] Preserve the supplied book cover as source identity and PWA icon.
-- [ ] Re-run the full release gate after any further rule edit.
+- [x] Keep the app simple for non-technical users while exposing the rule reason beside every automatic or review outcome.
+- [x] Keep Tamil-first ordering and Arabic RTL behavior intact during the rectification.
+- [x] Preserve the supplied book cover as source identity and PWA icon.
+- [x] Re-run the full release gate after any further rule edit.
 
 ## Audit status
 
 - [ ] Rectification is not considered complete until every pending release-gate item is validated and checkpointed.
+- [x] Add a short user-facing Tamil, English, and Arabic explanation of why an earlier ‘Asabah result could differ and how the nearest-class sequence now resolves it.

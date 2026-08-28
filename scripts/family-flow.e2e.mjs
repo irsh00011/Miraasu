@@ -19,6 +19,7 @@ const openTamilFamily = async (page) => {
   await page.getByRole("button", { name: "தொடர்க", exact: true }).click();
   await page.getByRole("heading", { name: "குடும்பத்தில் யார் உள்ளனர்?" }).waitFor();
   await page.getByLabel("தேர்ந்தெடுத்த குடும்ப உறுப்பினர்கள்").waitFor();
+  await page.getByLabel("முந்தைய முடிவு ஏன் மாறியிருக்கலாம்?").waitFor();
   await assertSingleColumn(page, "எளிய குடும்ப பதிவு ஒழுங்கு");
 };
 

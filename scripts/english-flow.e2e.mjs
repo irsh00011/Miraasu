@@ -18,6 +18,7 @@ const openEnglishFamily = async (page) => {
   await page.getByRole("button", { name: "Continue" }).click();
   await page.getByRole("heading", { name: "Which family members are alive?" }).waitFor();
   await page.getByLabel("Selected family members").waitFor();
+  await page.getByLabel("Why the earlier result could differ").waitFor();
   await assertSingleColumn(page, "Simple family entry order");
 };
 
