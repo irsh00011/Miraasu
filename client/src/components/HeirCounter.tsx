@@ -7,13 +7,14 @@ type HeirCounterProps = {
   emoji?: string;
   label: string;
   description?: string;
+  searchText?: string;
   value: number;
   onChange: (value: number) => void;
   max?: number;
   language?: "ta" | "en" | "ar";
 };
 
-export function HeirCounter({ emoji, label, description, value, onChange, max = 20, language }: HeirCounterProps) {
+export function HeirCounter({ emoji, label, description, searchText, value, onChange, max = 20, language }: HeirCounterProps) {
   const resolvedLanguage = language ?? (/[\u0B80-\u0BFF]/.test(label) ? "ta" : /[\u0600-\u06FF]/.test(label) ? "ar" : "en");
   const counterCopy = resolvedLanguage === "ta" ? { count: "எண்ணிக்கை", decrease: "குறைக்க", increase: "அதிகரிக்க" } : resolvedLanguage === "ar" ? { count: "العدد", decrease: "إنقاص", increase: "زيادة" } : { count: "count", decrease: "decrease", increase: "increase" };
   const [familySearch, setFamilySearch] = useState("");
@@ -37,7 +38,7 @@ export function HeirCounter({ emoji, label, description, value, onChange, max = 
     };
   }, []);
 
-  const isSearchMatch = !familySearch || `${label} ${description ?? ""}`.toLocaleLowerCase().includes(familySearch);
+  const isSearchMatch = !familySearch || `${label} ${description ?? ""} ${searchText ?? ""}`.toLocaleLowerCase().includes(familySearch);
 
   return (
     <div hidden={!isSearchMatch} data-family-counter className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { calculateInheritance, fraction, fractionToText, type EstateInput, type HeirInput } from "./inheritance";
+import { calculateInheritance, EXTENDED_HEIR_SECTIONS, fraction, fractionToText, type EstateInput, type HeirInput } from "./inheritance";
 
 const estate = (overrides: Partial<EstateInput> = {}): EstateInput => ({
   grossEstate: 15000,
@@ -39,6 +39,15 @@ const exactAllocationTotal = (result: ReturnType<typeof calculateInheritance>) =
 };
 
 describe("ordinary inheritance calculation", () => {
+  it("exposes natural Tamil aliases for paternal-uncle search", () => {
+    const uncleSection = EXTENDED_HEIR_SECTIONS.find((section) => section.titleEn === "Paternal uncle (ʿamm) line");
+    const uncleSearchText = uncleSection?.items.map((item) => item.searchTerms ?? "").join(" ") ?? "";
+
+    expect(uncleSearchText).toContain("தந்தையின் சகோதரர்");
+    expect(uncleSearchText).toContain("பெரியப்பா");
+    expect(uncleSearchText).toContain("சித்தப்பா");
+  });
+
   it("reconciles a comprehensive automatic family case: two wives, mother, father, two sons, and one daughter", () => {
     const result = calculateInheritance(
       estate({ grossEstate: 120000 }),

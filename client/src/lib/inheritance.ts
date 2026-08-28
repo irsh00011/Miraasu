@@ -60,6 +60,7 @@ export type ExtendedHeirDefinition = {
   description: string;
   labelEn: string;
   descriptionEn: string;
+  searchTerms?: string;
 };
 
 export type ExtendedHeirSection = { title: string; helper: string; titleEn: string; helperEn: string; items: ExtendedHeirDefinition[] };
@@ -108,10 +109,10 @@ export const EXTENDED_HEIR_SECTIONS: ExtendedHeirSection[] = [
     titleEn: "Paternal uncle (ʿamm) line",
     helperEn: "Full and consanguine paternal uncles and their sons. Scholar review is required.",
     items: [
-      { key: "paternalUncles", emoji: "👨‍🦳", label: "முழு தந்தை வழி மாமாக்கள் (அம்)", description: "தந்தையின் முழு உடன்பிறந்த சகோதரர்கள்.", labelEn: "Full paternal uncles (ʿamm)", descriptionEn: "Full brothers of the father." },
-      { key: "paternalUnclesSons", emoji: "👦", label: "முழு தந்தை வழி மாமாக்களின் மகன்கள்", description: "முழு தந்தை வழி மாமாவின் ஆண் பிள்ளைகள்.", labelEn: "Sons of full paternal uncles", descriptionEn: "Male children of full paternal uncles." },
-      { key: "consanguinePaternalUncles", emoji: "👨‍🦳", label: "தந்தை வழி பாதி மாமாக்கள்", description: "தந்தையுடன் தந்தை ஒரேவராக உள்ள மாமாக்கள்.", labelEn: "Consanguine paternal uncles (ʿamm li-ab)", descriptionEn: "Paternal half-brothers of the father." },
-      { key: "consanguinePaternalUnclesSons", emoji: "👦", label: "தந்தை வழி பாதி மாமாக்களின் மகன்கள்", description: "தந்தை வழி பாதி மாமாவின் ஆண் பிள்ளைகள்.", labelEn: "Sons of consanguine paternal uncles", descriptionEn: "Male children of consanguine paternal uncles." },
+      { key: "paternalUncles", emoji: "👨‍🦳", label: "முழு தந்தை வழி மாமாக்கள் (அம்)", description: "தந்தையின் முழு உடன்பிறந்த சகோதரர்கள்.", labelEn: "Full paternal uncles (ʿamm)", descriptionEn: "Full brothers of the father.", searchTerms: "தந்தையின் சகோதரர் பெரியப்பா சித்தப்பா paternal uncle ʿamm عم" },
+      { key: "paternalUnclesSons", emoji: "👦", label: "முழு தந்தை வழி மாமாக்களின் மகன்கள்", description: "முழு தந்தை வழி மாமாவின் ஆண் பிள்ளைகள்.", labelEn: "Sons of full paternal uncles", descriptionEn: "Male children of full paternal uncles.", searchTerms: "தந்தையின் சகோதரரின் மகன் பெரியப்பா சித்தப்பா மகன் son of paternal uncle" },
+      { key: "consanguinePaternalUncles", emoji: "👨‍🦳", label: "தந்தை வழி பாதி மாமாக்கள்", description: "தந்தையுடன் தந்தை ஒரேவராக உள்ள மாமாக்கள்.", labelEn: "Consanguine paternal uncles (ʿamm li-ab)", descriptionEn: "Paternal half-brothers of the father.", searchTerms: "தந்தையின் சகோதரர் தந்தை வழி அரைச் சகோதரர் paternal uncle عم" },
+      { key: "consanguinePaternalUnclesSons", emoji: "👦", label: "தந்தை வழி பாதி மாமாக்களின் மகன்கள்", description: "தந்தை வழி பாதி மாமாவின் ஆண் பிள்ளைகள்.", labelEn: "Sons of consanguine paternal uncles", descriptionEn: "Male children of consanguine paternal uncles.", searchTerms: "தந்தையின் சகோதரரின் மகன் தந்தை வழி அரைச் சகோதரரின் மகன் son of paternal uncle" },
     ],
   },
   {

@@ -26,7 +26,7 @@ export function BookFamilySections({ heirs, onChange, query, onReset, language =
     .map((section) => ({
       ...section,
       allKeys: section.items.map((item) => item.key),
-      items: section.items.filter((item) => !normalizedQuery || `${section.title} ${section.helper} ${section.titleEn} ${section.helperEn} ${item.label} ${item.description} ${item.labelEn} ${item.descriptionEn} ${ARABIC_EXTENDED_COPY[item.key].label} ${ARABIC_EXTENDED_COPY[item.key].description}`.toLocaleLowerCase().includes(normalizedQuery)),
+      items: section.items.filter((item) => !normalizedQuery || `${section.title} ${section.helper} ${section.titleEn} ${section.helperEn} ${item.label} ${item.description} ${item.labelEn} ${item.descriptionEn} ${item.searchTerms ?? ""} ${ARABIC_EXTENDED_COPY[item.key].label} ${ARABIC_EXTENDED_COPY[item.key].description}`.toLocaleLowerCase().includes(normalizedQuery)),
     }))
     .filter((section) => section.items.length > 0 && (normalizedQuery.length > 0 || activeSection === "all" || section.titleEn === activeSection));
   const clearSearch = () => {
@@ -72,6 +72,7 @@ export function BookFamilySections({ heirs, onChange, query, onReset, language =
                 emoji={item.emoji}
                 label={language === "en" ? item.labelEn : language === "ar" ? ARABIC_EXTENDED_COPY[item.key].label : item.label}
                 description={language === "en" ? item.descriptionEn : language === "ar" ? ARABIC_EXTENDED_COPY[item.key].description : item.description}
+                searchText={item.searchTerms}
                 value={heirs[item.key] ?? 0}
                 onChange={(value) => onChange(item.key, value)}
                 language={language}

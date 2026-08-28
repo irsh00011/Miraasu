@@ -290,3 +290,4 @@
 
 - [x] Rectification is not considered complete until every pending release-gate item is validated and checkpointed.
 - [x] Add a short user-facing Tamil, English, and Arabic explanation of why an earlier ‘Asabah result could differ and how the nearest-class sequence now resolves it.
+- [x] Fix Tamil search so “தந்தையின் சகோதரர்” finds the paternal-uncle entries and add a browser regression.

@@ -55,6 +55,10 @@ try {
   await desktop.getByLabel("குடும்ப உறவைத் தேடுக").fill("இல்லாத உறவு");
   await desktop.getByRole("status").getByText("புத்தக உறவுகளில் இந்தத் தேடலுக்கு பொருத்தம் இல்லை", { exact: false }).waitFor();
   await desktop.getByRole("button", { name: "தேடலை அழி", exact: true }).click();
+  await desktop.getByLabel("குடும்ப உறவைத் தேடுக").fill("தந்தையின் சகோதரர்");
+  await desktop.getByRole("button", { name: "முழு தந்தை வழி மாமாக்கள் (அம்) அதிகரிக்க", exact: true }).waitFor();
+  await desktop.getByRole("button", { name: "தந்தை வழி பாதி மாமாக்கள் அதிகரிக்க", exact: true }).waitFor();
+  await desktop.getByLabel("குடும்ப உறவைத் தேடுக").fill("");
   await desktop.getByRole("button", { name: "தூரத்து உறவினர்கள்", exact: true }).waitFor();
   await desktop.getByRole("button", { name: "மகன் வழி சந்ததியினர்" }).last().click();
   await desktop.getByLabel("குடும்ப உறவைத் தேடுக").fill("மகனின் மகன்கள்");
