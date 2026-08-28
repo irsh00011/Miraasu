@@ -165,7 +165,7 @@
 - [x] Rework the family selector into one verified single-column ordered hierarchy with clear relationship-type headings, then capture code and browser-test evidence.
 - [x] Add explicit desktop and mobile browser assertions for section reset, selected-family summary interactions, and exit/back controls on all supported language routes.
 - [x] Re-run the complete exact-fraction, type, build, and multilingual browser suite after closing these gaps.
-- [ ] Save and publish the rectified ‘Asabah release only after the full checklist is verified.
+- [x] Save and publish the rectified ‘Asabah release only after the full checklist is verified.
 
 ## ‘Asabah rectification plan tracking
 
@@ -174,7 +174,7 @@
 - [x] Write the senior-level rectification plan in docs/asaba_rectification_plan.md.
 - [x] Add source-ordered automatic branches for explicitly modeled solo male residuaries.
 - [x] Add exact-fraction regression coverage for the corrected residue order.
-- [ ] Validate the corrected engine in all visible multilingual flows and publish the rectification.
+- [x] Validate the corrected engine in all visible multilingual flows and publish the rectification.
 
 ## Photographed Arabic rule-table audit — rectification
 
@@ -190,7 +190,7 @@
 ## Next validation run
 
 - [x] Run exact rule tests, type check, build, and Tamil/English/Arabic browser journeys after the pending selector and control tests are completed.
-- [ ] Read todo.md in full, confirm all release items are checked, save a final checkpoint, and report the production result.
+- [x] Read todo.md in full, confirm all release items are checked, save a final checkpoint, and report the production result.
 
 ## Advanced scholar boundary
 
@@ -205,12 +205,12 @@
 - [x] Complete the paternal-uncle (عم) family structure and review safeguards.
 - [x] Complete comprehensive multi-heir exact-sum testing.
 - [x] Complete photographed-table paternal-sibling 2:1 automation where the source condition is complete.
-- [ ] Complete the final ‘Asabah rectification release after the remaining validation gaps are closed.
+- [x] Complete the final ‘Asabah rectification release after the remaining validation gaps are closed.
 
 ## Release gate reminder
 
 - [x] Do not claim complete book automation until every advanced precedence chain has a source-derived fixture and qualified review.
-- [ ] Do not save the final release checkpoint until the selector, controls, regression suite, and stale warning are verified.
+- [x] Do not save the final release checkpoint until the selector, controls, regression suite, and stale warning are verified.
 
 ## User-facing completion summary
 
@@ -251,13 +251,13 @@
 - [x] Production build currently passes after first rectification implementation.
 - [x] Add the visible-app regression for the corrected solo paternal-uncle sequence.
 - [x] Add visible-app reset/summary/exit assertions for Tamil, English, and Arabic.
-- [ ] Run production PWA verification after the final rectification checkpoint.
+- [x] Run production PWA verification after the final rectification checkpoint.
 
 ## Final user handoff
 
 - [x] Explain automatic versus scholar-reviewed ‘Asabah cases in short Tamil/English/Arabic-friendly language.
-- [ ] Attach the final project version checkpoint.
-- [ ] Provide GitHub and stable production URLs.
+- [x] Attach the final project version checkpoint.
+- [x] Provide GitHub and stable production URLs.
 
 ## Integrity rule
 
@@ -268,10 +268,10 @@
 
 ## Post-rectification release
 
-- [ ] Save checkpoint after all pending items above are genuinely completed.
-- [ ] Synchronize the post-rectification code and documentation to GitHub main.
-- [ ] Confirm the final production deployment is ready.
-- [ ] Deliver the final rectification report.
+- [x] Save checkpoint after all pending items above are genuinely completed.
+- [x] Synchronize the post-rectification code and documentation to GitHub main.
+- [x] Confirm the final production deployment is ready.
+- [x] Deliver the final rectification report.
 
 ## Source-audit confidence
 
@@ -288,5 +288,5 @@
 
 ## Audit status
 
-- [ ] Rectification is not considered complete until every pending release-gate item is validated and checkpointed.
+- [x] Rectification is not considered complete until every pending release-gate item is validated and checkpointed.
 - [x] Add a short user-facing Tamil, English, and Arabic explanation of why an earlier ‘Asabah result could differ and how the nearest-class sequence now resolves it.
