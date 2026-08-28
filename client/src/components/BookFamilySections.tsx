@@ -25,6 +25,7 @@ export function BookFamilySections({ heirs, onChange, query, onReset, language =
   const sections = EXTENDED_HEIR_SECTIONS
     .map((section) => ({
       ...section,
+      allKeys: section.items.map((item) => item.key),
       items: section.items.filter((item) => !normalizedQuery || `${section.title} ${section.helper} ${section.titleEn} ${section.helperEn} ${item.label} ${item.description} ${item.labelEn} ${item.descriptionEn} ${ARABIC_EXTENDED_COPY[item.key].label} ${ARABIC_EXTENDED_COPY[item.key].description}`.toLocaleLowerCase().includes(normalizedQuery)),
     }))
     .filter((section) => section.items.length > 0 && (normalizedQuery.length > 0 || activeSection === "all" || section.titleEn === activeSection));
@@ -43,7 +44,7 @@ export function BookFamilySections({ heirs, onChange, query, onReset, language =
 
   return (
     <div className="space-y-7">
-      <div className="grid gap-2 sm:grid-cols-2" aria-label={language === "en" ? "Simple family entry order" : language === "ar" ? "ترتيب إدخال العائلة السهل" : "எளிய குடும்ப பதிவு ஒழுங்கு"}>
+      <div className="grid gap-2" aria-label={language === "en" ? "Simple family entry order" : language === "ar" ? "ترتيب إدخال العائلة السهل" : "எளிய குடும்ப பதிவு ஒழுங்கு"}>
         {familyMap.map(([number, title, helper]) => <div key={number} className="flex min-h-16 items-center gap-3 border border-blue-100 bg-blue-50/60 px-3 py-2"><span className="grid size-7 shrink-0 place-items-center rounded-full bg-[#133D76] text-xs font-bold text-white">{number}</span><div><p className="text-sm font-extrabold text-[#133D76]">{title}</p><p className="mt-0.5 text-[11px] leading-4 text-slate-500">{helper}</p></div></div>)}
       </div>
       <AsabaGuide language={language} />
@@ -58,9 +59,9 @@ export function BookFamilySections({ heirs, onChange, query, onReset, language =
         <section key={section.title} className="rounded-2xl border border-slate-200 bg-white p-4">
           <div className="flex items-start justify-between gap-3 border-b border-slate-100 pb-3">
             <div><div className="flex flex-wrap items-center gap-2"><p className="text-sm font-extrabold text-[#133D76]">{language === "en" ? section.titleEn : language === "ar" ? sectionArabic.title : section.title}</p><span className={`rounded-md px-2 py-1 text-[10px] font-extrabold ${reviewOnly === 0 ? "bg-emerald-50 text-emerald-700" : automated === 0 ? "bg-amber-50 text-amber-800" : "bg-blue-50 text-[#133D76]"}`}>{status}</span></div><p className="mt-1 text-xs leading-5 text-slate-500">{language === "en" ? section.helperEn : language === "ar" ? sectionArabic.helper : section.helper}</p></div>
-            <button type="button" onClick={() => onReset(section.items.map((item) => item.key))} className="inline-flex min-h-10 shrink-0 items-center gap-1.5 rounded-xl px-2 text-xs font-bold text-slate-500 hover:bg-slate-100 hover:text-[#133D76]" aria-label={language === "en" ? `Clear ${section.titleEn}` : language === "ar" ? `مسح ${sectionArabic.title}` : `${section.title} உறவுகளை அழிக்க`}><RotateCcw size={15} /> {language === "en" ? "Clear" : language === "ar" ? "مسح" : "அழி"}</button>
+            <button type="button" onClick={() => onReset(section.allKeys)} className="inline-flex min-h-10 shrink-0 items-center gap-1.5 rounded-xl px-2 text-xs font-bold text-slate-500 hover:bg-slate-100 hover:text-[#133D76]" aria-label={language === "en" ? `Clear ${section.titleEn}` : language === "ar" ? `مسح ${sectionArabic.title}` : `${section.title} உறவுகளை அழிக்க`}><RotateCcw size={15} /> {language === "en" ? "Clear" : language === "ar" ? "مسح" : "அழி"}</button>
           </div>
-          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+          <div className="mt-3 grid gap-3">
             {section.items.map((item) => (
               <HeirCounter
                 key={item.key}

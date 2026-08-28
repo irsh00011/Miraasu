@@ -553,6 +553,12 @@ function calculateAuditedInheritance(estate: EstateInput, heirs: HeirInput): Cal
   const sonsDaughters = heirs.sonsDaughters ?? 0;
   const paternalBrothers = heirs.paternalBrothers ?? 0;
   const paternalSisters = heirs.paternalSisters ?? 0;
+  const fullBrothersSons = heirs.fullBrothersSons ?? 0;
+  const paternalBrothersSons = heirs.paternalBrothersSons ?? 0;
+  const paternalUncles = heirs.paternalUncles ?? 0;
+  const paternalUnclesSons = heirs.paternalUnclesSons ?? 0;
+  const consanguinePaternalUncles = heirs.consanguinePaternalUncles ?? 0;
+  const consanguinePaternalUnclesSons = heirs.consanguinePaternalUnclesSons ?? 0;
   const paternalGrandmothers = heirs.paternalGrandmothers ?? 0;
   const maternalGrandmothers = heirs.maternalGrandmothers ?? 0;
   const hasDirectSon = heirs.sons > 0;
@@ -562,8 +568,25 @@ function calculateAuditedInheritance(estate: EstateInput, heirs: HeirInput): Cal
   const hasSpouse = heirs.husband > 0 || heirs.wives > 0;
   const fullSiblingCount = heirs.fullBrothers + heirs.fullSisters;
   const paternalSiblingPairEligible = paternalBrothers > 0 && paternalSisters > 0 && !hasAnyDescendant && heirs.father === 0 && heirs.paternalGrandfather === 0 && fullSiblingCount === 0;
+  const noCloserAsaba = !hasAnyDescendant && heirs.father === 0 && heirs.paternalGrandfather === 0;
+  const fullBrotherSonsEligible = fullBrothersSons > 0 && fullSiblingCount === 0 && noCloserAsaba;
+  const paternalBrotherSoloEligible = paternalBrothers > 0 && paternalSisters === 0 && fullSiblingCount === 0 && fullBrothersSons === 0 && noCloserAsaba;
+  const paternalBrotherSonsEligible = paternalBrothersSons > 0 && paternalBrothers === 0 && paternalSisters === 0 && fullSiblingCount === 0 && fullBrothersSons === 0 && noCloserAsaba;
+  const paternalUncleEligible = paternalUncles > 0 && paternalUnclesSons === 0 && consanguinePaternalUncles === 0 && consanguinePaternalUnclesSons === 0 && paternalBrothers === 0 && paternalBrothersSons === 0 && fullSiblingCount === 0 && fullBrothersSons === 0 && noCloserAsaba;
+  const paternalUncleSonsEligible = paternalUnclesSons > 0 && paternalUncles === 0 && consanguinePaternalUncles === 0 && consanguinePaternalUnclesSons === 0 && paternalBrothers === 0 && paternalBrothersSons === 0 && fullSiblingCount === 0 && fullBrothersSons === 0 && noCloserAsaba;
+  const consanguinePaternalUncleEligible = consanguinePaternalUncles > 0 && consanguinePaternalUnclesSons === 0 && paternalUncles === 0 && paternalUnclesSons === 0 && paternalBrothers === 0 && paternalBrothersSons === 0 && fullSiblingCount === 0 && fullBrothersSons === 0 && noCloserAsaba;
+  const consanguinePaternalUncleSonsEligible = consanguinePaternalUnclesSons > 0 && consanguinePaternalUncles === 0 && paternalUncles === 0 && paternalUnclesSons === 0 && paternalBrothers === 0 && paternalBrothersSons === 0 && fullSiblingCount === 0 && fullBrothersSons === 0 && noCloserAsaba;
+  const automaticMaleResidueKeys = new Set<ExtendedHeirKey>([
+    ...(fullBrotherSonsEligible ? ["fullBrothersSons" as ExtendedHeirKey] : []),
+    ...(paternalBrotherSoloEligible ? ["paternalBrothers" as ExtendedHeirKey] : []),
+    ...(paternalBrotherSonsEligible ? ["paternalBrothersSons" as ExtendedHeirKey] : []),
+    ...(paternalUncleEligible ? ["paternalUncles" as ExtendedHeirKey] : []),
+    ...(paternalUncleSonsEligible ? ["paternalUnclesSons" as ExtendedHeirKey] : []),
+    ...(consanguinePaternalUncleEligible ? ["consanguinePaternalUncles" as ExtendedHeirKey] : []),
+    ...(consanguinePaternalUncleSonsEligible ? ["consanguinePaternalUnclesSons" as ExtendedHeirKey] : []),
+  ]);
   const selectedExtendedHeirs = getSelectedExtendedHeirs(heirs);
-  const selectedReviewOnlyHeirs = getSelectedReviewOnlyHeirs(heirs).filter((item) => item.key !== "paternalBrothers" || !paternalSiblingPairEligible);
+  const selectedReviewOnlyHeirs = getSelectedReviewOnlyHeirs(heirs).filter((item) => (item.key !== "paternalBrothers" || !paternalSiblingPairEligible) && !automaticMaleResidueKeys.has(item.key));
   const siblingCount = fullSiblingCount + heirs.maternalBrothers + heirs.maternalSisters + paternalBrothers + paternalSisters;
   const grandfatherSiblingDifference = heirs.paternalGrandfather > 0 && (fullSiblingCount + paternalBrothers + paternalSisters > 0);
 
@@ -678,6 +701,20 @@ function calculateAuditedInheritance(estate: EstateInput, heirs: HeirInput): Cal
       const units = heirs.fullBrothers * 2 + heirs.fullSisters;
       if (heirs.fullBrothers > 0) remainder.push(allocation("fullBrothers", "உடன் பிறந்த சகோதரர்", heirs.fullBrothers, multiply(availableRemainder, fraction(heirs.fullBrothers * 2, units)), "மீதமான சொத்தில் சகோதரருக்கு இரண்டு பங்கு.", "remainder"));
       if (heirs.fullSisters > 0) remainder.push(allocation("fullSisters", "உடன் பிறந்த சகோதரி", heirs.fullSisters, multiply(availableRemainder, fraction(heirs.fullSisters, units)), heirs.fullBrothers > 0 ? "மீதமான சொத்தில் சகோதரிக்கு ஒரு பங்கு." : "மகள் அல்லது மகன் வழி மகளுடன் இருப்பதால் மீதமான பங்கு உடன்பிறந்த சகோதரிக்கு செல்கிறது.", "remainder"));
+    } else if (fullBrotherSonsEligible) {
+      remainder.push(allocation("fullBrothersSons", "உடன்பிறந்த சகோதரரின் மகன்", fullBrothersSons, availableRemainder, "முந்தைய ‘அஸபா வகுப்பினர் இல்லாததால், உடன்பிறந்த சகோதரரின் மகன்கள் மீதமான சொத்தைப் பெறுகிறார்கள்.", "remainder"));
+    } else if (paternalBrotherSoloEligible) {
+      remainder.push(allocation("paternalBrothers", "தந்தை வழி சகோதரர்", paternalBrothers, availableRemainder, "நெருங்கிய ‘அஸபா வாரிசு இல்லாததால், தந்தை வழி சகோதரர் மீதமான சொத்தைப் பெறுகிறார்.", "remainder"));
+    } else if (paternalBrotherSonsEligible) {
+      remainder.push(allocation("paternalBrothersSons", "தந்தை வழி சகோதரரின் மகன்", paternalBrothersSons, availableRemainder, "நெருங்கிய ‘அஸபா வாரிசு இல்லாததால், தந்தை வழி சகோதரரின் மகன் மீதமான சொத்தைப் பெறுகிறார்.", "remainder"));
+    } else if (paternalUncleEligible) {
+      remainder.push(allocation("paternalUncles", "தந்தையின் முழு சகோதரர் (அம்)", paternalUncles, availableRemainder, "முன்னைய ‘அஸபா வகுப்பினர் இல்லாததால், அம் மீதமான சொத்தைப் பெறுகிறார்.", "remainder"));
+    } else if (paternalUncleSonsEligible) {
+      remainder.push(allocation("paternalUnclesSons", "அம் மகன்", paternalUnclesSons, availableRemainder, "நெருங்கிய ‘அஸபா வாரிசு இல்லாததால், அம் மகன் மீதமான சொத்தைப் பெறுகிறார்.", "remainder"));
+    } else if (consanguinePaternalUncleEligible) {
+      remainder.push(allocation("consanguinePaternalUncles", "தந்தையின் தந்தை வழி சகோதரர் (அம் لأب)", consanguinePaternalUncles, availableRemainder, "முன்னைய ‘அஸபா வகுப்பினர் இல்லாததால், அம் لأب மீதமான சொத்தைப் பெறுகிறார்.", "remainder"));
+    } else if (consanguinePaternalUncleSonsEligible) {
+      remainder.push(allocation("consanguinePaternalUnclesSons", "அம் لأب மகன்", consanguinePaternalUnclesSons, availableRemainder, "நெருங்கிய ‘அஸபா வாரிசு இல்லாததால், அம் لأب மகன் மீதமான சொத்தைப் பெறுகிறார்.", "remainder"));
     } else if (paternalSiblingsGetRemainder) {
       const units = paternalBrothers * 2 + paternalSisters;
       remainder.push(allocation("paternalBrothers", "தந்தை வழி சகோதரர்", paternalBrothers, multiply(availableRemainder, fraction(paternalBrothers * 2, units)), "தந்தை வழி சகோதரியுடன் இருப்பதால் மீதமான சொத்தில் சகோதரருக்கு இரண்டு பங்கு.", "remainder"));

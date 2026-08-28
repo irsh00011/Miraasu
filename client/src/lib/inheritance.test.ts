@@ -63,6 +63,23 @@ describe("ordinary inheritance calculation", () => {
     expect(exactAllocationTotal(result)).toBe("1");
   });
 
+  it("keeps the father’s remainder precedence and flags selected third- and fourth-degree residuaries for review", () => {
+    const result = calculateInheritance(
+      estate({ grossEstate: 24000 }),
+      heirs({ wives: 1, mother: 1, father: 1, daughters: 1, paternalBrothers: 1, paternalUncles: 1 }),
+    );
+
+    expect(result.requiresScholarReview).toBe(true);
+    expect(shareFor("wives", result)).toBe("1/8");
+    expect(shareFor("mother", result)).toBe("1/6");
+    expect(shareFor("daughters", result)).toBe("1/2");
+    expect(shareFor("father", result)).toBe("5/24");
+    expect(result.allocations.some((item) => item.key === "paternalBrothers")).toBe(false);
+    expect(result.allocations.some((item) => item.key === "paternalUncles")).toBe(false);
+    expect(result.selectedReviewOnlyHeirs.map((item) => item.key)).toEqual(["paternalBrothers", "paternalUncles"]);
+    expect(exactAllocationTotal(result)).toBe("1");
+  });
+
   it("keeps the same core calculation visible but requires review when a consanguine paternal uncle is added", () => {
     const result = calculateInheritance(
       estate({ grossEstate: 120000 }),
@@ -106,6 +123,57 @@ describe("ordinary inheritance calculation", () => {
 
     expect(result.requiresScholarReview).toBe(true);
     expect(result.selectedReviewOnlyHeirs.map((item) => item.key)).toContain("paternalBrothers");
+  });
+
+  it("gives a solo paternal brother the remainder after all closer residuary classes are absent", () => {
+    const result = calculateInheritance(estate(), heirs({ paternalBrothers: 1 }));
+
+    expect(result.requiresScholarReview).toBe(false);
+    expect(shareFor("paternalBrothers", result)).toBe("1");
+    expect(exactAllocationTotal(result)).toBe("1");
+  });
+
+  it("gives a full brother’s son the remainder when the full-brother class is absent", () => {
+    const result = calculateInheritance(estate(), heirs({ fullBrothersSons: 2 }));
+
+    expect(result.requiresScholarReview).toBe(false);
+    expect(shareFor("fullBrothersSons", result)).toBe("1");
+    expect(result.allocations.find((item) => item.key === "fullBrothersSons")?.count).toBe(2);
+  });
+
+  it("gives a paternal brother’s son the remainder after the paternal-brother class is absent", () => {
+    const result = calculateInheritance(estate(), heirs({ paternalBrothersSons: 1 }));
+
+    expect(result.requiresScholarReview).toBe(false);
+    expect(shareFor("paternalBrothersSons", result)).toBe("1");
+    expect(exactAllocationTotal(result)).toBe("1");
+  });
+
+  it("gives a consanguine paternal uncle the remainder after all earlier classes are absent", () => {
+    const result = calculateInheritance(estate(), heirs({ consanguinePaternalUncles: 1 }));
+
+    expect(result.requiresScholarReview).toBe(false);
+    expect(shareFor("consanguinePaternalUncles", result)).toBe("1");
+    expect(exactAllocationTotal(result)).toBe("1");
+  });
+
+  it("follows the fourth-degree uncle class only after earlier residuary classes are absent", () => {
+    const result = calculateInheritance(estate(), heirs({ paternalUncles: 1 }));
+    const blocked = calculateInheritance(estate(), heirs({ fullBrothers: 1, paternalUncles: 1 }));
+
+    expect(result.requiresScholarReview).toBe(false);
+    expect(shareFor("paternalUncles", result)).toBe("1");
+    expect(blocked.requiresScholarReview).toBe(true);
+    expect(blocked.selectedReviewOnlyHeirs.map((item) => item.key)).toContain("paternalUncles");
+    expect(shareFor("fullBrothers", blocked)).toBe("1");
+  });
+
+  it("keeps later paternal-uncle descendants out of an automatic result when their nearest class is ambiguous", () => {
+    const result = calculateInheritance(estate(), heirs({ paternalUnclesSons: 1, consanguinePaternalUnclesSons: 1 }));
+
+    expect(result.requiresScholarReview).toBe(true);
+    expect(result.allocations.some((item) => item.key === "paternalUnclesSons")).toBe(false);
+    expect(result.allocations.some((item) => item.key === "consanguinePaternalUnclesSons")).toBe(false);
   });
 
   it("keeps the three-daughter Qur’anic fixed share visible before any applicable redistribution", () => {

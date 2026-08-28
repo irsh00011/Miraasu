@@ -5,9 +5,9 @@
 - [x] Implement the basic heir questionnaire for spouse, parents, children, and siblings.
 - [x] Encode the MVP share, blocking, and remainder rules from the supplied guide.
 - [x] Create a plain-language results worksheet with share reasons, currency amounts, and a total check.
-- [ ] Add clear advanced-case warnings rather than misleading automatic outcomes.
+- [x] Add clear advanced-case warnings rather than misleading automatic outcomes.
 - [x] Test representative calculation paths and mobile layouts.
-- [ ] Capture the final visual review, save a checkpoint, and deliver the project.
+- [x] Capture the final visual review, save a checkpoint, and deliver the project.
 
 ## Smooth UX update
 
@@ -43,7 +43,7 @@
 - [x] Add a reset control for each family section and a separate start-new-calculation action.
 - [x] Add a live selected-family side panel that shows counts and permits removal.
 - [x] Add a clear exit/back control from the family-selection step.
-- [ ] Validate search, reset, summary, and exit behavior on mobile and desktop.
+- [x] Validate search, reset, summary, and exit behavior on mobile and desktop.
 
 ## English version
 
@@ -82,14 +82,14 @@
 - [x] Extract the book’s exact share tables, blocking rules, remainder rules, and worked sums into a testable rule matrix.
 - [x] Compare every implemented calculation branch to the source matrix and correct any mismatch.
 - [x] Add coverage for book rules that can be safely automated and flag the rest as review-only.
-- [ ] Rebuild the family selector into a calm single-column hierarchy with clear relationship-type headings.
-- [ ] Add source-based regression tests, sum checks, and Tamil/English responsive browser validation.
+- [x] Rebuild the family selector into a calm single-column hierarchy with clear relationship-type headings.
+- [x] Add source-based regression tests, sum checks, and Tamil/English responsive browser validation.
 
 ## Source-book family structure
 
-- [ ] Extract every heir category and relationship group stated in the supplied book.
-- [ ] Map the book’s hierarchy into Primary Family, Secondary Family, and extended residuary groups.
-- [ ] Identify which book-based groups are already in the calculator and which remain future work.
+- [x] Extract every heir category and relationship group stated in the supplied book.
+- [x] Map the book’s hierarchy into Primary Family, Secondary Family, and extended residuary groups.
+- [x] Identify which book-based groups are already in the calculator and which remain future work.
 
 ## Arabic and simple-grid update
 
@@ -154,8 +154,138 @@
 
 ## ‘Asaba structure update
 
-- [ ] Add the four degree headings for ‘Asaba bi-nafsihi: descendants, ascendants, same-parent/father collaterals, and uncles.
-- [ ] Add clear ‘Asaba bi-ghayrihi guidance for son/daughter, son’s son/son’s daughter, full siblings, and paternal siblings with the 2:1 ratio.
-- [ ] Add clear ‘Asaba ma‘a ghayrihi guidance for full and paternal sisters with daughters or son’s daughters taking the fixed share first.
-- [ ] Verify which of the above rules are already automated, expand only source-backed rules, and mark incomplete precedence paths for scholar review.
-- [ ] Add calculation and browser tests for the added ‘Asaba explanations and publish the verified update.
+- [x] Add the four degree headings for ‘Asaba bi-nafsihi: descendants, ascendants, same-parent/father collaterals, and uncles.
+- [x] Add clear ‘Asaba bi-ghayrihi guidance for son/daughter, son’s son/son’s daughter, full siblings, and paternal siblings with the 2:1 ratio.
+- [x] Add clear ‘Asaba ma‘a ghayrihi guidance for full and paternal sisters with daughters or son’s daughters taking the fixed share first.
+- [x] Verify which of the above rules are already automated, expand only source-backed rules, and mark incomplete precedence paths for scholar review.
+- [x] Add calculation and browser tests for the added ‘Asaba explanations and publish the verified update.
+
+## Follow-up validation gaps
+
+- [x] Rework the family selector into one verified single-column ordered hierarchy with clear relationship-type headings, then capture code and browser-test evidence.
+- [x] Add explicit desktop and mobile browser assertions for section reset, selected-family summary interactions, and exit/back controls on all supported language routes.
+- [x] Re-run the complete exact-fraction, type, build, and multilingual browser suite after closing these gaps.
+- [ ] Save and publish the rectified ‘Asabah release only after the full checklist is verified.
+
+## ‘Asabah rectification plan tracking
+
+- [x] Read the supplied book’s ordered ‘Asabah classes and sister conditions.
+- [x] Trace the current residue chain and identify missing third- and fourth-degree male-residuary branches.
+- [x] Write the senior-level rectification plan in docs/asaba_rectification_plan.md.
+- [x] Add source-ordered automatic branches for explicitly modeled solo male residuaries.
+- [x] Add exact-fraction regression coverage for the corrected residue order.
+- [ ] Validate the corrected engine in all visible multilingual flows and publish the rectification.
+
+## Photographed Arabic rule-table audit — rectification
+
+- [x] Reconcile the photographed sibling tables with the source matrix and current engine.
+- [x] Document the previously missing paternal-sibling automatic condition and its narrow boundaries.
+- [x] Confirm the photographed rule-table audit remains consistent with the complete ‘Asabah residue sequence after the rectification.
+
+## Development recovery note
+
+- [x] Restore dependencies and restart the development server after the unintended template-upgrade conflict.
+- [x] Resolve or verify the stale development-console dotenv warning before final release validation.
+
+## Next validation run
+
+- [x] Run exact rule tests, type check, build, and Tamil/English/Arabic browser journeys after the pending selector and control tests are completed.
+- [ ] Read todo.md in full, confirm all release items are checked, save a final checkpoint, and report the production result.
+
+## Advanced scholar boundary
+
+- [x] Keep unresolved madhhab differences, distant relatives, mixed precedence combinations, and unreadable photographed conditions outside automatic allocation.
+- [x] Show selected unresolved relatives explicitly instead of silently omitting them.
+- [x] State that production output is an educational aid requiring qualified scholar confirmation for advanced cases.
+
+## Historical task records
+
+- [x] Complete the three-language search repair and verify clear-search restoration.
+- [x] Complete the Arabic route, RTL layout, and balance-and-fractions worksheet identity.
+- [x] Complete the paternal-uncle (عم) family structure and review safeguards.
+- [x] Complete comprehensive multi-heir exact-sum testing.
+- [x] Complete photographed-table paternal-sibling 2:1 automation where the source condition is complete.
+- [ ] Complete the final ‘Asabah rectification release after the remaining validation gaps are closed.
+
+## Release gate reminder
+
+- [ ] Do not claim complete book automation until every advanced precedence chain has a source-derived fixture and qualified review.
+- [ ] Do not save the final release checkpoint until the selector, controls, regression suite, and stale warning are verified.
+
+## User-facing completion summary
+
+- [ ] Prepare a simple explanation of why the previous ‘Asabah result could differ and what the corrected sequence now does.
+- [ ] Provide the final production link only after the rectified release is live and verified.
+
+## Current plan status
+
+- [x] Source extraction and engine diagnosis completed.
+- [x] Rectification plan documented.
+- [x] First rectification implementation and exact tests completed.
+- [ ] Final UI/control validation and production publication pending.
+
+## Explicit test scenarios
+
+- [x] Son + daughter residue 2:1.
+- [x] Three daughters fixed 2/3 before other eligible shares.
+- [x] Equal same-rank full brothers divide residue equally.
+- [x] Full brother’s son selected after the full-brother class is absent.
+- [x] Solo paternal brother selected after closer residuary classes are absent.
+- [x] Solo paternal-brother’s son selected after its closer class is absent.
+- [x] Solo full paternal uncle selected after earlier classes are absent.
+- [x] Solo consanguine paternal uncle selected after earlier classes are absent.
+- [x] Later uncle descendants do not silently allocate in an ambiguous mixed class.
+- [x] Combined ‘Asabah case with wife, mother, father, daughter, and a selected third/fourth-degree residuary is validated against the documented precedence sequence.
+
+## Documentation quality
+
+- [x] Update the source rule matrix after the first ‘Asabah rectification.
+- [x] Save a dedicated ‘Asabah rectification plan.
+- [x] Add final source line references and test names to the release note.
+- [ ] Keep the production coverage statement narrower than the complete 335-page book claim.
+
+## Regression protection
+
+- [x] Unit suite currently passes after first rectification implementation.
+- [x] Type check currently passes after first rectification implementation.
+- [x] Production build currently passes after first rectification implementation.
+- [x] Add the visible-app regression for the corrected solo paternal-uncle sequence.
+- [x] Add visible-app reset/summary/exit assertions for Tamil, English, and Arabic.
+- [ ] Run production PWA verification after the final rectification checkpoint.
+
+## Final user handoff
+
+- [x] Explain automatic versus scholar-reviewed ‘Asabah cases in short Tamil/English/Arabic-friendly language.
+- [ ] Attach the final project version checkpoint.
+- [ ] Provide GitHub and stable production URLs.
+
+## Integrity rule
+
+- [x] Never replace a source gap with a guessed inheritance share.
+- [x] Preserve exact fractions until final display.
+- [x] Reconcile every automatic result to the full net estate or explicitly show any unallocated/review state.
+- [ ] Independent qualified scholar review remains recommended before real-world distribution.
+
+## Post-rectification release
+
+- [ ] Save checkpoint after all pending items above are genuinely completed.
+- [ ] Synchronize the post-rectification code and documentation to GitHub main.
+- [ ] Confirm the final production deployment is ready.
+- [ ] Deliver the final rectification report.
+
+## Source-audit confidence
+
+- [x] High confidence: estate preparation order, spouse descendant awareness, mother/father/grandfather verified branches, daughter/son’s-daughter fixed shares, maternal sibling equality, and tested sister branches.
+- [x] Medium confidence: source-ordered solo paternal brother, brother’s-son, and paternal-uncle fallback branches after explicit nearest-class checks.
+- [ ] Requires independent scholar sign-off: complete grandfather/sibling madhhab alternatives, all distant-relative chains, complex mixed branches, and any conditions not directly readable in the photographs.
+
+## Final checklist owner note
+
+- [ ] Keep the app simple for non-technical users while exposing the rule reason beside every automatic or review outcome.
+- [ ] Keep Tamil-first ordering and Arabic RTL behavior intact during the rectification.
+- [ ] Preserve the supplied book cover as source identity and PWA icon.
+- [ ] Re-run the full release gate after any further rule edit.
+
+## Audit status
+
+- [ ] Rectification is not considered complete until every pending release-gate item is validated and checkpointed.
