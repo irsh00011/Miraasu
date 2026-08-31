@@ -239,3 +239,13 @@
   .shadow-sm, .shadow-lg, .shadow-xl { box-shadow: none !important; }
   body { background: white !important; }
 }
+
+/* Mobile-first calculator safeguards */
+html, body, #root { max-width: 100%; overflow-x: hidden; }
+@media (max-width: 639px) {
+  main { padding-bottom: 6.5rem !important; }
+  .family-counter { min-height: 66px; }
+  .calculation-ledger .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .calculation-ledger .grid > :last-child { grid-column: 1 / -1; }
+  .zero-share-list span:last-child { max-width: 58%; text-align: right; }
+}

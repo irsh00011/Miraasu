@@ -1,5 +1,4 @@
-/** Design: A simple white-and-blue Tamil-first worksheet control with large touch targets. */
-/** Design: Ledger of Justice — high-contrast, touch-safe count control for every language and script direction. */
+/** Design: compact, touch-safe family grid control shared by all localized calculator pages. */
 import { useEffect, useState } from "react";
 import { Minus, Plus } from "lucide-react";
 
@@ -27,8 +26,6 @@ export function HeirCounter({ emoji, label, description, searchText, value, onCh
       });
       setFamilySearch(input?.value.trim().toLocaleLowerCase() ?? "");
     };
-
-    // Capturing catches keyboard, paste, autofill, and browser-driven input events before any nested component can stop them.
     document.addEventListener("input", readFamilySearch, true);
     document.addEventListener("change", readFamilySearch, true);
     readFamilySearch();
@@ -41,31 +38,15 @@ export function HeirCounter({ emoji, label, description, searchText, value, onCh
   const isSearchMatch = !familySearch || `${label} ${description ?? ""} ${searchText ?? ""}`.toLocaleLowerCase().includes(familySearch);
 
   return (
-    <div hidden={!isSearchMatch} data-family-counter className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
-      <div className="min-w-0">
-        <p className="flex items-center gap-2 font-semibold text-slate-900">{emoji ? <span aria-hidden="true" className="text-base">{emoji}</span> : null}{label}</p>
-        {description ? <p className="mt-0.5 text-xs leading-5 text-slate-500">{description}</p> : null}
+    <div hidden={!isSearchMatch} data-family-counter className="family-counter flex min-w-0 items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white p-2.5 shadow-sm">
+      <div className="min-w-0 flex-1">
+        <p className="flex items-center gap-1.5 text-sm font-bold leading-5 text-slate-900">{emoji ? <span aria-hidden="true" className="text-sm">{emoji}</span> : null}<span className="truncate">{label}</span></p>
+        {description ? <p className="mt-0.5 line-clamp-2 text-[11px] leading-4 text-slate-500">{description}</p> : null}
       </div>
-      <div className="flex shrink-0 items-center gap-2" aria-label={`${label} ${counterCopy.count}`}>
-        <button
-          type="button"
-          onClick={() => onChange(Math.max(0, value - 1))}
-          disabled={value === 0}
-          className="grid size-10 place-items-center rounded-xl border border-slate-200 text-slate-600 transition hover:border-blue-300 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-40"
-          aria-label={`${label} ${counterCopy.decrease}`}
-        >
-          <Minus size={17} />
-        </button>
-        <output className="grid size-10 place-items-center rounded-xl bg-blue-50 font-bold tabular-nums text-[#133D76]">{value}</output>
-        <button
-          type="button"
-          onClick={() => onChange(Math.min(max, value + 1))}
-          disabled={value >= max}
-          className="grid size-10 place-items-center rounded-xl bg-[#133D76] text-white transition hover:bg-[#102F5E] disabled:cursor-not-allowed disabled:opacity-40"
-          aria-label={`${label} ${counterCopy.increase}`}
-        >
-          <Plus size={17} />
-        </button>
+      <div className="flex shrink-0 items-center gap-1" aria-label={`${label} ${counterCopy.count}`}>
+        <button type="button" onClick={() => onChange(Math.max(0, value - 1))} disabled={value === 0} className="grid size-10 place-items-center rounded-lg border border-slate-200 text-slate-600 transition hover:border-blue-300 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-40" aria-label={`${label} ${counterCopy.decrease}`}><Minus size={16} /></button>
+        <output className="grid size-10 place-items-center rounded-lg bg-blue-50 text-sm font-bold tabular-nums text-[#133D76]">{value}</output>
+        <button type="button" onClick={() => onChange(Math.min(max, value + 1))} disabled={value >= max} className="grid size-10 place-items-center rounded-lg bg-[#133D76] text-white transition hover:bg-[#102F5E] disabled:cursor-not-allowed disabled:opacity-40" aria-label={`${label} ${counterCopy.increase}`}><Plus size={16} /></button>
       </div>
     </div>
   );
