@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
-import { asabahPartsFor, fractionToNumber, fractionToText, type AppLanguage, type CalculationResult } from "@/lib/inheritance";
+import { ASABAH_GENDER, asabahPartsFor, fractionToNumber, fractionToText, type AppLanguage, type CalculationResult } from "@/lib/inheritance";
 
 type Props = { result: CalculationResult; language?: AppLanguage };
 type Method = "lcm" | "percentage";
@@ -27,6 +27,7 @@ const copy = {
     noRemainder: "No remainder",
     male: "male",
     female: "female",
+    equal: "one equal part per member",
   },
   ta: {
     teacher: "ஆசிரியர் / விரிவான கணக்கு",
@@ -49,6 +50,7 @@ const copy = {
     noRemainder: "மீதி இல்லை",
     male: "ஆண்",
     female: "பெண்",
+    equal: "ஒவ்வொரு உறுப்பினருக்கும் ஒரு சம பங்கு",
   },
   ar: {
     teacher: "عرض المدرّس / المجموع الصريح",
@@ -71,6 +73,7 @@ const copy = {
     noRemainder: "لا يوجد باقي",
     male: "ذكر",
     female: "أنثى",
+    equal: "سهم متساوٍ لكل فرد",
   },
 } as const;
 
@@ -82,13 +85,13 @@ export function CalculationTrace({ result, language = "en" }: Props) {
   const t = copy[language];
   const fixedRows = result.trace.rows.filter((row) => row.method === "fixed");
   const asabahRows = result.trace.rows.filter((row) => row.method === "remainder");
-  const hasMixed = asabahRows.some((row) => row.key && row.method === "remainder" && row.integerShares > 1 && row.count > 0) && asabahRows.some((row) => row.integerShares === 1);
+  const hasMixed = asabahRows.some((row) => ASABAH_GENDER[row.key] === "male") && asabahRows.some((row) => ASABAH_GENDER[row.key] === "female");
   const remainderAmount = Math.max(0, result.netEstate * fractionToNumber(result.trace.remainder));
   const distributedAmount = result.trace.rows.reduce((total, row) => total + row.amount, 0);
   const remainingAmount = Math.max(0, result.netEstate - distributedAmount);
   const fixedUnitTotal = fixedRows.reduce((total, row) => total + row.integerShares, 0);
   const totalParts = asabahRows.reduce((total, row) => total + asabahPartsFor(row, asabahRows), 0);
-  const ratioText = hasMixed ? "male = 2 : female = 1" : "one equal part per member";
+  const ratioText = hasMixed ? `${t.male} = 2 : ${t.female} = 1` : t.equal;
   const fixedShareAmount = result.netEstate * fractionToNumber(result.trace.fixedShareTotal);
 
   const panel = method === "lcm" ? (
