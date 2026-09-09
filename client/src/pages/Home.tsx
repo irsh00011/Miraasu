@@ -2,7 +2,7 @@
  * Design: A very short Tamil-first journey—welcome, calculate, history.
  * The interface uses one focus area per step, calm legal blue, and large touch controls.
  */
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type KeyboardEvent } from "react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -16,27 +16,21 @@ import {
   Plus,
   Printer,
   RotateCcw,
-  Search,
   Trash2,
   UsersRound,
   WalletCards,
 } from "lucide-react";
-import { BottomNav } from "@/components/BottomNav";
-import { ResultAllocationList } from "@/components/ResultAllocationList";
-import { CalculationLedger } from "@/components/CalculationLedger";
-import { HeirCounter } from "@/components/HeirCounter";
-import { BookFamilySections } from "@/components/BookFamilySections";
-import { FamilySelectionSummary } from "@/components/FamilySelectionSummary";
-import { LedgerBrandMark } from "@/components/LedgerBrandMark";
-import { BookSourceCard } from "@/components/BookSourceCard";
+import { FamilyList } from "@/components/FamilyList";
 import {
+  asabahPartsFor,
   calculateInheritance,
   fractionToNumber,
   fractionToText,
-  type ExtendedHeirKey,
+  sourcePercentage,
   type EstateInput,
   type HeirInput,
 } from "@/lib/inheritance";
+import { CalculationTrace } from "@/components/CalculationTrace";
 import {
   readCalculationHistory,
   writeCalculationHistory,
@@ -45,7 +39,6 @@ import {
 
 type Step = 1 | 2 | 3;
 type View = "welcome" | "calculator" | "history";
-type DisplayMode = "fraction" | "percent";
 
 const initialEstate: EstateInput = { grossEstate: 0, funeralCosts: 0, debts: 0, bequest: 0 };
 const initialHeirs: HeirInput = {
@@ -88,11 +81,8 @@ const initialHeirs: HeirInput = {
 
 const stepLabels = ["தொகை", "உறவுகள்", "முடிவு"];
 const money = (value: number) => new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 2 }).format(Number.isFinite(value) ? value : 0);
-const percentage = (value: number) => `${(value * 100).toLocaleString("en-IN", { maximumFractionDigits: 2 })}%`;
 const heirCount = (heirs: HeirInput) => Object.values(heirs).reduce((total, item) => total + item, 0);
 const formatDate = (value: string) => new Intl.DateTimeFormat("ta-IN", { day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(value));
-const tamilLabels: Record<string, string> = { husband: "கணவன்", wives: "மனைவி / மனைவிகள்", father: "தந்தை", mother: "தாய்", paternalGrandfather: "தந்தையின் தந்தை", sons: "மகன்கள்", daughters: "மகள்கள்", fullBrothers: "உடன் பிறந்த சகோதரர்கள்", fullSisters: "உடன் பிறந்த சகோதரிகள்", maternalBrothers: "தாய் வழி சகோதரர்கள்", maternalSisters: "தாய் வழி சகோதரிகள்", sonsSons: "மகனின் மகன்கள்", sonsDaughters: "மகனின் மகள்கள்", paternalGrandmothers: "தந்தை வழி பாட்டி", maternalGrandmothers: "தாய் வழி பாட்டி", paternalBrothers: "தந்தை வழி சகோதரர்கள்", paternalSisters: "தந்தை வழி சகோதரிகள்" };
-const resultReasonTamil = (method: "fixed" | "remainder" | "redistribution") => method === "remainder" ? "மீதத்தில் இருந்து" : method === "redistribution" ? "மறுபகிர்வு" : "நிர்ணயிக்கப்பட்ட பங்கு";
 
 function BrandMark() {
   return (
@@ -124,45 +114,94 @@ function StepProgress({ step, onBack }: { step: Step; onBack: (target: Step) => 
   );
 }
 
-function ZeroShareList({ exclusions }: { exclusions: Array<{ label: string; reason: string }> }) {
-  if (exclusions.length === 0) return null;
-  return <section className="zero-share-list rounded-2xl border border-slate-200 bg-white p-4"><h2 className="text-sm font-extrabold text-slate-900">0 பங்கு பெறும் உறவுகள்</h2><div className="mt-2 space-y-2">{exclusions.map((item) => <div key={`${item.label}-${item.reason}`} className="flex items-start justify-between gap-3 rounded-xl bg-slate-50 px-3 py-2"><span className="min-w-0 text-sm font-bold text-slate-800">{item.label}</span><span className="shrink-0 text-xs font-semibold text-slate-500">0% · {item.reason}</span></div>)}</div></section>;
+const stepIcons = [WalletCards, UsersRound, Calculator];
+
+function MobileStepNav({ step, onNavigate }: { step: Step; onNavigate: (target: Step) => void }) {
+  return (
+    <nav
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-blue-100 bg-white/95 px-2 pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_16px_rgba(19,61,118,0.08)] backdrop-blur sm:hidden"
+      aria-label="படிகளுக்கு இடையே செல்ல"
+    >
+      <div className="mx-auto grid max-w-3xl grid-cols-3 gap-1 py-1.5">
+        {stepLabels.map((label, index) => {
+          const id = (index + 1) as Step;
+          const Icon = stepIcons[index];
+          const isCurrent = id === step;
+          const reachable = id <= step;
+          return (
+            <button
+              key={label}
+              type="button"
+              onClick={() => reachable && onNavigate(id)}
+              disabled={!reachable}
+              aria-current={isCurrent ? "step" : undefined}
+              className={`flex min-h-14 flex-col items-center justify-center gap-0.5 rounded-xl text-[11px] font-bold transition ${isCurrent ? "bg-blue-50 text-[#133D76]" : reachable ? "text-slate-500 hover:bg-slate-50" : "text-slate-300"}`}
+            >
+              <Icon size={19} />
+              {label}
+            </button>
+          );
+        })}
+      </div>
+    </nav>
+  );
 }
 
 export default function Home() {
-  const [view, setView] = useState<View>("welcome");
+  const [view, setView] = useState<View>("calculator");
   const [step, setStep] = useState<Step>(1);
   const [estate, setEstate] = useState<EstateInput>(initialEstate);
   const [heirs, setHeirs] = useState<HeirInput>(initialHeirs);
   const [history, setHistory] = useState<SavedCalculation[]>([]);
   const [showOptionalEstate, setShowOptionalEstate] = useState(false);
-  const [displayMode, setDisplayMode] = useState<DisplayMode>("fraction");
   const [justSaved, setJustSaved] = useState(false);
   const [familyQuery, setFamilyQuery] = useState("");
 
   const result = useMemo(() => calculateInheritance(estate, heirs), [estate, heirs]);
+  const distributedTotal = useMemo(() => result.allocations.reduce((total, item) => total + result.netEstate * fractionToNumber(item.share), 0), [result]);
+  const remainingAmount = Math.max(0, result.netEstate - distributedTotal);
   const historyFingerprint = useMemo(() => JSON.stringify({ estate, heirs }), [estate, heirs]);
-  const allocatedAmount = result.allocations.reduce((total, item) => total + result.netEstate * fractionToNumber(item.share), 0);
-  const heldAmount = result.netEstate * fractionToNumber(result.unallocatedShare);
+  const resultRows = useMemo(() => {
+    const asabahGroup = result.allocations.filter((item) => item.method === "remainder");
+    const allocationRows = result.allocations.map((item) => {
+      const amount = result.netEstate * fractionToNumber(item.share);
+      const isAsabah = item.method === "remainder";
+      const parts = asabahPartsFor(item, asabahGroup);
+      return {
+        key: `${item.key}-${item.method}`,
+        label: item.label,
+        count: item.count,
+        isAsabah,
+        fractionText: isAsabah ? `${parts} ${parts === 1 ? "பங்கு" : "பங்குகள்"}` : fractionToText(item.share),
+        percentText: isAsabah ? "" : sourcePercentage(item.share),
+        amount,
+        perPerson: item.count > 1 ? amount / item.count : null,
+        reason: item.reason,
+        zero: false,
+      };
+    });
+    const exclusionRows = result.exclusions.map((item, index) => ({
+      key: (item.key as string | undefined) ?? `exclusion-${index}`,
+      label: item.label,
+      count: 1,
+      isAsabah: false,
+      fractionText: "0",
+      percentText: "0%",
+      amount: 0,
+      perPerson: null as number | null,
+      reason: item.reason,
+      zero: true,
+    }));
+    return [...allocationRows, ...exclusionRows];
+  }, [result]);
 
   useEffect(() => {
     setHistory(readCalculationHistory());
   }, []);
 
-  const handleEnter = (event: KeyboardEvent) => {
-    if (event.key !== "Enter" || event.defaultPrevented) return;
-    const target = event.target as HTMLElement | null;
-    if (!target || target.tagName === "TEXTAREA" || target.closest("button")) return;
-    event.preventDefault();
-    if (step === 1) setStep(2);
-    else if (step === 2) finishCalculation();
-  };
-  useEffect(() => { document.addEventListener("keydown", handleEnter); return () => document.removeEventListener("keydown", handleEnter); });
   const updateEstate = (key: keyof EstateInput, value: number) => setEstate((current) => ({ ...current, [key]: Math.max(0, value) }));
   const updateHeir = (key: keyof HeirInput, value: number) => setHeirs((current) => ({ ...current, [key]: value }));
-  const updateExtendedHeir = (key: ExtendedHeirKey, value: number) => setHeirs((current) => ({ ...current, [key]: Math.max(0, value) }));
   const resetHeirKeys = (keys: (keyof HeirInput)[]) => setHeirs((current) => Object.fromEntries(Object.entries(current).map(([key, value]) => [key, keys.includes(key as keyof HeirInput) ? 0 : value])) as HeirInput);
-  const chooseSpouse = (choice: "none" | "husband" | "wives") => setHeirs((current) => ({ ...current, husband: choice === "husband" ? 1 : 0, wives: choice === "wives" ? Math.max(1, current.wives) : 0 }));
 
   const saveCalculation = () => {
     if (result.netEstate <= 0 || result.allocations.length === 0) return;
@@ -199,7 +238,6 @@ export default function Home() {
     setEstate(initialEstate);
     setHeirs(initialHeirs);
     setShowOptionalEstate(false);
-    setDisplayMode("fraction");
     openCalculator();
   };
 
@@ -225,18 +263,36 @@ export default function Home() {
     writeCalculationHistory([]);
   };
 
-  const moneyInput = (key: keyof EstateInput, label: string, help?: string) => (
+  // ENTER moves focus to the next field inside the same [data-step-fields] container; ENTER on the last field advances the step instead of submitting early.
+  const handleFieldKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key !== "Enter") return;
+    event.preventDefault();
+    const container = event.currentTarget.closest("[data-step-fields]");
+    const fields = container ? Array.from(container.querySelectorAll<HTMLInputElement>("input[data-field]")) : [];
+    const index = fields.indexOf(event.currentTarget);
+    const next = fields[index + 1];
+    if (next) {
+      next.focus();
+      next.select();
+    } else {
+      setStep(2);
+    }
+  };
+
+  const moneyInput = (key: keyof EstateInput, label: string, help?: string, size: "lg" | "xl" = "lg") => (
     <label className="block">
-      <span className="mb-2 block text-sm font-bold text-slate-800">{label}</span>
+      <span className={`mb-2 block font-bold text-slate-800 ${size === "xl" ? "text-base" : "text-sm"}`}>{label}</span>
       <div className="relative">
-        <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 font-bold text-[#133D76]">₹</span>
+        <span className={`pointer-events-none absolute inset-y-0 left-0 flex items-center font-bold text-[#133D76] ${size === "xl" ? "pl-4 text-2xl" : "pl-4 text-lg"}`}>₹</span>
         <input
           type="number"
           inputMode="decimal"
           min="0"
+          data-field
           value={estate[key] || ""}
           onChange={(event) => updateEstate(key, Number(event.target.value))}
-          className="w-full rounded-2xl border border-slate-200 bg-white py-3.5 pl-9 pr-4 text-lg font-bold tabular-nums text-slate-950 outline-none transition focus:border-[#133D76] focus:ring-4 focus:ring-blue-100"
+          onKeyDown={handleFieldKeyDown}
+          className={`w-full rounded-2xl border border-slate-200 bg-white pr-4 font-extrabold tabular-nums text-slate-950 outline-none transition focus:border-[#133D76] focus:ring-4 focus:ring-blue-100 ${size === "xl" ? "py-4 pl-12 text-3xl" : "py-3.5 pl-9 text-lg"}`}
           placeholder="0"
         />
       </div>
@@ -248,7 +304,7 @@ export default function Home() {
     <div className="min-h-screen bg-slate-50 text-slate-900">
       <header className="border-b border-blue-100 bg-white">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3.5 sm:px-6">
-          <button type="button" onClick={() => setView("welcome")} className="flex min-w-0 items-center gap-2.5 text-left" aria-label="முகப்பு">
+          <button type="button" onClick={startNewCalculation} className="flex min-w-0 items-center gap-2.5 text-left" aria-label="முகப்பு">
             <BrandMark />
             <div className="min-w-0">
               <p className="truncate text-base font-extrabold tracking-tight text-slate-950">மீராஸ் கணக்கீடு</p>
@@ -263,38 +319,13 @@ export default function Home() {
                 <History size={17} /> <span className="hidden sm:inline">வரலாறு</span>
               </button>
             ) : (
-              <button type="button" onClick={() => setView("welcome")} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-blue-100 bg-blue-50 px-3 text-sm font-bold text-[#133D76] transition hover:bg-blue-100"><ArrowLeft size={17} /> முகப்பு</button>
+              <button type="button" onClick={() => setView("calculator")} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-blue-100 bg-blue-50 px-3 text-sm font-bold text-[#133D76] transition hover:bg-blue-100"><ArrowLeft size={17} /> முகப்பு</button>
             )}
           </div>
         </div>
       </header>
 
-      <main className="mx-auto max-w-5xl px-4 py-7 sm:px-6 sm:py-10">
-        {view === "welcome" ? (
-          <section className="page-enter mx-auto max-w-3xl py-4 sm:py-10">
-            <div className="worksheet-frame book-cover-background overflow-hidden bg-white">
-              <div className="grid lg:grid-cols-[1.15fr_0.85fr]">
-                <div className="worksheet-spine px-6 py-8 sm:px-10 sm:py-11">
-                  <div className="flex items-center gap-3 text-[#133D76]"><span className="grid size-11 place-items-center border-y-2 border-[#133D76] bg-blue-50"><LedgerBrandMark className="size-7" /></span><p className="text-sm font-extrabold tracking-wide">மீராஸ் பங்கீட்டு பதிவு</p></div>
-                  <p className="mt-8 text-sm font-bold text-[#133D76]">முதலில் தகவலைத் தயாரிக்கவும்</p>
-                  <h1 className="mt-2 font-serif text-3xl font-bold leading-tight tracking-tight text-slate-950 sm:text-4xl">சொத்துப் பங்கீட்டின் காரணத்தைத் தெளிவாகப் பாருங்கள்</h1>
-                  <p className="mt-4 max-w-xl text-base leading-7 text-slate-600">சொத்து தொகை மற்றும் உறவுகளை பதிவு செய்த பின், ஒவ்வொருவருக்கும் ஏன் அந்தப் பங்கு வருகிறது என்பதைக் காட்டுகிறோம்.</p>
-                  <button type="button" onClick={openCalculator} className="mt-8 inline-flex min-h-12 items-center gap-2 rounded-xl bg-[#133D76] px-5 py-3 font-extrabold text-white shadow-sm transition hover:bg-[#102F5E] active:scale-[0.98]">
-                    சொத்தைத் தயார் செய்து வாரிசுகளைச் சேர்க்கவும் <ArrowRight size={18} />
-                  </button>
-                  <div className="mt-7 flex gap-2 border-l-2 border-[#133D76] bg-blue-50/80 px-3 py-2.5 text-sm leading-6 text-slate-600"><Check className="mt-1 shrink-0 text-[#133D76]" size={16} /><p><strong className="text-slate-900">கற்றல் உதவி மட்டும்.</strong> உண்மையான பங்கீட்டிற்கு முன் தகுதியான அறிஞர் மற்றும் சட்ட நிபுணரிடம் உறுதி செய்யுங்கள்.</p></div>
-                </div>
-                <div className="worksheet-stages border-t border-slate-200 bg-slate-50/70 px-6 py-7 sm:px-10 lg:border-l lg:border-t-0">
-                  <p className="text-xs font-extrabold uppercase tracking-[0.14em] text-slate-400">பதிவு ஒழுங்கு</p>
-                  <ol className="mt-4 divide-y divide-slate-200">{[["01", "சொத்து", "பகிரக்கூடிய தொகையைத் தயாரிக்கவும்"], ["02", "வாரிசுகள்", "உள்ள உறவுகளை மட்டும் பதிவு செய்யவும்"], ["03", "சரிபார்ப்பு", "பங்கு, காரணம், தொகை ஆகியவற்றைப் பார்க்கவும்"]].map(([number, title, detail]) => <li key={number} className="flex gap-3 py-4 first:pt-0"><span className="font-serif text-lg font-bold text-[#133D76]">{number}</span><div><p className="font-extrabold text-slate-900">{title}</p><p className="mt-1 text-xs leading-5 text-slate-500">{detail}</p></div></li>)}</ol>
-                  <BookSourceCard />
-                  <div className="mt-5 border-t border-slate-200 pt-4"><p className="text-xs leading-5 text-slate-500">இந்தச் சாதனத்தில் மட்டுமே கணக்குகள் சேமிக்கப்படும்.</p>{history.length > 0 ? <button type="button" onClick={() => setView("history")} className="mt-2 text-sm font-bold text-[#133D76] hover:underline">சேமித்த {history.length} பதிவுகள்</button> : null}</div>
-                </div>
-              </div>
-            </div>
-          </section>
-        ) : null}
-
+      <main className="mx-auto max-w-5xl px-4 py-7 pb-28 sm:px-6 sm:py-10 sm:pb-10">
         {view === "history" ? (
           <section className="page-enter mx-auto max-w-3xl">
             <div className="flex flex-col gap-4 border-b border-slate-200 pb-5 sm:flex-row sm:items-end sm:justify-between">
@@ -313,15 +344,14 @@ export default function Home() {
           <section className="page-enter mx-auto max-w-3xl">
             <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <StepProgress step={step} onBack={setStep} />
-              <div className="flex flex-wrap gap-1"><button type="button" onClick={startNewCalculation} className="inline-flex min-h-10 items-center gap-2 self-start rounded-xl px-3 text-sm font-bold text-slate-500 hover:bg-white hover:text-[#133D76]"><RotateCcw size={16} /> புதிய கணக்கு</button><button type="button" onClick={() => setView("welcome")} className="inline-flex min-h-10 items-center gap-2 self-start rounded-xl px-3 text-sm font-bold text-slate-500 hover:bg-white hover:text-[#133D76]"><LogOut size={16} /> வெளியேறு</button></div>
+              <div className="flex flex-wrap gap-1"><button type="button" onClick={startNewCalculation} className="inline-flex min-h-10 items-center gap-2 self-start rounded-xl px-3 text-sm font-bold text-slate-500 hover:bg-white hover:text-[#133D76]"><RotateCcw size={16} /> புதிய கணக்கு</button><button type="button" onClick={startNewCalculation} className="inline-flex min-h-10 items-center gap-2 self-start rounded-xl px-3 text-sm font-bold text-slate-500 hover:bg-white hover:text-[#133D76]"><LogOut size={16} /> புதிதாகத் தொடங்கு</button></div>
             </div>
 
             {step === 1 ? (
-              <div className="ledger-panel rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8">
+              <div className="ledger-panel rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8" data-step-fields>
                 <p className="text-sm font-bold text-[#133D76]">படி 1 / 3</p>
                 <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-slate-950">மொத்தச் சொத்து எவ்வளவு?</h1>
-                <p className="mt-2 text-sm leading-6 text-slate-600">மதிப்பை மட்டும் எழுதுங்கள். மற்ற விவரங்கள் இருந்தால் கீழே சேர்க்கலாம்.</p>
-                <div className="mt-7">{moneyInput("grossEstate", "மொத்தச் சொத்து மதிப்பு")}</div>
+                <div className="mt-6">{moneyInput("grossEstate", "மொத்தச் சொத்து மதிப்பு", undefined, "xl")}</div>
                 <button type="button" onClick={() => setShowOptionalEstate((current) => !current)} className="mt-5 inline-flex min-h-10 items-center gap-2 rounded-xl px-2 text-sm font-bold text-[#133D76] hover:bg-blue-50"><ChevronDown className={`transition ${showOptionalEstate ? "rotate-180" : ""}`} size={17} /> கடன் அல்லது செலவு உள்ளது</button>
                 {showOptionalEstate ? <div className="mt-3 grid gap-4 rounded-2xl bg-slate-50 p-4 sm:grid-cols-3">{moneyInput("funeralCosts", "அவசியச் செலவு")}{moneyInput("debts", "மொத்தக் கடன்")}{moneyInput("bequest", "வஸிய்யத்")}</div> : null}
                 {result.notices.filter((notice) => notice.includes("வஸிய்யத்") || notice.includes("பகிரக்கூடிய")).map((notice) => <p key={notice} className="mt-4 rounded-xl bg-amber-50 px-3 py-2 text-sm leading-6 text-amber-900">{notice}</p>)}
@@ -333,15 +363,17 @@ export default function Home() {
               <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8">
                 <p className="text-sm font-bold text-[#133D76]">படி 2 / 3</p>
                 <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-slate-950">குடும்பத்தில் யார் உள்ளனர்?</h1>
-                <p className="mt-2 text-sm leading-6 text-slate-600">இறந்தவருக்கு உயிருடன் இருப்பவர்களை மட்டும் சேர்க்கவும். எண்ணிக்கையை + மற்றும் − அழுத்தி மாற்றலாம்.</p>
-                <div className="mt-5 flex flex-col gap-2 sm:flex-row"><label className="relative block flex-1"><span className="sr-only">குடும்ப உறவைத் தேடுக</span><Search className="pointer-events-none absolute inset-y-0 left-0 my-auto ml-4 text-[#133D76]" size={18} /><input value={familyQuery} onChange={(event) => setFamilyQuery(event.target.value)} placeholder="உறவைத் தேடுக: மகன், பாட்டி, சகோதரர்…" className="w-full rounded-2xl border border-blue-200 bg-blue-50/60 py-3 pl-11 pr-4 text-sm font-semibold text-slate-900 outline-none placeholder:text-slate-400 focus:border-[#133D76] focus:bg-white focus:ring-4 focus:ring-blue-100" /></label><button type="button" onClick={() => resetHeirKeys(Object.keys(initialHeirs) as (keyof HeirInput)[])} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-[#133D76]"><RotateCcw size={16} /> அனைத்து உறவுகளையும் அழி</button></div>
-                <div className="mt-7 lg:grid lg:grid-cols-[minmax(0,1fr)_235px] lg:gap-6">
-                  <div className="space-y-7 pb-24 lg:pb-0">
-                    <div><div className="mb-4 flex items-center gap-2 border-b border-blue-100 pb-3"><span aria-hidden="true" className="text-lg">👪</span><div><p className="text-sm font-extrabold text-[#133D76]">முதன்மை குடும்பம்</p><p className="text-xs text-slate-500">முதலில் இவர்கள் அனைவரையும் பாருங்கள்.</p></div></div><div className="space-y-5"><div><p className="mb-3 flex items-center gap-2 text-sm font-extrabold text-slate-900"><span aria-hidden="true">💑</span> துணைவர்</p><div className="grid grid-cols-3 gap-2 rounded-2xl bg-slate-100 p-2">{[["none", "யாருமில்லை"], ["husband", "கணவன்"], ["wives", "மனைவி"]].map(([value, label]) => { const active = (value === "none" && heirs.husband === 0 && heirs.wives === 0) || (value === "husband" && heirs.husband > 0) || (value === "wives" && heirs.wives > 0); return <button key={value} type="button" onClick={() => chooseSpouse(value as "none" | "husband" | "wives")} className={`min-h-11 rounded-xl px-2 text-sm font-bold ${active ? "bg-[#133D76] text-white shadow-sm" : "text-slate-600 hover:bg-white"}`}>{label}</button>; })}</div>{heirs.wives > 0 ? <div className="mt-3"><HeirCounter emoji="💑" label="மனைவிகள்" value={heirs.wives} onChange={(value) => updateHeir("wives", value)} max={4} /></div> : null}</div><div><p className="mb-3 flex items-center gap-2 text-sm font-extrabold text-slate-900"><span aria-hidden="true">👨‍👩‍👧‍👦</span> அப்பா, அம்மா, பிள்ளைகள்</p><div className="grid grid-cols-2 gap-2"><HeirCounter emoji="👨" label="அப்பா" value={heirs.father} onChange={(value) => updateHeir("father", Math.min(value, 1))} max={1} /><HeirCounter emoji="👩" label="அம்மா" value={heirs.mother} onChange={(value) => updateHeir("mother", Math.min(value, 1))} max={1} /><HeirCounter emoji="👦" label="மகன்கள்" value={heirs.sons} onChange={(value) => updateHeir("sons", value)} /><HeirCounter emoji="👧" label="மகள்கள்" value={heirs.daughters} onChange={(value) => updateHeir("daughters", value)} /></div></div></div></div>
-                    <div><div className="mb-4 flex items-center gap-2 border-b border-slate-200 pb-3"><span aria-hidden="true" className="text-lg">👥</span><div><p className="text-sm font-extrabold text-[#133D76]">மற்ற குடும்பம்</p><p className="text-xs text-slate-500">இவர்களும் இருந்தால் எண்ணிக்கையைச் சேர்க்கவும்.</p></div></div><div className="grid grid-cols-2 gap-2 rounded-2xl bg-slate-50 p-2"><HeirCounter emoji="👴" label="அப்பாவின் அப்பா" description="அப்பா இல்லாதபோது மட்டும்." value={heirs.paternalGrandfather} onChange={(value) => updateHeir("paternalGrandfather", Math.min(value, 1))} max={1} /><HeirCounter emoji="👨‍🦱" label="உடன்பிறந்த சகோதரர்கள்" value={heirs.fullBrothers} onChange={(value) => updateHeir("fullBrothers", value)} /><HeirCounter emoji="👩‍🦰" label="உடன்பிறந்த சகோதரிகள்" value={heirs.fullSisters} onChange={(value) => updateHeir("fullSisters", value)} /><HeirCounter emoji="🧑" label="தாய் வழி சகோதரர்கள்" description="தாய் ஒரேவர்; அப்பா வேறாக இருக்கலாம்." value={heirs.maternalBrothers} onChange={(value) => updateHeir("maternalBrothers", value)} /><HeirCounter emoji="👩" label="தாய் வழி சகோதரிகள்" description="தாய் ஒரேவர்; அப்பா வேறாக இருக்கலாம்." value={heirs.maternalSisters} onChange={(value) => updateHeir("maternalSisters", value)} /></div></div>
-                    <div><div className="mb-4 flex items-center gap-2 border-b border-blue-100 pb-3"><span aria-hidden="true" className="text-lg">📚</span><div><p className="text-sm font-extrabold text-[#133D76]">புத்தகத்தில் உள்ள மற்ற உறவுகள்</p><p className="text-xs text-slate-500">ஒவ்வொரு புத்தக-குழுவும் கீழே உள்ளது. தேர்வு செய்தால் அறிஞர் உறுதிப்படுத்தல் தேவைப்படும்.</p></div></div><BookFamilySections heirs={heirs} onChange={updateExtendedHeir} query={familyQuery} onReset={resetHeirKeys} /></div>
-                  </div>
-                  <FamilySelectionSummary heirs={heirs} onClear={(key) => updateHeir(key, 0)} />
+                <p className="mt-1 text-xs leading-5 text-slate-500">உயிருடன் இருப்பவர்களை மட்டும் தட்டவும் / எண்ணிக்கை மாற்றவும்.</p>
+                <div className="mt-5">
+                  <FamilyList
+                    heirs={heirs}
+                    onChange={updateHeir}
+                    onResetAll={() => resetHeirKeys(Object.keys(initialHeirs) as (keyof HeirInput)[])}
+                    query={familyQuery}
+                    onQueryChange={setFamilyQuery}
+                    onSearchEnter={finishCalculation}
+                    language="ta"
+                  />
                 </div>
                 <div className="mt-8 flex items-center justify-between border-t border-slate-100 pt-5"><button type="button" onClick={() => setStep(1)} className="inline-flex min-h-11 items-center gap-2 rounded-xl px-3 text-sm font-bold text-slate-500 hover:bg-slate-100"><ArrowLeft size={17} /> பின்செல்</button><button type="button" onClick={finishCalculation} className="inline-flex min-h-12 items-center gap-2 rounded-2xl bg-[#133D76] px-5 py-3 font-extrabold text-white shadow-lg shadow-blue-200 transition hover:bg-[#102F5E] active:scale-[0.98]"><Calculator size={18} /> முடிவைப் பார்க்கவும்</button></div>
               </div>
@@ -349,16 +381,43 @@ export default function Home() {
 
             {step === 3 ? (
               <div className="space-y-4">
-                <div className="ledger-summary rounded-3xl bg-[#133D76] p-5 text-white shadow-xl shadow-blue-200 sm:p-7"><p className="text-sm font-bold text-blue-100">படி 3 / 3</p><div className="mt-2 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><h1 className="text-2xl font-extrabold tracking-tight">பங்கீட்டு முடிவு</h1><p className="mt-1 text-sm text-blue-100">ஒவ்வொருவரின் பங்கும் கீழே உள்ளது.</p></div><p className="rounded-2xl bg-white/10 px-4 py-3 text-xl font-extrabold tabular-nums">{money(result.netEstate)}</p></div>{justSaved ? <p className="mt-4 inline-flex items-center gap-2 rounded-xl bg-white/10 px-3 py-2 text-xs font-bold"><Check size={14} /> இந்தக் கணக்கு வரலாற்றில் சேமிக்கப்பட்டது</p> : null}</div>
+                <div className="ledger-summary rounded-3xl bg-[#133D76] p-5 text-white shadow-xl shadow-blue-200 sm:p-7"><p className="text-sm font-bold text-blue-100">படி 3 / 3</p><div className="mt-2 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><h1 className="text-2xl font-extrabold tracking-tight">பங்கீட்டு முடிவு</h1><p className="mt-1 text-sm text-blue-100">ஒவ்வொருவரின் பங்கும் கீழே உள்ளது.</p></div><p className="rounded-2xl bg-white/10 px-5 py-4 text-3xl font-extrabold tabular-nums sm:text-4xl">{money(result.netEstate)}</p></div>{justSaved ? <p className="mt-4 inline-flex items-center gap-2 rounded-xl bg-white/10 px-3 py-2 text-xs font-bold"><Check size={14} /> இந்தக் கணக்கு வரலாற்றில் சேமிக்கப்பட்டது</p> : null}</div>
                 {result.notices.length > 0 ? <div className="space-y-2">{result.notices.map((notice) => <p key={notice} className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">{notice}</p>)}</div> : null}
-                {result.requiresScholarReview ? <div className="rounded-3xl border border-amber-200 bg-amber-50 p-5"><p className="text-sm font-extrabold text-amber-950">அறிஞர் உறுதிப்படுத்தல் தேவை</p><p className="mt-2 text-sm leading-6 text-amber-900">புத்தகத்தில் உள்ள கூடுதல் உறவுகள் தேர்வு செய்யப்பட்டுள்ளன. அவர்களின் முன்னுரிமை மற்றும் துல்லியமான பங்கை உறுதிப்படுத்தாமல் இம்முடிவை இறுதியானதாகப் பயன்படுத்த வேண்டாம்.</p><div className="mt-4 flex flex-wrap gap-2">{result.selectedExtendedHeirs.map((item) => <span key={item.key} className="rounded-lg border border-amber-200 bg-white px-2.5 py-1.5 text-xs font-bold text-amber-900">{item.emoji} {item.label} · {item.count}</span>)}</div></div> : null}
-                <ResultAllocationList result={result} money={money} title="யார் பெறுவார்கள்?" subtitle="பெயர் → பின்னம் → % → தொகை" empty="முடிவைக் காண குடும்ப உறுப்பினர்களைச் சேர்க்கவும்." labels={tamilLabels} reason={resultReasonTamil} /><div className="mt-4"><CalculationLedger result={result} money={money} labels={{ estate: "மொத்த சொத்து", lcm: "LCM", distributed: "பகிர்ந்த மொத்தம்", remaining: "மீதம்", final: "இறுதி மொத்தம்" }} /></div><ZeroShareList exclusions={result.exclusions} /><div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><button type="button" onClick={() => setStep(2)} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-3 text-sm font-bold text-slate-600 hover:bg-white"><ArrowLeft size={17} /> மாற்றுக</button><div className="flex flex-wrap gap-2"><button type="button" onClick={() => window.print()} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-bold text-slate-700 hover:bg-slate-50"><Printer size={16} /> அச்சிடுக</button><button type="button" onClick={() => setView("history")} className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#133D76] px-4 text-sm font-bold text-white hover:bg-[#102F5E]"><History size={16} /> வரலாறு</button></div></div>
+                {result.requiresScholarReview ? <p className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-extrabold text-amber-900">அறிஞர் உறுதிப்படுத்தல் தேவை — இம்முடிவு இறுதியானது அல்ல.</p> : null}
+                <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
+                  <h2 className="text-lg font-extrabold text-slate-950">யாருக்கு எவ்வளவு?</h2>
+                  {resultRows.length > 0 ? (
+                    <>
+                    <ul className="mt-4 space-y-2">
+                      {resultRows.map((row) => (
+                        <li key={row.key} className={`rounded-xl border px-3 py-2.5 ${row.zero ? "border-slate-100 bg-slate-50/40" : "border-slate-100 bg-slate-50/70"}`}>
+                          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                            <span className={`text-sm font-extrabold ${row.zero ? "text-slate-500" : "text-slate-950"}`}>{row.label}{row.count > 1 ? ` (${row.count})` : ""}</span>
+                            {row.isAsabah ? <span className="rounded-md bg-amber-100 px-1.5 py-0.5 text-[10px] font-extrabold text-amber-800">அஸபா</span> : null}
+                          </div>
+                          <div className="mt-1.5 grid grid-cols-[auto_auto_1fr] items-center gap-2">
+                            <span className="shrink-0 text-xs font-bold text-[#133D76]">{row.fractionText}</span>
+                            {row.percentText ? <span className="shrink-0 text-xs font-semibold text-slate-500">{row.percentText}</span> : null}
+                            <span className={`shrink-0 text-right text-base font-extrabold tabular-nums sm:text-lg ${row.zero ? "text-slate-400" : "text-slate-950"}`}>{money(row.amount)}</span>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                    <div className="mt-4 space-y-1 border-t border-slate-100 pt-4 text-sm font-bold"><p>மொத்தம் பகிரப்பட்டது: {money(distributedTotal)}</p>{remainingAmount > 0.005 ? <p className="text-amber-800">மீதமுள்ள தொகை: {money(remainingAmount)}</p> : null}</div>
+                    </>
+                  ) : (
+                    <div className="py-8 text-center"><UsersRound className="mx-auto text-slate-300" size={30} /><p className="mt-3 font-bold text-slate-700">வாரிசுகளைச் சேர்க்கவும்.</p><button type="button" onClick={() => setStep(2)} className="mt-2 text-sm font-bold text-[#133D76] hover:underline">உறவுகளை மாற்றுக</button></div>
+                  )}
+                </div>
+                <CalculationTrace result={result} language="ta" />
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><button type="button" onClick={() => setStep(2)} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-3 text-sm font-bold text-slate-600 hover:bg-white"><ArrowLeft size={17} /> மாற்றுக</button><div className="flex flex-wrap gap-2"><button type="button" onClick={() => window.print()} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-bold text-slate-700 hover:bg-slate-50"><Printer size={16} /> அச்சிடுக</button><button type="button" onClick={() => setView("history")} className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#133D76] px-4 text-sm font-bold text-white hover:bg-[#102F5E]"><History size={16} /> வரலாறு</button></div></div>
                 <p className="text-center text-xs leading-5 text-slate-500">கற்றல் உதவி மட்டும். உண்மையான பங்கீட்டிற்கு முன் தகுதியான அறிஞர் மற்றும் சட்ட நிபுணரிடம் உறுதி செய்யுங்கள்.</p>
               </div>
             ) : null}
           </section>
         ) : null}
       </main>
+      {view === "calculator" ? <MobileStepNav step={step} onNavigate={setStep} /> : null}
     </div>
   );
 }

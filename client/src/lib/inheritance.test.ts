@@ -27,6 +27,17 @@ const heirs = (overrides: Partial<HeirInput> = {}): HeirInput => ({
 const shareFor = (key: string, result = calculateInheritance(estate(), heirs())) =>
   fractionToText(result.allocations.find((item) => item.key === key)?.share ?? { n: 0, d: 1 });
 
+/** For a heir who receives BOTH a Fixed Share and an Asabah/Radd top-up, the two must stay as separate rows (never merged into one derived fraction). This reads one specific row by method. */
+const shareForMethod = (key: string, method: "fixed" | "remainder" | "redistribution", result: ReturnType<typeof calculateInheritance>) =>
+  fractionToText(result.allocations.find((item) => item.key === key && item.method === method)?.share ?? { n: 0, d: 1 });
+
+/** Sums every row for a key — used only to confirm the *total* amount a person actually receives is unchanged now that Fixed Share and Asabah/Radd are shown as separate rows. */
+const sumSharesFor = (key: string, result: ReturnType<typeof calculateInheritance>) => {
+  const matches = result.allocations.filter((item) => item.key === key);
+  const total = matches.reduce((acc, item) => ({ n: acc.n * item.share.d + item.share.n * acc.d, d: acc.d * item.share.d }), { n: 0, d: 1 });
+  return fractionToText(fraction(total.n, total.d));
+};
+
 const totalShare = (result: ReturnType<typeof calculateInheritance>) =>
   result.allocations.reduce((total, item) => total + item.share.n / item.share.d, 0) + result.unallocatedShare.n / result.unallocatedShare.d;
 
@@ -39,6 +50,44 @@ const exactAllocationTotal = (result: ReturnType<typeof calculateInheritance>) =
 };
 
 describe("ordinary inheritance calculation", () => {
+  it("exposes a transparent exact-fraction trace with LCM, percentage, remainder, and amount", () => {
+    const result = calculateInheritance(estate({ grossEstate: 120000 }), heirs({ wives: 1, daughters: 1, paternalUncles: 1 }));
+    expect(result.trace.lcm).toBe(8);
+    expect(result.trace.rows.map((row) => [row.key, fractionToText(row.fraction), row.integerShares])).toEqual([
+      ["wives", "1/8", 1],
+      ["daughters", "1/2", 4],
+      ["paternalUncles", "3/8", 1],
+    ]);
+    expect(result.trace.rows.find((row) => row.key === "paternalUncles")?.percentage).toBeCloseTo(37.5, 10);
+    expect(result.trace.rows.find((row) => row.key === "paternalUncles")?.amount).toBe(45000);
+    expect(fractionToText(result.trace.remainder)).toBe("3/8");
+    expect(fractionToText(result.trace.allocated)).toBe("1");
+  });
+  it("matches the primary-reference spouse fixed shares", () => {
+    expect(shareFor("husband", calculateInheritance(estate(), heirs({ husband: 1 })))).toBe("1/2");
+    expect(shareFor("husband", calculateInheritance(estate(), heirs({ husband: 1, daughters: 1 })))).toBe("1/4");
+    expect(shareFor("wives", calculateInheritance(estate(), heirs({ wives: 1 })))).toBe("1/4");
+    expect(shareFor("wives", calculateInheritance(estate(), heirs({ wives: 1, daughters: 1 })))).toBe("1/8");
+  });
+
+  it("keeps sisters as fixed shares or asabah with another according to the supported case", () => {
+    expect(shareFor("fullSisters", calculateInheritance(estate(), heirs({ husband: 1, fullSisters: 1 })))).toBe("1/2");
+    expect(shareFor("paternalSisters", calculateInheritance(estate(), heirs({ husband: 1, paternalSisters: 1 })))).toBe("1/2");
+    expect(shareFor("fullSisters", calculateInheritance(estate(), heirs({ daughters: 1, fullSisters: 1 })))).toBe("1/2");
+  });
+
+  it("does not block the paternal uncle merely because a daughter exists", () => {
+    const result = calculateInheritance(estate({ grossEstate: 120000 }), heirs({ daughters: 1, paternalUncles: 1 }));
+    expect(shareFor("daughters", result)).toBe("1/2");
+    expect(shareFor("paternalUncles", result)).toBe("1/2");
+  });
+
+  it("blocks maternal siblings when a descendant is present", () => {
+    const result = calculateInheritance(estate(), heirs({ maternalBrothers: 1, daughters: 1 }));
+    expect(shareFor("maternalBrothers", result)).toBe("0");
+    expect(result.exclusions.some((item) => item.label.includes("தாய் வழி"))).toBe(true);
+  });
+
   it("exposes natural Tamil aliases for paternal-uncle search", () => {
     const uncleSection = EXTENDED_HEIR_SECTIONS.find((section) => section.titleEn === "Paternal uncle (ʿamm) line");
     const uncleSearchText = uncleSection?.items.map((item) => item.searchTerms ?? "").join(" ") ?? "";
@@ -82,7 +131,10 @@ describe("ordinary inheritance calculation", () => {
     expect(shareFor("wives", result)).toBe("1/8");
     expect(shareFor("mother", result)).toBe("1/6");
     expect(shareFor("daughters", result)).toBe("1/2");
-    expect(shareFor("father", result)).toBe("5/24");
+    // Father receives a book-exact Fixed Share (1/6) AND, separately, an Asabah/remainder top-up — the two are never merged into one derived fraction.
+    expect(shareForMethod("father", "fixed", result)).toBe("1/6");
+    expect(shareForMethod("father", "remainder", result)).toBe("1/24");
+    expect(sumSharesFor("father", result)).toBe("5/24");
     expect(result.allocations.some((item) => item.key === "paternalBrothers")).toBe(false);
     expect(result.allocations.some((item) => item.key === "paternalUncles")).toBe(false);
     expect(result.selectedReviewOnlyHeirs.map((item) => item.key)).toEqual(["paternalBrothers", "paternalUncles"]);
@@ -189,7 +241,10 @@ describe("ordinary inheritance calculation", () => {
     const result = calculateInheritance(estate(), heirs({ father: 1, daughters: 3 }));
 
     expect(shareFor("daughters", result)).toBe("2/3");
-    expect(shareFor("father", result)).toBe("1/3");
+    // The father's book-stated Fixed Share (1/6) stays visible as its own row; his Asabah top-up is a separate row, never blended into "1/3".
+    expect(shareForMethod("father", "fixed", result)).toBe("1/6");
+    expect(shareForMethod("father", "remainder", result)).toBe("1/6");
+    expect(sumSharesFor("father", result)).toBe("1/3");
     expect(result.allocations.find((item) => item.key === "daughters")?.count).toBe(3);
   });
 
@@ -209,12 +264,14 @@ describe("ordinary inheritance calculation", () => {
     expect(shareFor("father", result)).toBe("1/3");
   });
 
-  it("combines the father’s fixed share and remainder with two daughters and a wife", () => {
+  it("keeps the father’s fixed share and remainder as two distinct rows with two daughters and a wife", () => {
     const result = calculateInheritance(estate(), heirs({ wives: 1, father: 1, daughters: 2 }));
 
     expect(shareFor("wives", result)).toBe("1/8");
     expect(shareFor("daughters", result)).toBe("2/3");
-    expect(shareFor("father", result)).toBe("5/24");
+    expect(shareForMethod("father", "fixed", result)).toBe("1/6");
+    expect(shareForMethod("father", "remainder", result)).toBe("1/24");
+    expect(sumSharesFor("father", result)).toBe("5/24");
   });
 
   it("blocks maternal siblings when a child exists", () => {
@@ -248,7 +305,9 @@ describe("ordinary inheritance calculation", () => {
 
     expect(shareFor("daughters", result)).toBe("1/2");
     expect(shareFor("sonsDaughters", result)).toBe("1/6");
-    expect(shareFor("father", result)).toBe("1/3");
+    expect(shareForMethod("father", "fixed", result)).toBe("1/6");
+    expect(shareForMethod("father", "remainder", result)).toBe("1/6");
+    expect(sumSharesFor("father", result)).toBe("1/3");
     expect(totalShare(result)).toBeCloseTo(1, 12);
   });
 
@@ -260,14 +319,39 @@ describe("ordinary inheritance calculation", () => {
     expect(totalShare(result)).toBeCloseTo(1, 12);
   });
 
-  it("recognises a paternal sister with one full sister and applies remainder redistribution correctly", () => {
+  it("applies source-defined Radd proportionally while excluding the wife", () => {
     const result = calculateInheritance(estate(), heirs({ wives: 1, fullSisters: 1, paternalSisters: 1 }));
 
     expect(result.requiresScholarReview).toBe(false);
     expect(shareFor("wives", result)).toBe("1/4");
-    expect(shareFor("fullSisters", result)).toBe("9/16");
-    expect(shareFor("paternalSisters", result)).toBe("3/16");
+    // Each sister's book-stated Fixed Share stays its own row; the Radd top-up is a separate row.
+    expect(shareForMethod("fullSisters", "fixed", result)).toBe("1/2");
+    expect(shareForMethod("fullSisters", "redistribution", result)).toBe("1/16");
+    expect(sumSharesFor("fullSisters", result)).toBe("9/16");
+    expect(shareForMethod("paternalSisters", "fixed", result)).toBe("1/6");
+    expect(shareForMethod("paternalSisters", "redistribution", result)).toBe("1/48");
+    expect(sumSharesFor("paternalSisters", result)).toBe("3/16");
+    expect(exactAllocationTotal(result)).toBe("1");
     expect(totalShare(result)).toBeCloseTo(1, 12);
+    expect(fractionToText(result.unallocatedShare)).toBe("0");
+  });
+
+  it("returns an unsupported remainder to the daughter but not the wife", () => {
+    const result = calculateInheritance(estate(), heirs({ wives: 1, daughters: 1 }));
+    expect(shareFor("wives", result)).toBe("1/8");
+    // The daughter's Qur'anic Fixed Share (1/2) and her Radd top-up stay as two distinct rows.
+    expect(shareForMethod("daughters", "fixed", result)).toBe("1/2");
+    expect(shareForMethod("daughters", "redistribution", result)).toBe("3/8");
+    expect(sumSharesFor("daughters", result)).toBe("7/8");
+    expect(fractionToText(result.unallocatedShare)).toBe("0");
+  });
+
+  it("never lets Radd override an applicable paternal uncle Asabah", () => {
+    const result = calculateInheritance(estate(), heirs({ wives: 1, daughters: 1, paternalUncles: 1 }));
+    expect(shareFor("wives", result)).toBe("1/8");
+    expect(shareFor("daughters", result)).toBe("1/2");
+    expect(shareFor("paternalUncles", result)).toBe("3/8");
+    expect(result.allocations.some((item) => item.method === "redistribution")).toBe(false);
   });
 
   it("gives a full sister the remainder with a daughter when no male blocker exists", () => {
@@ -287,11 +371,11 @@ describe("ordinary inheritance calculation", () => {
   });
 
   it("includes an eligible grandmother and blocks her when the mother is present", () => {
-    const eligible = calculateInheritance(estate(), heirs({ husband: 1, maternalGrandmothers: 1 }));
+    const eligible = calculateInheritance(estate(), heirs({ sons: 1, maternalGrandmothers: 1 }));
     const blocked = calculateInheritance(estate(), heirs({ mother: 1, maternalGrandmothers: 1 }));
 
     expect(eligible.requiresScholarReview).toBe(false);
-    expect(shareFor("maternalGrandmothers", eligible)).toBe("1/2");
+    expect(shareFor("maternalGrandmothers", eligible)).toBe("1/6");
     expect(blocked.exclusions.some((item) => item.label === "தாய் வழி பாட்டி")).toBe(true);
   });
 

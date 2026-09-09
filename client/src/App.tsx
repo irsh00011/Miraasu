@@ -7,6 +7,7 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import EnglishHome from "./pages/EnglishHome";
 import ArabicHome from "./pages/ArabicHome";
 import Home from "./pages/Home";
+import ResearchPage from "./pages/ResearchPage";
 
 
 function Router() {
@@ -15,6 +16,7 @@ function Router() {
       <Route path={"/"} component={Home} />
       <Route path={"/en"} component={EnglishHome} />
       <Route path={"/ar"} component={ArabicHome} />
+      <Route path={"/research"} component={ResearchPage} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

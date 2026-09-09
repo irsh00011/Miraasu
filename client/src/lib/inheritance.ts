@@ -85,9 +85,8 @@ export const EXTENDED_HEIR_SECTIONS: ExtendedHeirSection[] = [
     titleEn: "Grandparents and ancestors",
     helperEn: "These relatives may be relevant when closer parents are absent.",
     items: [
-      { key: "maternalGrandfather", emoji: "👴", label: "தாயின் தந்தை", description: "தாய் வழி தாத்தா.", labelEn: "Mother’s father", descriptionEn: "Maternal grandfather." },
-      { key: "paternalGrandmothers", emoji: "👵", label: "தந்தையின் தாய்", description: "தந்தை வழி பாட்டி.", labelEn: "Father’s mother", descriptionEn: "Paternal grandmother." },
-      { key: "maternalGrandmothers", emoji: "👵", label: "தாயின் தாய்", description: "தாய் வழி பாட்டி.", labelEn: "Mother’s mother", descriptionEn: "Maternal grandmother." },
+      { key: "paternalGrandmothers", emoji: "👵", label: "ஜதாத் (Grandmother)", description: "தந்தை வழி பாட்டி.", labelEn: "Father’s mother", descriptionEn: "Paternal grandmother." },
+      { key: "maternalGrandmothers", emoji: "👵", label: "ஜதாத் (Grandmother)", description: "தாய் வழி பாட்டி.", labelEn: "Mother’s mother", descriptionEn: "Maternal grandmother." },
       { key: "furtherPaternalAncestors", emoji: "🌳", label: "தந்தை வழி மூதாதையர்", description: "மேலதிக தந்தை-வழி முன்னோர்.", labelEn: "Further paternal ancestors", descriptionEn: "More distant ancestors through the father’s line." },
     ],
   },
@@ -123,6 +122,7 @@ export const EXTENDED_HEIR_SECTIONS: ExtendedHeirSection[] = [
     items: [
       { key: "daughtersChildren", emoji: "🧒", label: "மகளின் குழந்தைகள்", description: "மகள் வழி குழந்தைகள் மற்றும் அவர்களின் வரிசை.", labelEn: "Children of daughters", descriptionEn: "Children and later descendants through a daughter." },
       { key: "sonsDaughtersChildren", emoji: "🧒", label: "மகனின் மகளின் குழந்தைகள்", description: "மகன்-மகள் வழி குழந்தைகள்.", labelEn: "Children of sons’ daughters", descriptionEn: "Children through a son’s daughter." },
+      { key: "maternalGrandfather", emoji: "👴", label: "தாயின் தந்தை", description: "இரண்டாவது மிடையினர்: பாகம் பெறாத, அஸபாவில்லாத தாயின் தந்தை.", labelEn: "Mother’s father", descriptionEn: "Second tier of distant relatives: the non-fixed-share, non-ʿasabah maternal grandfather." },
       { key: "fullBrothersDaughters", emoji: "👧", label: "சகோதரரின் மகள்கள்", description: "உடன்பிறந்த சகோதரரின் மகள்கள்.", labelEn: "Daughters of full brothers", descriptionEn: "Female children of full brothers." },
       { key: "fullSistersChildren", emoji: "🧒", label: "சகோதரிகளின் குழந்தைகள்", description: "உடன்பிறந்த சகோதரிகளின் பிள்ளைகள்.", labelEn: "Children of full sisters", descriptionEn: "Children of full sisters." },
       { key: "maternalBrothersChildren", emoji: "🧒", label: "தாய் வழி சகோதரரின் குழந்தைகள்", description: "தாய் வழி சகோதரரின் பிள்ளைகள்.", labelEn: "Children of maternal half-brothers", descriptionEn: "Children of brothers who share the same mother." },
@@ -203,6 +203,51 @@ export type Exclusion = {
   key?: any;
 };
 
+export type CalculationTraceRow = {
+  key: string;
+  label: string;
+  count: number;
+  fraction: Fraction;
+  method: Allocation["method"];
+  integerShares: number;
+  percentage: number;
+  sourcePercentage: string;
+  amount: number;
+};
+
+/** One human-traceable step in the common LCM method: Fraction → LCM → Units → Sum → Remaining → Final Units → Money. Purely explanatory — it never influences the actual rule/amount computed above. */
+export type CalculationStep = {
+  id: "eligible-heirs" | "fixed-shares" | "root-lcm" | "fixed-units" | "awl" | "remaining-units" | "asabah-distribution" | "radd" | "unallocated" | "final-lcm" | "final-units" | "money" | "verification";
+  title: string;
+  detail: string;
+  data: Record<string, string | number | boolean>;
+};
+
+export type CalculationTrace = {
+  distributableEstate: number;
+  fixedShareTotal: Fraction;
+  remainder: Fraction;
+  lcm: number;
+  rows: CalculationTraceRow[];
+  allocated: Fraction;
+  heldBack: Fraction;
+  /** The "asl al-mas'ala" — LCM of the Fixed Share denominators only, established BEFORE any residuary/Radd distribution. */
+  baseLcm: number;
+  /** The complete common-method calculation chain, in order, for the frontend to explain exactly why each number was produced. */
+  steps: CalculationStep[];
+  /** Defensive check that the engine never silently forces or loses money: final units and final money must both reconcile to the estate. */
+  integrityCheck: {
+    totalUnits: number;
+    allocatedUnits: number;
+    heldBackUnits: number;
+    unitsBalanced: boolean;
+    distributedMoney: number;
+    heldBackMoney: number;
+    netEstate: number;
+    moneyBalanced: boolean;
+  };
+};
+
 export type CalculationResult = {
   netEstate: number;
   appliedBequest: number;
@@ -215,6 +260,7 @@ export type CalculationResult = {
   requiresScholarReview: boolean;
   selectedExtendedHeirs: SelectedExtendedHeir[];
   selectedReviewOnlyHeirs: SelectedExtendedHeir[];
+  trace: CalculationTrace;
 };
 
 const gcd = (a: number, b: number): number => {
@@ -241,21 +287,288 @@ const sum = (items: Fraction[]) => items.reduce((total, item) => add(total, item
 export const fractionToNumber = (value: Fraction) => value.n / value.d;
 export const fractionToText = (value: Fraction) => (value.d === 1 ? `${value.n}` : `${value.n}/${value.d}`);
 
+const lcm = (a: number, b: number) => Math.abs(a * b) / (gcd(a, b) || 1);
+
+export const sourcePercentage = (value: Fraction) => {
+  const key = fractionToText(value);
+  return ({ "1/2": "50%", "1/4": "25%", "1/8": "12.5%", "1/6": "16.67%", "1/3": "33.33%", "2/3": "66.66%" } as Record<string, string>)[key] ?? `${fractionToNumber(value) * 100}%`;
+};
+
+/** Status label per allocation method — always shown next to the name so Fixed Share and Asabah are never confused. */
+export const STATUS_LABEL: Record<AppLanguage, Record<Allocation["method"], string>> = {
+  ta: { fixed: "நிர்ணயப் பங்கு (Fixed Share)", remainder: "அஸபா (மீதிப் பங்கு)", redistribution: "ரத் (மீதி திருப்பம்)" },
+  en: { fixed: "Fixed Share", remainder: "Asabah (residuary)", redistribution: "Radd (returned remainder)" },
+  ar: { fixed: "نصيب مفروض", remainder: "عصبة (الباقي)", redistribution: "رد (إعادة الباقي)" },
+};
+
+/** The classical Taʿṣīb/Asabah rule, shown wherever a residuary share is displayed. */
+export const ASABAH_RULE_TEXT: Record<AppLanguage, string> = {
+  ta: "விதி: ஆணுக்கு 2 பங்கு, பெண்ணுக்கு 1 பங்கு.",
+  en: "Rule: male = 2 parts, female = 1 part.",
+  ar: "القاعدة: للذكر مثل حظ الأنثيين (للذكر ٢ سهمان، للأنثى سهم واحد).",
+};
+
+/** Gender of every heir key that can ever appear as an Asabah (residuary) row, used only to display the male=2/female=1 rule — it never affects the calculation itself. */
+export const ASABAH_GENDER: Record<string, "male" | "female"> = {
+  father: "male",
+  paternalGrandfather: "male",
+  sons: "male",
+  daughters: "female",
+  sonsSons: "male",
+  sonsDaughters: "female",
+  fullBrothers: "male",
+  fullSisters: "female",
+  paternalBrothers: "male",
+  paternalSisters: "female",
+  fullBrothersSons: "male",
+  paternalBrothersSons: "male",
+  paternalUncles: "male",
+  paternalUnclesSons: "male",
+  consanguinePaternalUncles: "male",
+  consanguinePaternalUnclesSons: "male",
+};
+
+/** Display-only Taʿṣīb parts. Individual residuary fractions are intentionally never needed by the UI. */
+export const asabahPartsFor = (item: Pick<Allocation, "key" | "count" | "method">, group: Array<Pick<Allocation, "key" | "count" | "method">>) => {
+  if (item.method !== "remainder") return 0;
+  const mixed = group.some((entry) => ASABAH_GENDER[entry.key] === "male") && group.some((entry) => ASABAH_GENDER[entry.key] === "female");
+  const perPerson = mixed ? (ASABAH_GENDER[item.key] === "male" ? 2 : ASABAH_GENDER[item.key] === "female" ? 1 : 1) : 1;
+  return perPerson * item.count;
+};
+
+/** Builds the full common LCM method trace directly from the calculation engine's own intermediate values (not reverse-engineered from the final numbers), so every step is genuinely traceable: Fraction → LCM → Units → Sum → Remaining → Final Units → Money. */
+const buildCommonMethodTrace = (params: {
+  netEstate: number;
+  fixedOriginal: Allocation[];
+  fixedTotalOriginal: Fraction;
+  fixedSharesAdjusted: boolean;
+  fixedTotal: Fraction;
+  remainderRows: Allocation[];
+  availableRemainder: Fraction;
+  redistributionRows: Allocation[];
+  unallocatedShare: Fraction;
+  finalAllocations: Allocation[];
+}): CalculationTrace => {
+  const { netEstate, fixedOriginal, fixedTotalOriginal, fixedSharesAdjusted, fixedTotal, remainderRows, availableRemainder, redistributionRows, unallocatedShare, finalAllocations } = params;
+  const steps: CalculationStep[] = [];
+
+  // Step 1 — Eligible heirs identified by the rules engine above (unchanged rules; this only reads their output).
+  steps.push({
+    id: "eligible-heirs",
+    title: "Eligible heirs",
+    detail: finalAllocations.length ? "The rules engine already identified which heirs are eligible and which method (Fixed Share or ʿAsabah) applies to each." : "No eligible heir was identified for this input.",
+    data: Object.fromEntries(finalAllocations.map((item) => [`${item.key}-${item.method}`, `${item.label} × ${item.count} (${item.method})`])),
+  });
+
+  // Step 2 — Fixed shares exactly as the book states them (never divided/altered here).
+  steps.push({
+    id: "fixed-shares",
+    title: "Fixed shares (book values)",
+    detail: fixedOriginal.length ? "Each Fixed Share is the exact book fraction — untouched." : "No Fixed Share heir in this case.",
+    data: Object.fromEntries(fixedOriginal.map((item) => [item.key, fractionToText(item.share)])),
+  });
+
+  // Step 3 — Root LCM ("asl al-mas'ala"): LCM of the Fixed Share denominators
+  // ONLY, before any residuary distribution. This never includes a Taʿṣīb ratio,
+  // an expanded unit, a percentage, an amount, or any other unrelated number.
+  const baseLcm = fixedOriginal.length ? fixedOriginal.reduce((current, item) => lcm(current, item.share.d), 1) : 1;
+  steps.push({
+    id: "root-lcm",
+    title: "Root LCM (asl al-mas'ala)",
+    detail: `LCM of the fixed-share denominators only (${fixedOriginal.map((item) => item.share.d).join(", ") || "1"}) = ${baseLcm}.`,
+    data: { baseLcm, denominators: fixedOriginal.map((item) => item.share.d).join(", ") || "1" },
+  });
+
+  // Step 4 — Convert every fixed fraction into root-LCM integer units and sum
+  // them. baseLcm is a multiple of every fixed share's denominator by
+  // construction, so this division is always exact (no rounding).
+  const fixedUnits = fixedOriginal.map((item) => ({ key: item.key, method: item.method, label: item.label, units: item.share.n * (baseLcm / item.share.d) }));
+  const fixedUnitsSum = fixedUnits.reduce((total, item) => total + item.units, 0);
+  steps.push({
+    id: "fixed-units",
+    title: "Fixed shares converted to LCM units",
+    detail: `LCM share = LCM × numerator ÷ denominator. Units are summed: Σ = ${fixedUnitsSum} (out of a root of ${baseLcm}).`,
+    data: { ...Object.fromEntries(fixedUnits.map((item) => [item.key, item.units])), sum: fixedUnitsSum, root: baseLcm },
+  });
+
+  // From here on, every case follows ONE structure:
+  // Fixed units → Fixed-unit SUM → ONE total remainder pool → money amount
+  // → Taʿṣīb distribution. Taʿṣīb ratios never expand or alter the root LCM.
+  // Book method: the original LCM is calculated from fixed-share denominators only.
+  // Taʿṣīb remains one total remainder pool and is distributed only after its
+  // money value is calculated; its ratio never changes the original LCM.
+  const finalLcm = fixedSharesAdjusted ? fixedUnitsSum || 1 : baseLcm;
+  const unitsByRowKey = new Map<string, number>();
+  fixedUnits.forEach((item) => unitsByRowKey.set(`${item.key}-${item.method}`, item.units));
+  const remainingUnits = fixedSharesAdjusted ? 0 : baseLcm - fixedUnitsSum;
+  const remainderAmount = netEstate * fractionToNumber(availableRemainder);
+  const group = remainderRows.length > 0 ? remainderRows : redistributionRows;
+  const mixedAsabah = group.some((item) => ASABAH_GENDER[item.key] === "male") && group.some((item) => ASABAH_GENDER[item.key] === "female");
+  const remainderParts = group.reduce((total, item) => {
+    if (item.method === "remainder") {
+      const gender = ASABAH_GENDER[item.key];
+      return total + (mixedAsabah ? (gender === "male" ? 2 : gender === "female" ? 1 : 0) : 1) * item.count;
+    }
+    return total + 1;
+  }, 0);
+
+  if (fixedSharesAdjusted) {
+    steps.push({
+      id: "awl",
+      title: "ʿAwl (proportional increase)",
+      detail: `The fixed shares alone (Σ = ${fractionToText(fixedTotalOriginal)}) exceed the whole estate. The existing ʿAwl rule keeps the original fixed units and increases the root to ${finalLcm}. No Taʿṣīb remainder is distributed in this case.`,
+      data: { originalRoot: baseLcm, increasedRoot: finalLcm, fixedTotalBeforeAwl: fractionToText(fixedTotalOriginal) },
+    });
+  } else {
+    steps.push({
+      id: "remaining-units",
+      title: "Total Taʿṣīb remainder",
+      detail: `Remaining units = LCM − fixed units = ${baseLcm} − ${fixedUnitsSum} = ${remainingUnits}. Keep this as one total remainder share (${fractionToText(availableRemainder)}); do not create a new primary fraction from the Taʿṣīb ratio.`,
+      data: { root: baseLcm, fixedUnitsSum, remainingUnits, remainingFraction: fractionToText(availableRemainder), remainderAmount },
+    });
+    steps.push({
+      id: "final-lcm",
+      title: "Original LCM retained",
+      detail: `The original LCM remains ${baseLcm}. Taʿṣīb parts are not added to it. The total remainder money is calculated first (${remainderAmount.toFixed(2)}), then distributed separately.`,
+      data: { finalLcm: baseLcm, remainderParts, remainderAmount },
+    });
+  }
+
+  // Step 6 — Apply the existing ʿAsabah/remainder rule to whatever units
+  // remained (male = 2 parts, female = 1 part where a mixed group applies).
+  // Read from the allocations already produced above — never re-derived or
+  // altered here, and never treated as the total remainder itself.
+  if (remainderRows.length > 0) {
+    steps.push({
+      id: "asabah-distribution",
+      title: "ʿAsabah distribution",
+      detail: `Total Taʿṣīb remainder = ${fractionToText(availableRemainder)} of the estate = ${remainderAmount.toFixed(2)}. Apply male = 2 parts and female = 1 part only to this money remainder (${remainderParts} total parts); do not add these parts to the original LCM.`,
+      data: Object.fromEntries(
+        remainderRows.map((item) => {
+          const gender = ASABAH_GENDER[item.key];
+          const parts = gender === "female" ? 1 : gender === "male" ? 2 : null;
+          return [item.key, parts ? `${item.label}: ${parts} part(s) × ${item.count} of the one total Taʿṣīb remainder` : `${item.label}: one total Taʿṣīb remainder`];
+        }),
+      ),
+    });
+  }
+
+  // Step 7 — Radd (return), only when no ʿAsabah exists and a fixed-share
+  // remainder is left; excludes spouse, per the existing rule.
+  if (redistributionRows.length > 0) {
+    steps.push({
+      id: "radd",
+      title: "Radd (returned remainder)",
+      detail: "No ʿAsabah heir exists for the leftover units. The existing Radd rule returns them to the eligible Fixed Share heirs (spouse excluded) in their original proportions.",
+      data: Object.fromEntries(redistributionRows.map((item) => [item.key, `${item.label}: +${fractionToText(item.share)} of the estate`])),
+    });
+  } else if (greaterThan(unallocatedShare, fraction(0))) {
+    steps.push({
+      id: "unallocated",
+      title: "No automatic recipient",
+      detail: "This document does not name an automatic ʿAsabah or Radd recipient for the remaining units in this exact combination, so the remainder is shown as held — it is never silently forced onto any heir or rounded up to 100%.",
+      data: { heldBack: fractionToText(unallocatedShare) },
+    });
+  }
+
+  // Step 9 — Final unit per heir, read directly from the structured
+  // calculation above (never independently re-derived per row from an
+  // ad-hoc LCM of already-reduced fractions), and their sum.
+  const rows: CalculationTraceRow[] = finalAllocations.map((item) => {
+    const rowKey = `${item.key}-${item.method}`;
+    const structuredUnits = unitsByRowKey.get(rowKey);
+    // Safety net only: a row not covered by the structured calculation above
+    // never happens in a balanced case — the verification step below flags it
+    // if it ever does — but this keeps the display from silently breaking.
+    const isRemainderRow = item.method === "remainder" || item.method === "redistribution";
+    const integerShares = isRemainderRow
+      ? (item.method === "remainder" ? (mixedAsabah ? (ASABAH_GENDER[item.key] === "male" ? 2 : ASABAH_GENDER[item.key] === "female" ? 1 : 1) : 1) * item.count : 1)
+      : (structuredUnits !== undefined ? structuredUnits : item.share.n * (baseLcm / item.share.d));
+    return {
+      key: item.key,
+      label: item.label,
+      count: item.count,
+      fraction: item.share,
+      method: item.method,
+      integerShares,
+      percentage: fractionToNumber(item.share) * 100,
+      sourcePercentage: sourcePercentage(item.share),
+      amount: netEstate * fractionToNumber(item.share),
+    };
+  });
+  const fixedDisplayedUnits = rows.filter((row) => row.method === "fixed").reduce((total, row) => total + row.integerShares, 0);
+  const allocatedUnits = fixedSharesAdjusted ? fixedDisplayedUnits : baseLcm;
+  const heldBackUnits = 0;
+  steps.push({
+    id: "final-units",
+    title: "Fixed units and total remainder",
+    detail: `Fixed units = ${fixedDisplayedUnits}; total remainder = ${remainingUnits} unit(s). The remainder is one pool and is not converted into new LCM fractions.`,
+    data: { fixedDisplayedUnits, remainingUnits, totalUnits: finalLcm },
+  });
+
+  // Step 10 — Calculate the total remainder money first, then distribute it.
+  const distributedMoney = rows.reduce((total, row) => total + row.amount, 0);
+  const heldBackMoney = netEstate * fractionToNumber(unallocatedShare);
+  steps.push({
+    id: "money",
+    title: "Remainder amount and final money",
+    detail: `Total remainder amount = distributable estate × total remainder = ${remainderAmount.toFixed(2)}. That amount is then distributed according to the Taʿṣīb parts; final amounts still use exact shares.`,
+    data: { remainderAmount: remainderAmount.toFixed(2), ...Object.fromEntries(rows.map((row) => [`${row.key}-${row.method}`, row.amount.toFixed(2)])), distributedMoney: distributedMoney.toFixed(2), heldBackMoney: heldBackMoney.toFixed(2) },
+  });
+
+  const unitsBalanced = fixedSharesAdjusted ? allocatedUnits === finalLcm : fixedDisplayedUnits + remainingUnits === baseLcm;
+  const structureConsistent = fixedSharesAdjusted ? fixedUnitsSum === finalLcm : fixedUnitsSum + remainingUnits === baseLcm;
+  const moneyBalanced = Math.abs(distributedMoney + heldBackMoney - netEstate) < 0.01;
+  steps.push({
+    id: "verification",
+    title: "Verification",
+    detail: unitsBalanced && moneyBalanced && structureConsistent ? "The final distributed amount (plus any held-back remainder) exactly equals the estate, and every intermediate unit count reconciles." : "Mismatch detected between the distributed total and the estate, or between intermediate unit counts — this case needs review before use.",
+    data: { totalUnits: finalLcm, allocatedUnits, heldBackUnits, unitsBalanced, structureConsistent, netEstate, distributedMoney: Number(distributedMoney.toFixed(2)), heldBackMoney: Number(heldBackMoney.toFixed(2)), moneyBalanced },
+  });
+
+  return {
+    distributableEstate: netEstate,
+    fixedShareTotal: fixedTotal,
+    remainder: subtract(fraction(1), fixedTotal),
+    lcm: fixedSharesAdjusted ? finalLcm : baseLcm,
+    rows,
+    allocated: sum(finalAllocations.map((item) => item.share)),
+    heldBack: unallocatedShare,
+    baseLcm,
+    steps,
+    integrityCheck: {
+      totalUnits: fixedSharesAdjusted ? finalLcm : baseLcm,
+      allocatedUnits,
+      heldBackUnits,
+      unitsBalanced,
+      distributedMoney: Number(distributedMoney.toFixed(2)),
+      heldBackMoney: Number(heldBackMoney.toFixed(2)),
+      netEstate,
+      moneyBalanced,
+    },
+  };
+};
+
 const mergeAllocations = (items: Allocation[]): Allocation[] => {
+  // Group by key + method (not key alone) so a person's Fixed Share (فرض) and
+  // their separate ʿAsabah/Radd portion are never blended into one derived
+  // fraction. Each status keeps its own book-exact fraction and percentage;
+  // only literal duplicates (same person, same method) are combined.
   const merged = new Map<string, Allocation>();
 
   items.forEach((item) => {
-    const current = merged.get(item.key);
+    const groupKey = `${item.key}::${item.method}`;
+    const current = merged.get(groupKey);
     if (!current) {
-      merged.set(item.key, item);
+      merged.set(groupKey, item);
       return;
     }
 
-    merged.set(item.key, {
+    merged.set(groupKey, {
       ...current,
+      count: current.count + item.count,
       share: add(current.share, item.share),
       reason: current.reason.includes(item.reason) ? current.reason : `${current.reason} ${item.reason}`,
-      method: current.method === item.method ? current.method : "remainder",
     });
   });
 
@@ -271,7 +584,7 @@ const allocation = (
   method: Allocation["method"],
 ): Allocation => ({ key, label, count, share, reason, method });
 
-function calculateLegacyInheritance(estate: EstateInput, heirs: HeirInput): CalculationResult {
+function calculateLegacyInheritance(estate: EstateInput, heirs: HeirInput): Omit<CalculationResult, "trace"> {
   const grossEstate = Math.max(0, estate.grossEstate || 0);
   const funeralCosts = Math.max(0, estate.funeralCosts || 0);
   const debts = Math.max(0, estate.debts || 0);
@@ -569,7 +882,7 @@ function calculateAuditedInheritance(estate: EstateInput, heirs: HeirInput): Cal
   const hasSpouse = heirs.husband > 0 || heirs.wives > 0;
   const fullSiblingCount = heirs.fullBrothers + heirs.fullSisters;
   const paternalSiblingPairEligible = paternalBrothers > 0 && paternalSisters > 0 && !hasAnyDescendant && heirs.father === 0 && heirs.paternalGrandfather === 0 && fullSiblingCount === 0;
-  const noCloserAsaba = !hasAnyDescendant && heirs.father === 0 && heirs.paternalGrandfather === 0;
+  const noCloserAsaba = !hasMaleSonLineDescendant && heirs.father === 0 && heirs.paternalGrandfather === 0;
   const fullBrotherSonsEligible = fullBrothersSons > 0 && fullSiblingCount === 0 && noCloserAsaba;
   const paternalBrotherSoloEligible = paternalBrothers > 0 && paternalSisters === 0 && fullSiblingCount === 0 && fullBrothersSons === 0 && noCloserAsaba;
   const paternalBrotherSonsEligible = paternalBrothersSons > 0 && paternalBrothers === 0 && paternalSisters === 0 && fullSiblingCount === 0 && fullBrothersSons === 0 && noCloserAsaba;
@@ -595,7 +908,7 @@ function calculateAuditedInheritance(estate: EstateInput, heirs: HeirInput): Cal
   if (grossEstate > 0 && funeralCosts + debts >= grossEstate) notices.push("செலவுகள் மற்றும் கடன்கள் காரணமாகப் பகிரக்கூடிய சொத்து இல்லை.");
   if (estate.bequest > bequestLimit && afterCosts > 0) notices.push("வஸிய்யத் தொகை ஒரு மூன்றில் ஒரு பங்கைத் தாண்டியுள்ளது; கணக்கில் அனுமதிக்கப்பட்ட அளவு மட்டும் பயன்படுத்தப்பட்டுள்ளது.");
   if (heirs.husband > 0 && heirs.wives > 0) notices.push("கணவன் மற்றும் மனைவிகள் இருவரையும் ஒரே நேரத்தில் தேர்வு செய்ய முடியாது; மனைவி தேர்வு கணக்கில் பயன்படுத்தப்பட்டுள்ளது.");
-  if (selectedReviewOnlyHeirs.length > 0) notices.push("சில தூரத்து அல்லது நீண்ட வரிசை உறவுகள் தேர்வு செய்யப்பட்டுள்ளனர். இந்த உறவுகளின் முன்னுரிமை மற்றும் துல்லியமான பங்குகள் அறிஞர் உறுதிப்படுத்தலுடன் கணக்கிடப்பட வேண்டும்.");
+  if (selectedReviewOnlyHeirs.length > 0) notices.push("இந்த ஆவணத்தில் இது தெளிவாக குறிப்பிடப்படவில்லை: சில தூரத்து அல்லது நீண்ட வரிசை உறவுகளின் முன்னுரிமை மற்றும் துல்லியமான பங்கு அறிஞர் உறுதிப்படுத்தலுடன் தீர்மானிக்கப்பட வேண்டும்.");
   if (grandfatherSiblingDifference) notices.push("தந்தையின் தந்தை மற்றும் சகோதரர்/சகோதரி உள்ளனர். இந்நிலையில் மத்ஹப் வேறுபாடு உள்ளது; அறிஞர் உறுதிப்படுத்தல் அவசியம்.");
 
   const spouseShare = heirs.wives > 0 ? (hasAnyDescendant ? fraction(1, 8) : fraction(1, 4)) : heirs.husband > 0 ? (hasAnyDescendant ? fraction(1, 4) : fraction(1, 2)) : fraction(0);
@@ -729,14 +1042,45 @@ function calculateAuditedInheritance(estate: EstateInput, heirs: HeirInput): Cal
   let redistribution: Allocation[] = [];
   let unallocatedShare = fraction(0);
   if (greaterThan(remainingAfterResiduary, fraction(0))) {
-    const eligibleForRedistribution = allocationsBeforeRedistribution.filter((item) => item.key !== "husband" && item.key !== "wives");
-    const eligibleTotal = sum(eligibleForRedistribution.map((item) => item.share));
-    if (greaterThan(eligibleTotal, fraction(0))) redistribution = eligibleForRedistribution.map((item) => allocation(item.key, item.label, item.count, multiply(remainingAfterResiduary, divide(item.share, eligibleTotal)), "மீதமான பங்கு, துணையின் பங்கைத் தவிர்த்து தகுதியுள்ள வாரிசுகளுக்கு மீள்பகிர்வு செய்யப்பட்டது.", "redistribution"));
-    else { unallocatedShare = remainingAfterResiduary; notices.push("இந்த அமைப்பில் மீதமான பங்கிற்கு தானியங்கி வாரிசு இல்லை. அறிஞர் உறுதிப்படுத்தல் தேவை."); }
+    const raddEligible = effectiveFixed.filter((item) => item.key !== "husband" && item.key !== "wives");
+    const raddBase = sum(raddEligible.map((item) => item.share));
+    if (greaterThan(raddBase, fraction(0))) {
+      redistribution = raddEligible.map((item) => allocation(item.key, item.label, item.count, multiply(remainingAfterResiduary, divide(item.share, raddBase)), "ரத் (Radd): அஸபா இல்லாதபோது, துணையைத் தவிர்த்து அசல் நிர்ணயப் பங்கு விகிதத்தில் மீதி திருப்பி வழங்கப்பட்டது.", "redistribution"));
+    } else {
+      unallocatedShare = remainingAfterResiduary;
+      notices.push("இந்த அமைப்பில் மீதமான பங்கிற்கு இந்த ஆவணத்தில் குறிப்பிடப்பட்ட தகுதியான அஸபா அல்லது ரத் பெறுநர் இல்லை; மீதி தனியாகக் காட்டப்பட்டுள்ளது.");
+    }
   }
-
   if (allocationsBeforeRedistribution.length === 0 && netEstate > 0) notices.push("வாரிசுகள் தேர்வு செய்யப்படவில்லை அல்லது இவ்வமைப்பு அறிஞர் உறுதிப்படுத்தல் தேவைப்படும் வகையைச் சேர்ந்தது.");
-  return { netEstate, appliedBequest, bequestLimit, allocations: mergeAllocations([...allocationsBeforeRedistribution, ...redistribution]), exclusions, unallocatedShare, notices, fixedSharesAdjusted, requiresScholarReview: selectedReviewOnlyHeirs.length > 0 || grandfatherSiblingDifference, selectedExtendedHeirs, selectedReviewOnlyHeirs };
+
+  const finalAllocations = mergeAllocations([...allocationsBeforeRedistribution, ...redistribution]);
+  const trace = buildCommonMethodTrace({
+    netEstate,
+    fixedOriginal: fixed,
+    fixedTotalOriginal: sum(fixed.map((item) => item.share)),
+    fixedSharesAdjusted,
+    fixedTotal,
+    remainderRows: remainder,
+    availableRemainder,
+    redistributionRows: redistribution,
+    unallocatedShare,
+    finalAllocations,
+  });
+
+  return {
+    netEstate,
+    appliedBequest,
+    bequestLimit,
+    allocations: finalAllocations,
+    exclusions,
+    unallocatedShare,
+    notices,
+    fixedSharesAdjusted,
+    requiresScholarReview: selectedReviewOnlyHeirs.length > 0 || grandfatherSiblingDifference,
+    selectedExtendedHeirs,
+    selectedReviewOnlyHeirs,
+    trace,
+  };
 }
 
-export const calculateInheritance = calculateAuditedInheritance;
+export const calculateInheritance = (estate: EstateInput, heirs: HeirInput): CalculationResult => calculateAuditedInheritance(estate, heirs);

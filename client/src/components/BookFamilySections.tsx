@@ -65,7 +65,7 @@ export function BookFamilySections({ heirs, onChange, query, onReset, language =
             <div><div className="flex flex-wrap items-center gap-2"><p className="text-sm font-extrabold text-[#133D76]">{language === "en" ? section.titleEn : language === "ar" ? sectionArabic.title : section.title}</p><span className={`rounded-md px-2 py-1 text-[10px] font-extrabold ${reviewOnly === 0 ? "bg-emerald-50 text-emerald-700" : automated === 0 ? "bg-amber-50 text-amber-800" : "bg-blue-50 text-[#133D76]"}`}>{status}</span></div><p className="mt-1 text-xs leading-5 text-slate-500">{language === "en" ? section.helperEn : language === "ar" ? sectionArabic.helper : section.helper}</p></div>
             <button type="button" onClick={() => onReset(section.allKeys)} className="inline-flex min-h-10 shrink-0 items-center gap-1.5 rounded-xl px-2 text-xs font-bold text-slate-500 hover:bg-slate-100 hover:text-[#133D76]" aria-label={language === "en" ? `Clear ${section.titleEn}` : language === "ar" ? `مسح ${sectionArabic.title}` : `${section.title} உறவுகளை அழிக்க`}><RotateCcw size={15} /> {language === "en" ? "Clear" : language === "ar" ? "مسح" : "அழி"}</button>
           </div>
-          <div className="mt-3 grid gap-3">
+          <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5">
             {section.items.map((item) => (
               <HeirCounter
                 key={item.key}
