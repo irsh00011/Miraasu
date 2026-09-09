@@ -381,24 +381,22 @@ export default function Home() {
 
             {step === 3 ? (
               <div className="space-y-4">
-                <div className="ledger-summary rounded-3xl bg-[#133D76] p-5 text-white shadow-xl shadow-blue-200 sm:p-7"><p className="text-sm font-bold text-blue-100">படி 3 / 3</p><div className="mt-2 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><h1 className="text-2xl font-extrabold tracking-tight">பங்கீட்டு முடிவு</h1><p className="mt-1 text-sm text-blue-100">ஒவ்வொருவரின் பங்கும் கீழே உள்ளது.</p></div><p className="rounded-2xl bg-white/10 px-5 py-4 text-3xl font-extrabold tabular-nums sm:text-4xl">{money(result.netEstate)}</p></div>{justSaved ? <p className="mt-4 inline-flex items-center gap-2 rounded-xl bg-white/10 px-3 py-2 text-xs font-bold"><Check size={14} /> இந்தக் கணக்கு வரலாற்றில் சேமிக்கப்பட்டது</p> : null}</div>
-                {result.notices.length > 0 ? <div className="space-y-2">{result.notices.map((notice) => <p key={notice} className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">{notice}</p>)}</div> : null}
-                {result.requiresScholarReview ? <p className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-extrabold text-amber-900">அறிஞர் உறுதிப்படுத்தல் தேவை — இம்முடிவு இறுதியானது அல்ல.</p> : null}
+                <div className="ledger-summary relative rounded-3xl bg-[#133D76] p-5 text-white shadow-xl shadow-blue-200 sm:p-7"><p className="text-sm font-bold text-blue-100">படி 3 / 3</p><div className="mt-2 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><h1 className="text-2xl font-extrabold tracking-tight">பங்கீட்டு முடிவு</h1><p className="mt-1 text-sm text-blue-100">ஒவ்வொரு வாரிசின் இறுதி தொகை</p></div><p className="rounded-2xl bg-white/10 px-5 py-4 text-3xl font-extrabold tabular-nums sm:text-4xl">{money(result.netEstate)}</p></div>{justSaved ? <p className="mt-4 inline-flex items-center gap-2 rounded-xl bg-white/10 px-3 py-2 text-xs font-bold"><Check size={14} /> வரலாற்றில் சேமிக்கப்பட்டது</p> : null}{result.requiresScholarReview ? <span className="mt-4 inline-flex rounded-xl bg-amber-300 px-3 py-2 text-xs font-extrabold text-amber-950">⚠ அறிஞர் உறுதி தேவை</span> : null}</div>
                 <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
                   <h2 className="text-lg font-extrabold text-slate-950">யாருக்கு எவ்வளவு?</h2>
                   {resultRows.length > 0 ? (
                     <>
-                    <ul className="mt-4 space-y-2">
+                    <ul className="mt-4 grid gap-3 sm:grid-cols-2">
                       {resultRows.map((row) => (
-                        <li key={row.key} className={`rounded-xl border px-3 py-2.5 ${row.zero ? "border-slate-100 bg-slate-50/40" : "border-slate-100 bg-slate-50/70"}`}>
+                        <li key={row.key} className={`flex min-h-36 flex-col justify-between rounded-2xl border p-4 ${row.zero ? "border-rose-200 bg-rose-50" : "border-slate-100 bg-slate-50/70"}`}>
                           <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                            <span className={`text-sm font-extrabold ${row.zero ? "text-slate-500" : "text-slate-950"}`}>{row.label}{row.count > 1 ? ` (${row.count})` : ""}</span>
-                            {row.isAsabah ? <span className="rounded-md bg-amber-100 px-1.5 py-0.5 text-[10px] font-extrabold text-amber-800">அஸபா</span> : null}
+                            <span className={`text-base font-extrabold ${row.zero ? "text-rose-800" : "text-slate-950"}`}>{row.label}{row.count > 1 ? ` (${row.count})` : ""}</span>
+                            {row.zero ? <span className="rounded-md bg-rose-200 px-1.5 py-0.5 text-[10px] font-extrabold text-rose-800">பங்கு இல்லை</span> : row.isAsabah ? <span className="rounded-md bg-amber-100 px-1.5 py-0.5 text-[10px] font-extrabold text-amber-800">அஸபா</span> : null}
                           </div>
                           <div className="mt-1.5 grid grid-cols-[auto_auto_1fr] items-center gap-2">
                             <span className="shrink-0 text-xs font-bold text-[#133D76]">{row.fractionText}</span>
                             {row.percentText ? <span className="shrink-0 text-xs font-semibold text-slate-500">{row.percentText}</span> : null}
-                            <span className={`shrink-0 text-right text-base font-extrabold tabular-nums sm:text-lg ${row.zero ? "text-slate-400" : "text-slate-950"}`}>{money(row.amount)}</span>
+                            <span className={`shrink-0 text-right text-2xl font-extrabold tabular-nums sm:text-3xl ${row.zero ? "text-rose-700" : "text-[#133D76]"}`}>{money(row.amount)}</span>
                           </div>
                         </li>
                       ))}
