@@ -7,9 +7,9 @@ type Method = "lcm" | "percentage";
 
 const copy = {
   en: {
-    teacher: "Teacher / explicit sum view",
-    show: "Show calculation methods",
-    hide: "Hide calculation methods",
+    teacher: "Explicit calculation",
+    show: "Show explicit calculation",
+    hide: "Hide explicit calculation",
     lcm: "LCM method",
     percentage: "Percentage method",
     estate: "Estate",
@@ -30,7 +30,7 @@ const copy = {
     equal: "one equal part per member",
   },
   ta: {
-    teacher: "ஆசிரியர் / விரிவான கணக்கு",
+    teacher: "விரிவான கணக்கு",
     show: "கணக்கீட்டு முறைகளைக் காட்டு",
     hide: "கணக்கீட்டு முறைகளை மறை",
     lcm: "LCM முறை",
