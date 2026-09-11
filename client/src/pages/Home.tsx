@@ -392,15 +392,19 @@ export default function Home() {
                     <>
                     <ul className="mt-4 space-y-3">
                       {resultRows.filter((row) => !row.zero).map((row) => (
-                        <li key={row.key} className={`grid min-h-28 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-2xl border p-4 ${row.zero ? "border-rose-200 bg-rose-50" : "border-slate-100 bg-slate-50/70"}`}>
-                          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                        <li key={row.key} className={`grid min-h-24 grid-cols-[minmax(0,1fr)_minmax(76px,auto)_auto] items-center gap-3 rounded-2xl border p-3.5 sm:gap-5 sm:p-4 ${row.zero ? "border-rose-200 bg-rose-50" : "border-slate-100 bg-slate-50/70"}`}>
+                          <div className="min-w-0">
+                            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                             <span className={`text-base font-extrabold ${row.zero ? "text-rose-800" : "text-slate-950"}`}>{row.label}{row.count > 1 ? ` (${row.count})` : ""}</span>
                             {row.zero ? <span className="rounded-md bg-rose-200 px-1.5 py-0.5 text-[10px] font-extrabold text-rose-800">பங்கு இல்லை</span> : row.isAsabah ? <span className="rounded-md bg-amber-100 px-1.5 py-0.5 text-[10px] font-extrabold text-amber-800">அஸபா</span> : null}
+                            </div>
                           </div>
-                          <div className="mt-1.5 grid grid-cols-[auto_auto] items-center gap-2">
-                            <span className="shrink-0 text-xs font-bold text-[#133D76]">{row.fractionText}</span>
-                            {row.percentText ? <span className="shrink-0 text-xs font-semibold text-slate-500">{row.percentText}</span> : null}
-                            <span className={`col-span-2 shrink-0 text-right text-2xl font-extrabold tabular-nums sm:text-3xl ${row.zero ? "text-rose-700" : "text-[#133D76]"}`}>{money(row.amount)}</span>
+                          <div className="border-l border-slate-200 pl-3 text-center sm:pl-5">
+                            <p className={`whitespace-nowrap text-sm font-extrabold sm:text-base ${row.zero ? "text-rose-700" : "text-[#133D76]"}`}>{row.fractionText}</p>
+                            {row.percentText ? <p className="mt-0.5 whitespace-nowrap text-[11px] font-semibold text-slate-500">{row.percentText}</p> : null}
+                          </div>
+                          <div className="border-l border-slate-200 pl-3 text-right sm:pl-5">
+                            <p className={`whitespace-nowrap text-2xl font-extrabold tabular-nums sm:text-3xl ${row.zero ? "text-rose-700" : "text-[#133D76]"}`}>{money(row.amount)}</p>
                           </div>
                         </li>
                       ))}
