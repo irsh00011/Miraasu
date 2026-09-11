@@ -7,7 +7,7 @@ type Method = "lcm" | "percentage";
 
 const copy = {
   en: {
-    teacher: "Explicit calculation",
+    explicit: "Explicit calculation",
     show: "Show explicit calculation",
     hide: "Hide explicit calculation",
     lcm: "LCM method",
@@ -30,7 +30,7 @@ const copy = {
     equal: "one equal part per member",
   },
   ta: {
-    teacher: "விரிவான கணக்கு",
+    explicit: "விரிவான கணக்கு",
     show: "கணக்கீட்டு முறைகளைக் காட்டு",
     hide: "கணக்கீட்டு முறைகளை மறை",
     lcm: "LCM முறை",
@@ -53,7 +53,7 @@ const copy = {
     equal: "ஒவ்வொரு உறுப்பினருக்கும் ஒரு சம பங்கு",
   },
   ar: {
-    teacher: "عرض المدرّس / المجموع الصريح",
+    explicit: "الحساب التفصيلي / المجموع الصريح",
     show: "إظهار طرق الحساب",
     hide: "إخفاء طرق الحساب",
     lcm: "طريقة LCM",
@@ -138,7 +138,7 @@ export function CalculationTrace({ result, language = "en" }: Props) {
   return (
     <section className="mt-5 rounded-3xl border border-blue-100 bg-white p-5 shadow-sm sm:p-7" dir={language === "ar" ? "rtl" : "ltr"}>
       <button type="button" onClick={() => setOpen((value) => !value)} className="flex min-h-12 w-full items-center justify-between gap-3 text-start">
-        <span className="text-lg font-extrabold text-slate-950">{t.teacher}</span>
+        <span className="text-lg font-extrabold text-slate-950">{t.explicit}</span>
         <ChevronDown size={20} className={`shrink-0 text-[#133D76] transition ${open ? "rotate-180" : ""}`} />
       </button>
       {open ? <div className="mt-4 border-t border-slate-100 pt-4">

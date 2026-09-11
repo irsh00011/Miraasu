@@ -382,23 +382,23 @@ export default function Home() {
 
             {step === 3 ? (
               <div className="space-y-4">
-                <div className="ledger-summary relative rounded-3xl bg-[#133D76] p-5 text-white shadow-xl shadow-blue-200 sm:p-7"><p className="text-sm font-bold text-blue-100">படி 3 / 3</p><div className="mt-2 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><h1 className="text-2xl font-extrabold tracking-tight">பங்கீட்டு முடிவு</h1><p className="mt-1 text-sm text-blue-100">ஒவ்வொரு வாரிசின் இறுதி தொகை</p></div><p className="rounded-2xl bg-white/10 px-5 py-4 text-3xl font-extrabold tabular-nums sm:text-4xl">{money(result.netEstate)}</p></div>{justSaved ? <p className="mt-4 inline-flex items-center gap-2 rounded-xl bg-white/10 px-3 py-2 text-xs font-bold"><Check size={14} /> வரலாற்றில் சேமிக்கப்பட்டது</p> : null}{result.requiresScholarReview ? <span className="mt-4 inline-flex rounded-xl bg-amber-300 px-3 py-2 text-xs font-extrabold text-amber-950">⚠ அறிஞர் உறுதி தேவை</span> : null}</div>
+                <div className="ledger-summary rounded-3xl bg-[#133D76] p-5 text-white shadow-xl shadow-blue-200 sm:p-7"><p className="text-sm font-bold text-blue-100">படி 3 / 3</p><div className="mt-2 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><h1 className="text-2xl font-extrabold tracking-tight">பங்கீட்டு முடிவு</h1><p className="mt-1 text-sm text-blue-100">ஒவ்வொரு வாரிசின் இறுதி தொகை</p></div><p className="text-4xl font-extrabold tabular-nums sm:text-5xl">{money(result.netEstate)}</p></div></div>
                 <div className="grid grid-cols-2 gap-2 rounded-2xl bg-slate-100 p-1"><button type="button" onClick={() => setResultMode("simple")} className={`rounded-xl px-3 py-3 text-sm font-extrabold ${resultMode === "simple" ? "bg-white text-[#133D76] shadow-sm" : "text-slate-500"}`}>எளிய முடிவு</button><button type="button" onClick={() => setResultMode("explicit")} className={`rounded-xl px-3 py-3 text-sm font-extrabold ${resultMode === "explicit" ? "bg-white text-[#133D76] shadow-sm" : "text-slate-500"}`}>விரிவான கணக்கு</button></div>
                 {resultMode === "simple" ? <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
                   <h2 className="text-lg font-extrabold text-slate-950">யாருக்கு எவ்வளவு?</h2>
                   {resultRows.length > 0 ? (
                     <>
-                    <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+                    <ul className="mt-4 space-y-3">
                       {resultRows.filter((row) => !row.zero).map((row) => (
-                        <li key={row.key} className={`flex min-h-36 flex-col justify-between rounded-2xl border p-4 ${row.zero ? "border-rose-200 bg-rose-50" : "border-slate-100 bg-slate-50/70"}`}>
+                        <li key={row.key} className={`grid min-h-28 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-2xl border p-4 ${row.zero ? "border-rose-200 bg-rose-50" : "border-slate-100 bg-slate-50/70"}`}>
                           <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                             <span className={`text-base font-extrabold ${row.zero ? "text-rose-800" : "text-slate-950"}`}>{row.label}{row.count > 1 ? ` (${row.count})` : ""}</span>
                             {row.zero ? <span className="rounded-md bg-rose-200 px-1.5 py-0.5 text-[10px] font-extrabold text-rose-800">பங்கு இல்லை</span> : row.isAsabah ? <span className="rounded-md bg-amber-100 px-1.5 py-0.5 text-[10px] font-extrabold text-amber-800">அஸபா</span> : null}
                           </div>
-                          <div className="mt-1.5 grid grid-cols-[auto_auto_1fr] items-center gap-2">
+                          <div className="mt-1.5 grid grid-cols-[auto_auto] items-center gap-2">
                             <span className="shrink-0 text-xs font-bold text-[#133D76]">{row.fractionText}</span>
                             {row.percentText ? <span className="shrink-0 text-xs font-semibold text-slate-500">{row.percentText}</span> : null}
-                            <span className={`shrink-0 text-right text-2xl font-extrabold tabular-nums sm:text-3xl ${row.zero ? "text-rose-700" : "text-[#133D76]"}`}>{money(row.amount)}</span>
+                            <span className={`col-span-2 shrink-0 text-right text-2xl font-extrabold tabular-nums sm:text-3xl ${row.zero ? "text-rose-700" : "text-[#133D76]"}`}>{money(row.amount)}</span>
                           </div>
                         </li>
                       ))}
@@ -411,7 +411,6 @@ export default function Home() {
                   )}
                 </div> : <CalculationTrace result={result} language="ta" />}
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><button type="button" onClick={() => setStep(2)} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-3 text-sm font-bold text-slate-600 hover:bg-white"><ArrowLeft size={17} /> மாற்றுக</button><div className="flex flex-wrap gap-2"><button type="button" onClick={() => window.print()} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-bold text-slate-700 hover:bg-slate-50"><Printer size={16} /> அச்சிடுக</button><button type="button" onClick={() => setView("history")} className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#133D76] px-4 text-sm font-bold text-white hover:bg-[#102F5E]"><History size={16} /> வரலாறு</button></div></div>
-                <p className="text-center text-xs leading-5 text-slate-500">கற்றல் உதவி மட்டும். உண்மையான பங்கீட்டிற்கு முன் தகுதியான அறிஞர் மற்றும் சட்ட நிபுணரிடம் உறுதி செய்யுங்கள்.</p>
               </div>
             ) : null}
           </section>
