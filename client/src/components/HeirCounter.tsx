@@ -2,7 +2,7 @@
 /** Design: Ledger of Justice — high-contrast, touch-safe count control for every language and script direction. */
 /** Compact square/near-square tile. max=1 → whole tile toggles selection. max>1 → tile shows a mini stepper. */
 import { useEffect, useState } from "react";
-import { Check, Minus, Plus } from "lucide-react";
+import { Check } from "lucide-react";
 
 type HeirCounterProps = {
   emoji?: string;
@@ -17,7 +17,7 @@ type HeirCounterProps = {
 
 export function HeirCounter({ emoji, label, description, searchText, value, onChange, max = 20, language }: HeirCounterProps) {
   const resolvedLanguage = language ?? (/[\u0B80-\u0BFF]/.test(label) ? "ta" : /[\u0600-\u06FF]/.test(label) ? "ar" : "en");
-  const counterCopy = resolvedLanguage === "ta" ? { count: "எண்ணிக்கை", decrease: "குறைக்க", increase: "அதிகரிக்க" } : resolvedLanguage === "ar" ? { count: "العدد", decrease: "إنقاص", increase: "زيادة" } : { count: "count", decrease: "decrease", increase: "increase" };
+  const counterCopy = resolvedLanguage === "ta" ? { count: "எண்ணிக்கை" } : resolvedLanguage === "ar" ? { count: "العدد" } : { count: "count" };
   const [familySearch, setFamilySearch] = useState("");
 
   useEffect(() => {
@@ -74,25 +74,8 @@ export function HeirCounter({ emoji, label, description, searchText, value, onCh
       {emoji ? <span aria-hidden="true" className="text-xl leading-none">{emoji}</span> : null}
       <span className="line-clamp-2 text-[11px] font-bold leading-tight text-slate-800">{label}</span>
       <div className="flex shrink-0 items-center gap-1" aria-label={`${label} ${counterCopy.count}`}>
-        <button
-          type="button"
-          onClick={() => onChange(Math.max(0, value - 1))}
-          disabled={value === 0}
-          className="grid size-6 place-items-center rounded-lg border border-slate-200 text-slate-600 transition hover:border-blue-300 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-30"
-          aria-label={`${label} ${counterCopy.decrease}`}
-        >
-          <Minus size={12} />
-        </button>
-        <output className="min-w-4 text-center text-xs font-extrabold tabular-nums text-[#133D76]">{value}</output>
-        <button
-          type="button"
-          onClick={() => onChange(Math.min(max, value + 1))}
-          disabled={value >= max}
-          className="grid size-6 place-items-center rounded-lg bg-[#133D76] text-white transition hover:bg-[#102F5E] disabled:cursor-not-allowed disabled:opacity-30"
-          aria-label={`${label} ${counterCopy.increase}`}
-        >
-          <Plus size={12} />
-        </button>
+        <label className="sr-only" htmlFor={`counter-${label}`}>{counterCopy.count}</label>
+        <input id={`counter-${label}`} type="number" inputMode="numeric" min={0} max={max} value={value} onChange={(event) => onChange(Math.max(0, Math.min(max, Number(event.target.value) || 0)))} className="h-7 w-12 rounded-lg border border-slate-200 bg-white px-1 text-center text-xs font-extrabold tabular-nums text-[#133D76] outline-none focus:border-[#133D76] focus:ring-2 focus:ring-blue-100" />
       </div>
     </div>
   );

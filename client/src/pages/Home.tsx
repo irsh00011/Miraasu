@@ -351,14 +351,13 @@ export default function Home() {
             </div>
 
             {step === 1 ? (
-              <div className="ledger-panel rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8" data-step-fields>
-                <p className="text-sm font-bold text-[#133D76]">படி 1 / 3</p>
-                <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-slate-950">மொத்தச் சொத்து எவ்வளவு?</h1>
-                <div className="mt-6">{moneyInput("grossEstate", "மொத்தச் சொத்து மதிப்பு", undefined, "xl")}</div>
+              <div className="overflow-hidden rounded-3xl border border-blue-100 bg-white shadow-xl shadow-blue-100/60" data-step-fields>
+                <div className="bg-gradient-to-br from-[#133D76] to-[#1d6fc4] px-5 py-7 text-white sm:px-8 sm:py-9"><p className="text-sm font-bold text-blue-100">படி 1 / 3</p><h1 className="mt-2 text-3xl font-extrabold tracking-tight">முதலில் சொத்து மதிப்பை உள்ளிடுங்கள்</h1><p className="mt-2 max-w-lg text-sm leading-6 text-blue-100">அதன் பிறகு உயிருடன் உள்ள குடும்ப உறுப்பினர்களைத் தேர்வு செய்து, தெளிவான பங்கீட்டு முடிவைப் பெறலாம்.</p></div>
+                <div className="p-5 sm:p-8"><div className="rounded-2xl border border-blue-100 bg-blue-50/60 p-4 sm:p-5">{moneyInput("grossEstate", "மொத்தச் சொத்து மதிப்பு", "கடன் அல்லது செலவுகள் இருந்தால் கீழே சேர்க்கலாம்.", "xl")}</div>
                 <button type="button" onClick={() => setShowOptionalEstate((current) => !current)} className="mt-5 inline-flex min-h-10 items-center gap-2 rounded-xl px-2 text-sm font-bold text-[#133D76] hover:bg-blue-50"><ChevronDown className={`transition ${showOptionalEstate ? "rotate-180" : ""}`} size={17} /> கடன் அல்லது செலவு உள்ளது</button>
                 {showOptionalEstate ? <div className="mt-3 grid gap-4 rounded-2xl bg-slate-50 p-4 sm:grid-cols-3">{moneyInput("funeralCosts", "அவசியச் செலவு")}{moneyInput("debts", "மொத்தக் கடன்")}{moneyInput("bequest", "வஸிய்யத்")}</div> : null}
                 {result.notices.filter((notice) => notice.includes("வஸிய்யத்") || notice.includes("பகிரக்கூடிய")).map((notice) => <p key={notice} className="mt-4 rounded-xl bg-amber-50 px-3 py-2 text-sm leading-6 text-amber-900">{notice}</p>)}
-                <div className="mt-8 flex items-center justify-between border-t border-slate-100 pt-5"><div><p className="text-xs font-bold text-slate-400">பகிரக்கூடிய தொகை</p><p className="mt-1 text-lg font-extrabold tabular-nums text-[#102B52]">{money(result.netEstate)}</p></div><button type="button" onClick={() => setStep(2)} className="inline-flex min-h-12 items-center gap-2 rounded-2xl bg-[#133D76] px-5 py-3 font-extrabold text-white shadow-lg shadow-blue-200 transition hover:bg-[#102F5E] active:scale-[0.98]">தொடர்க <ArrowRight size={18} /></button></div>
+                <div className="mt-8 flex flex-col gap-4 border-t border-slate-100 pt-5 sm:flex-row sm:items-center sm:justify-between"><div><p className="text-xs font-bold text-slate-400">பகிரக்கூடிய தொகை</p><p className="mt-1 text-2xl font-extrabold tabular-nums text-[#102B52]">{money(result.netEstate)}</p></div><button type="button" onClick={() => setStep(2)} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-[#133D76] px-5 py-3 font-extrabold text-white shadow-lg shadow-blue-200 transition hover:bg-[#102F5E] active:scale-[0.98]">தொடர்க <ArrowRight size={18} /></button></div></div>
               </div>
             ) : null}
 
