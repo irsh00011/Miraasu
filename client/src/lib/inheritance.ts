@@ -575,6 +575,31 @@ const mergeAllocations = (items: Allocation[]): Allocation[] => {
   return Array.from(merged.values()).filter((item) => greaterThan(item.share, fraction(0)));
 };
 
+/** Combines an heir's separate fixed, Radd, or other internal components for final result display only. */
+export const aggregateAllocationsForDisplay = (items: Allocation[]): Allocation[] => {
+  const aggregated = new Map<string, Allocation>();
+  items.forEach((item) => {
+    const current = aggregated.get(item.key);
+    if (!current) {
+      aggregated.set(item.key, item);
+      return;
+    }
+    const method = current.method === "remainder" || item.method === "remainder"
+      ? "remainder"
+      : current.method === "fixed" || item.method === "fixed"
+        ? "fixed"
+        : "redistribution";
+    aggregated.set(item.key, {
+      ...current,
+      method,
+      count: Math.max(current.count, item.count),
+      share: add(current.share, item.share),
+      reason: current.reason.includes(item.reason) ? current.reason : `${current.reason} ${item.reason}`,
+    });
+  });
+  return Array.from(aggregated.values());
+};
+
 const allocation = (
   key: string,
   label: string,

@@ -23,6 +23,7 @@ import {
 import { FamilyList } from "@/components/FamilyList";
 import {
   asabahPartsFor,
+  aggregateAllocationsForDisplay,
   calculateInheritance,
   fractionToNumber,
   fractionToText,
@@ -163,8 +164,9 @@ export default function Home() {
   const remainingAmount = Math.max(0, result.netEstate - distributedTotal);
   const historyFingerprint = useMemo(() => JSON.stringify({ estate, heirs }), [estate, heirs]);
   const resultRows = useMemo(() => {
-    const asabahGroup = result.allocations.filter((item) => item.method === "remainder");
-    const allocationRows = result.allocations.map((item) => {
+    const displayAllocations = aggregateAllocationsForDisplay(result.allocations);
+    const asabahGroup = displayAllocations.filter((item) => item.method === "remainder");
+    const allocationRows = displayAllocations.map((item) => {
       const amount = result.netEstate * fractionToNumber(item.share);
       const isAsabah = item.method === "remainder";
       const parts = asabahPartsFor(item, asabahGroup);
