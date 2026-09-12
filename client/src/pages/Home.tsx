@@ -379,7 +379,7 @@ export default function Home() {
 
             {step === 3 ? (
               <div className="space-y-4">
-                <div className="ledger-summary rounded-3xl bg-[#133D76] p-5 text-white shadow-xl shadow-blue-200 sm:p-7"><p className="text-sm font-bold text-blue-100">படி 3 / 3</p><div className="mt-2 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><h1 className="text-2xl font-extrabold tracking-tight">பங்கீட்டு முடிவு</h1><p className="mt-1 text-sm text-blue-100">ஒவ்வொரு வாரிசின் இறுதி தொகை</p></div><p className="text-4xl font-extrabold tabular-nums sm:text-5xl">{money(result.netEstate)}</p></div></div>
+                <div className="ledger-summary rounded-3xl bg-[#133D76] p-5 text-white shadow-xl shadow-blue-200 sm:p-7"><p className="text-sm font-bold text-blue-100">படி 3 / 3</p><div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"><div><h1 className="text-2xl font-extrabold tracking-tight">பங்கீட்டு முடிவு</h1><p className="mt-1 text-sm text-blue-100">ஒவ்வொரு வாரிசின் இறுதி தொகை</p></div><p className="break-words text-3xl font-extrabold tabular-nums sm:text-5xl">{money(result.netEstate)}</p></div></div>
                 <div className="grid grid-cols-2 gap-2 rounded-2xl bg-slate-100 p-1"><button type="button" onClick={() => setResultMode("simple")} className={`rounded-xl px-3 py-3 text-sm font-extrabold ${resultMode === "simple" ? "bg-white text-[#133D76] shadow-sm" : "text-slate-500"}`}>எளிய முடிவு</button><button type="button" onClick={() => setResultMode("explicit")} className={`rounded-xl px-3 py-3 text-sm font-extrabold ${resultMode === "explicit" ? "bg-white text-[#133D76] shadow-sm" : "text-slate-500"}`}>விரிவான கணக்கு</button></div>
                 {resultMode === "simple" ? <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
                   <h2 className="text-lg font-extrabold text-slate-950">யாருக்கு எவ்வளவு?</h2>
@@ -387,18 +387,18 @@ export default function Home() {
                     <>
                     <ul className="mt-4 space-y-3">
                       {resultRows.filter((row) => !row.zero).map((row) => (
-                        <li key={row.key} className={`grid min-h-24 grid-cols-[minmax(0,1fr)_minmax(76px,auto)_auto] items-center gap-3 rounded-2xl border p-3.5 sm:gap-5 sm:p-4 ${row.zero ? "border-rose-200 bg-rose-50" : "border-slate-100 bg-slate-50/70"}`}>
+                        <li key={row.key} className={`grid min-h-24 grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-2xl border p-3.5 sm:grid-cols-[minmax(0,1fr)_minmax(76px,auto)_auto] sm:gap-5 sm:p-4 ${row.zero ? "border-rose-200 bg-rose-50" : "border-slate-100 bg-slate-50/70"}`}>
                           <div className="min-w-0">
                             <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                             <span className={`text-base font-extrabold ${row.zero ? "text-rose-800" : "text-slate-950"}`}>{row.label}{row.count > 1 ? ` (${row.count})` : ""}</span>
                             {row.zero ? <span className="rounded-md bg-rose-200 px-1.5 py-0.5 text-[10px] font-extrabold text-rose-800">பங்கு இல்லை</span> : row.isAsabah ? <span className="rounded-md bg-amber-100 px-1.5 py-0.5 text-[10px] font-extrabold text-amber-800">அஸபா</span> : null}
                             </div>
                           </div>
-                          <div className="border-l border-slate-200 pl-3 text-center sm:pl-5">
+                          <div className="col-start-1 border-t border-slate-200 pt-2 text-left sm:col-start-2 sm:border-l sm:border-t-0 sm:pl-5 sm:pt-0 sm:text-center">
                             <p className={`whitespace-nowrap text-sm font-extrabold sm:text-base ${row.zero ? "text-rose-700" : "text-[#133D76]"}`}>{row.fractionText}</p>
                             {row.percentText ? <p className="mt-0.5 whitespace-nowrap text-[11px] font-semibold text-slate-500">{row.percentText}</p> : null}
                           </div>
-                          <div className="border-l border-slate-200 pl-3 text-right sm:pl-5">
+                          <div className="col-start-2 row-start-1 row-span-2 border-l border-slate-200 pl-3 text-right sm:col-start-3 sm:pl-5">
                             <p className={`whitespace-nowrap text-2xl font-extrabold tabular-nums sm:text-3xl ${row.zero ? "text-rose-700" : "text-[#133D76]"}`}>{money(row.amount)}</p>
                           </div>
                         </li>

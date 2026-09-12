@@ -103,13 +103,13 @@ export function CalculationTrace({ result, language = "en" }: Props) {
       <section className="rounded-2xl border border-slate-200 p-4">
         <h3 className="font-extrabold text-slate-900">{t.fixed}</h3>
         <div className="mt-3 space-y-2 text-sm">
-          {fixedRows.length ? fixedRows.map((row) => <div className="flex justify-between gap-4" key={`${row.key}-lcm`}><span>{row.label} × {row.count}</span><strong>{fractionToText(row.fraction)} → {row.integerShares} {t.fixedUnits.toLowerCase()}</strong></div>) : <span className="text-slate-500">—</span>}
+          {fixedRows.length ? fixedRows.map((row) => <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 border-b border-slate-100 pb-2 last:border-0 last:pb-0" key={`${row.key}-lcm`}><span className="min-w-0 break-words">{row.label} × {row.count}</span><strong className="text-right leading-5">{fractionToText(row.fraction)} → {row.integerShares} {t.fixedUnits.toLowerCase()}</strong></div>) : <span className="text-slate-500">—</span>}
         </div>
         <p className="mt-3 border-t border-slate-100 pt-3 text-sm font-bold">{t.fixedTotal}: {fixedUnitTotal} units = {money(fixedShareAmount)}</p>
       </section>
       <section className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
         <h3 className="font-extrabold text-amber-950">{t.remainder}</h3>
-        <p className="mt-1 text-sm font-bold">{money(result.netEstate)} − {money(fixedShareAmount)} = {money(remainderAmount)}</p>
+        <p className="mt-1 break-words text-sm font-bold leading-6">{money(result.netEstate)} − {money(fixedShareAmount)} = {money(remainderAmount)}</p>
         <p className="mt-3 text-sm font-bold">{t.ratio}: {ratioText}</p>
         {asabahRows.length ? <Parts rows={asabahRows} totalParts={totalParts} remainderAmount={remainderAmount} language={language} /> : <p className="mt-2 text-sm text-amber-900">{t.noRemainder}</p>}
       </section>
@@ -121,13 +121,13 @@ export function CalculationTrace({ result, language = "en" }: Props) {
       <section className="rounded-2xl border border-slate-200 p-4">
         <h3 className="font-extrabold text-slate-900">{t.fixed}</h3>
         <div className="mt-3 space-y-2 text-sm">
-          {fixedRows.length ? fixedRows.map((row) => <div className="flex justify-between gap-4" key={`${row.key}-percentage`}><span>{row.label} × {row.count}</span><strong>{(fractionToNumber(row.fraction) * 100).toFixed(2)}%</strong></div>) : <span className="text-slate-500">—</span>}
+          {fixedRows.length ? fixedRows.map((row) => <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 border-b border-slate-100 pb-2 last:border-0 last:pb-0" key={`${row.key}-percentage`}><span className="min-w-0 break-words">{row.label} × {row.count}</span><strong className="text-right">{(fractionToNumber(row.fraction) * 100).toFixed(2)}%</strong></div>) : <span className="text-slate-500">—</span>}
         </div>
         <p className="mt-3 border-t border-slate-100 pt-3 text-sm font-bold">{t.fixedTotal}: {(fractionToNumber(result.trace.fixedShareTotal) * 100).toFixed(2)}% = {money(fixedShareAmount)}</p>
       </section>
       <section className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
         <h3 className="font-extrabold text-amber-950">{t.remainder}</h3>
-        <p className="mt-1 text-sm font-bold">100% − {(fractionToNumber(result.trace.fixedShareTotal) * 100).toFixed(2)}% = {(fractionToNumber(result.trace.remainder) * 100).toFixed(2)}% = {money(remainderAmount)}</p>
+        <p className="mt-1 break-words text-sm font-bold leading-6">100% − {(fractionToNumber(result.trace.fixedShareTotal) * 100).toFixed(2)}% = {(fractionToNumber(result.trace.remainder) * 100).toFixed(2)}% = {money(remainderAmount)}</p>
         <p className="mt-3 text-sm font-bold">{t.ratio}: {ratioText}</p>
         {asabahRows.length ? <Parts rows={asabahRows} totalParts={totalParts} remainderAmount={remainderAmount} language={language} /> : <p className="mt-2 text-sm text-amber-900">{t.noRemainder}</p>}
       </section>
@@ -153,12 +153,12 @@ export function CalculationTrace({ result, language = "en" }: Props) {
 }
 
 function Info({ label, value, prominent = false }: { label: string; value: string; prominent?: boolean }) {
-  return <div className={`rounded-2xl p-4 ${prominent ? "bg-blue-50" : "bg-slate-50"}`}><p className="text-xs font-bold uppercase tracking-wide text-slate-500">{label}</p><p className={`mt-1 font-extrabold ${prominent ? "text-3xl text-[#133D76]" : "text-lg text-slate-950"}`}>{value}</p></div>;
+  return <div className={`min-w-0 rounded-2xl p-4 ${prominent ? "bg-blue-50" : "bg-slate-50"}`}><p className="text-xs font-bold uppercase tracking-wide text-slate-500">{label}</p><p className={`mt-1 break-words font-extrabold tabular-nums ${prominent ? "text-2xl text-[#133D76] sm:text-3xl" : "text-lg text-slate-950"}`}>{value}</p></div>;
 }
 
 function Parts({ rows, totalParts, remainderAmount, language }: { rows: CalculationResult["trace"]["rows"]; totalParts: number; remainderAmount: number; language: AppLanguage }) {
   const labels = { en: "parts", ta: "பங்குகள்", ar: "أسهم" }[language];
-  return <div className="mt-3 space-y-2 border-t border-amber-200 pt-3"><p className="text-xs font-bold text-amber-900">{money(remainderAmount)} ÷ {totalParts} {labels} = {money(remainderAmount / Math.max(1, totalParts))} per part</p>{rows.map((row) => <div className="flex items-center justify-between gap-4 text-sm" key={`${row.key}-parts`}><span>{row.label} × {row.count}</span><strong>{asabahPartsFor(row, rows)} {labels} × {money(remainderAmount / Math.max(1, totalParts))} = {money(row.amount)}</strong></div>)}<p className="border-t border-amber-200 pt-2 text-xs font-extrabold text-amber-950">{totalParts} {labels} = {money(remainderAmount)}</p></div>;
+  return <div className="mt-3 space-y-3 border-t border-amber-200 pt-3"><p className="break-words text-xs font-bold leading-5 text-amber-900">{money(remainderAmount)} ÷ {totalParts} {labels} = {money(remainderAmount / Math.max(1, totalParts))} per part</p>{rows.map((row) => <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 border-b border-amber-200/70 pb-2 text-sm last:border-0" key={`${row.key}-parts`}><span className="min-w-0 break-words">{row.label} × {row.count}</span><strong className="max-w-[62%] break-words text-right leading-5">{asabahPartsFor(row, rows)} {labels} × {money(remainderAmount / Math.max(1, totalParts))} = {money(row.amount)}</strong></div>)}<p className="border-t border-amber-200 pt-2 text-xs font-extrabold text-amber-950">{totalParts} {labels} = {money(remainderAmount)}</p></div>;
 }
 
 function CheckBlock({ distributed, remaining, estate, label, t }: { distributed: number; remaining: number; estate: number; label: string; t: { distributed: string; remaining: string } }) {
