@@ -1,5 +1,5 @@
 /** Design: Ledger of Justice — a plain row control (icon + full name + stepper) so every relative's name is always fully readable on mobile and desktop, with no text clamping. */
-import { Check } from "lucide-react";
+import { Check, Minus, Plus } from "lucide-react";
 
 type HeirRowProps = {
   emoji?: string;
@@ -13,10 +13,10 @@ type HeirRowProps = {
 export function HeirRow({ emoji, label, value, onChange, max = 20, language = "ta" }: HeirRowProps) {
   const copy =
     language === "en"
-      ? { add: "Add", count: "count" }
+      ? { add: "Add", decrease: "decrease", increase: "increase" }
       : language === "ar"
-        ? { add: "إضافة", count: "العدد" }
-        : { add: "சேர்", count: "எண்ணிக்கை" };
+        ? { add: "إضافة", decrease: "إنقاص", increase: "زيادة" }
+        : { add: "சேர்", decrease: "குறைக்க", increase: "அதிகரிக்க" };
   const selected = value > 0;
   const isToggle = max === 1;
 
@@ -46,18 +46,10 @@ export function HeirRow({ emoji, label, value, onChange, max = 20, language = "t
           {selected ? <Check size={13} /> : copy.add}
         </button>
       ) : (
-        <div className="flex shrink-0 items-center gap-2" aria-label={label}>
-          <label className="sr-only" htmlFor={`count-${label}`}>{copy.count}</label>
-          <input
-            id={`count-${label}`}
-            type="number"
-            inputMode="numeric"
-            min={0}
-            max={max}
-            value={value}
-            onChange={(event) => onChange(Math.max(0, Math.min(max, Number(event.target.value) || 0)))}
-            className="h-9 w-16 rounded-lg border border-slate-200 bg-white px-2 text-center text-sm font-extrabold tabular-nums text-[#133D76] outline-none focus:border-[#133D76] focus:ring-4 focus:ring-blue-100"
-          />
+        <div className="flex shrink-0 items-center gap-1.5" aria-label={label}>
+          <button type="button" onClick={() => onChange(Math.max(0, value - 1))} disabled={value === 0} aria-label={`${label} ${copy.decrease}`} className="grid size-8 place-items-center rounded-lg border border-slate-200 text-slate-600 transition hover:border-blue-300 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-30"><Minus size={13} /></button>
+          <output className="min-w-5 text-center text-sm font-extrabold tabular-nums text-[#133D76]">{value}</output>
+          <button type="button" onClick={() => onChange(Math.min(max, value + 1))} disabled={value >= max} aria-label={`${label} ${copy.increase}`} className="grid size-8 place-items-center rounded-lg bg-[#133D76] text-white transition hover:bg-[#102F5E] disabled:cursor-not-allowed disabled:opacity-30"><Plus size={13} /></button>
         </div>
       )}
     </div>
