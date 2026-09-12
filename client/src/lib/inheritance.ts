@@ -103,15 +103,15 @@ export const EXTENDED_HEIR_SECTIONS: ExtendedHeirSection[] = [
     ],
   },
   {
-    title: "தந்தை வழி மாமா (அம்) வரிசை",
-    helper: "முழு/பாதி தந்தை வழி மாமாக்கள் மற்றும் அவர்களின் மகன்கள். அறிஞர் மறுஆய்வு தேவை.",
-    titleEn: "Paternal uncle (ʿamm) line",
-    helperEn: "Full and consanguine paternal uncles and their sons. Scholar review is required.",
+    title: "தந்தை சகோதரர் (அம்) வரிசை",
+    helper: "முழு/பாதி தந்தை சகோதரர்கள் மற்றும் அவர்களின் மகன்கள். அறிஞர் மறுஆய்வு தேவை.",
+    titleEn: "Father’s brother line",
+    helperEn: "Father’s brothers and their sons. Scholar review is required.",
     items: [
-      { key: "paternalUncles", emoji: "👨‍🦳", label: "முழு தந்தை வழி மாமாக்கள் (அம்)", description: "தந்தையின் முழு உடன்பிறந்த சகோதரர்கள்.", labelEn: "Full paternal uncles (ʿamm)", descriptionEn: "Full brothers of the father.", searchTerms: "தந்தையின் சகோதரர் பெரியப்பா சித்தப்பா paternal uncle ʿamm عم" },
-      { key: "paternalUnclesSons", emoji: "👦", label: "முழு தந்தை வழி மாமாக்களின் மகன்கள்", description: "முழு தந்தை வழி மாமாவின் ஆண் பிள்ளைகள்.", labelEn: "Sons of full paternal uncles", descriptionEn: "Male children of full paternal uncles.", searchTerms: "தந்தையின் சகோதரரின் மகன் பெரியப்பா சித்தப்பா மகன் son of paternal uncle" },
-      { key: "consanguinePaternalUncles", emoji: "👨‍🦳", label: "தந்தை வழி பாதி மாமாக்கள்", description: "தந்தையுடன் தந்தை ஒரேவராக உள்ள மாமாக்கள்.", labelEn: "Consanguine paternal uncles (ʿamm li-ab)", descriptionEn: "Paternal half-brothers of the father.", searchTerms: "தந்தையின் சகோதரர் தந்தை வழி அரைச் சகோதரர் paternal uncle عم" },
-      { key: "consanguinePaternalUnclesSons", emoji: "👦", label: "தந்தை வழி பாதி மாமாக்களின் மகன்கள்", description: "தந்தை வழி பாதி மாமாவின் ஆண் பிள்ளைகள்.", labelEn: "Sons of consanguine paternal uncles", descriptionEn: "Male children of consanguine paternal uncles.", searchTerms: "தந்தையின் சகோதரரின் மகன் தந்தை வழி அரைச் சகோதரரின் மகன் son of paternal uncle" },
+      { key: "paternalUncles", emoji: "👨‍🦳", label: "முழு தந்தை சகோதரர்கள் (அம்)", description: "தந்தையின் முழு உடன்பிறந்த சகோதரர்கள்.", labelEn: "Father’s brothers (full)", descriptionEn: "Full brothers of the father.", searchTerms: "தந்தையின் சகோதரர் பெரியப்பா சித்தப்பா paternal uncle ʿamm عم" },
+      { key: "paternalUnclesSons", emoji: "👦", label: "முழு தந்தை சகோதரர்களின் மகன்கள்", description: "முழு தந்தை வழி தந்தை சகோதரரின் ஆண் பிள்ளைகள்.", labelEn: "Sons of father’s brothers (full)", descriptionEn: "Male children of full paternal uncles.", searchTerms: "தந்தையின் சகோதரரின் மகன் பெரியப்பா சித்தப்பா மகன் son of paternal uncle" },
+      { key: "consanguinePaternalUncles", emoji: "👨‍🦳", label: "தந்தை சகோதரர்கள்", description: "தந்தையுடன் தந்தை ஒரேவராக உள்ள தந்தை சகோதரர்கள்.", labelEn: "Father’s half-brothers", descriptionEn: "Paternal half-brothers of the father.", searchTerms: "தந்தையின் சகோதரர் தந்தை வழி அரைச் சகோதரர் paternal uncle عم" },
+      { key: "consanguinePaternalUnclesSons", emoji: "👦", label: "தந்தை சகோதரர்களின் மகன்கள்", description: "தந்தை வழி பாதி தந்தை சகோதரரின் ஆண் பிள்ளைகள்.", labelEn: "Sons of father’s half-brothers", descriptionEn: "Male children of consanguine paternal uncles.", searchTerms: "தந்தையின் சகோதரரின் மகன் தந்தை வழி அரைச் சகோதரரின் மகன் son of paternal uncle" },
     ],
   },
   {
@@ -128,7 +128,7 @@ export const EXTENDED_HEIR_SECTIONS: ExtendedHeirSection[] = [
       { key: "maternalBrothersChildren", emoji: "🧒", label: "தாய் வழி சகோதரரின் குழந்தைகள்", description: "தாய் வழி சகோதரரின் பிள்ளைகள்.", labelEn: "Children of maternal half-brothers", descriptionEn: "Children of brothers who share the same mother." },
       { key: "fathersMaternalBrothers", emoji: "👨‍🦳", label: "தந்தையின் தாய் வழி சகோதரர்", description: "தந்தையின் தாய் வழி சகோதரர்.", labelEn: "Father’s maternal half-brother", descriptionEn: "A brother of the father who shares his mother." },
       { key: "fathersMaternalBrothersDescendants", emoji: "🌿", label: "அவர்களின் சந்ததியினர்", description: "தந்தையின் தாய் வழி சகோதரரின் வரிசை.", labelEn: "Their descendants", descriptionEn: "Descendants of the father’s maternal half-brother." },
-      { key: "mothersSiblings", emoji: "👥", label: "தாயின் சகோதரர் / சகோதரி", description: "தாய் வழி மாமா அல்லது அத்தை.", labelEn: "Mother’s siblings", descriptionEn: "Maternal uncles or aunts." },
+      { key: "mothersSiblings", emoji: "👥", label: "தாயின் சகோதரர் / சகோதரி", description: "தாயின் சகோதரர் அல்லது சகோதரி.", labelEn: "Mother’s siblings", descriptionEn: "Maternal uncles or aunts." },
       { key: "mothersSiblingsDescendants", emoji: "🌿", label: "அவர்களின் சந்ததியினர்", description: "தாயின் சகோதரர் / சகோதரியின் பிள்ளைகள்.", labelEn: "Their descendants", descriptionEn: "Children of the mother’s siblings." },
     ],
   },
@@ -138,7 +138,7 @@ export const ARABIC_SECTION_COPY: Record<string, { title: string; helper: string
   "Descendants through sons": { title: "أحفاد عن طريق الابن", helper: "قد تكون هذه القرابة مهمة عند عدم وجود ابن." },
   "Grandparents and ancestors": { title: "الأجداد والأصول", helper: "تُضاف هذه القرابة عند عدم وجود الوالد الأقرب." },
   "Paternal siblings and sibling descendants": { title: "الإخوة لأب وذرية الإخوة", helper: "إخوة من جهة الأب وذرية الإخوة." },
-  "Paternal uncle (ʿamm) line": { title: "الأعمام (عم) وأبناؤهم", helper: "العم الشقيق والعم لأب وأبناؤهم. تتطلب هذه السلسلة مراجعة مختص." },
+  "Father’s brother line": { title: "الأعمام (عم) وأبناؤهم", helper: "العم الشقيق والعم لأب وأبناؤهم. تتطلب هذه السلسلة مراجعة مختص." },
   "Distant relatives": { title: "ذوو الأرحام", helper: "قد تنطبق عند غياب الفئات الأولى من الورثة." },
 };
 

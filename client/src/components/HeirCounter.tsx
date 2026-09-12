@@ -59,7 +59,6 @@ export function HeirCounter({ emoji, label, description, searchText, value, onCh
             <Check size={10} />
           </span>
         ) : null}
-        {emoji ? <span aria-hidden="true" className="text-xl leading-none">{emoji}</span> : null}
         <span className="line-clamp-2 text-[11px] font-bold leading-tight text-slate-800">{label}</span>
       </button>
     );
@@ -71,7 +70,6 @@ export function HeirCounter({ emoji, label, description, searchText, value, onCh
       data-family-counter
       className={`flex aspect-square min-h-[4.25rem] flex-col items-center justify-between gap-1 rounded-2xl border-2 p-1.5 text-center transition ${selected ? "border-[#133D76] bg-blue-50 shadow-sm" : "border-slate-200 bg-white"}`}
     >
-      {emoji ? <span aria-hidden="true" className="text-xl leading-none">{emoji}</span> : null}
       <span className="line-clamp-2 text-[11px] font-bold leading-tight text-slate-800">{label}</span>
       <div className="flex shrink-0 items-center gap-1" aria-label={`${label} ${counterCopy.count}`}>
         <button type="button" onClick={() => onChange(Math.max(0, value - 1))} disabled={value === 0} className="grid size-6 place-items-center rounded-lg border border-slate-200 text-slate-600 transition hover:border-blue-300 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-30" aria-label={`${label} ${counterCopy.decrease}`}><Minus size={12} /></button>
