@@ -397,6 +397,7 @@ export default function Home() {
                           <div className="col-start-1 border-t border-slate-200 pt-2 text-left sm:col-start-2 sm:border-l sm:border-t-0 sm:pl-5 sm:pt-0 sm:text-center">
                             <p className={`whitespace-nowrap text-sm font-extrabold sm:text-base ${row.zero ? "text-rose-700" : "text-[#133D76]"}`}>{row.fractionText}</p>
                             {row.percentText ? <p className="mt-0.5 whitespace-nowrap text-[11px] font-semibold text-slate-500">{row.percentText}</p> : null}
+                            {row.isAsabah && row.perPerson !== null ? <p className="mt-1 text-xs font-bold text-amber-800">ஒருவருக்கு: {money(row.perPerson)}</p> : null}
                           </div>
                           <div className="col-start-2 row-start-1 row-span-2 border-l border-slate-200 pl-3 text-right sm:col-start-3 sm:pl-5">
                             <p className={`whitespace-nowrap text-2xl font-extrabold tabular-nums sm:text-3xl ${row.zero ? "text-rose-700" : "text-[#133D76]"}`}>{money(row.amount)}</p>
