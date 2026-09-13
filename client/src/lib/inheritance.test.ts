@@ -89,7 +89,7 @@ describe("ordinary inheritance calculation", () => {
   });
 
   it("exposes natural Tamil aliases for paternal-uncle search", () => {
-    const uncleSection = EXTENDED_HEIR_SECTIONS.find((section) => section.titleEn === "Paternal uncle (ʿamm) line");
+    const uncleSection = EXTENDED_HEIR_SECTIONS.find((section) => section.titleEn === "Father’s brother line");
     const uncleSearchText = uncleSection?.items.map((item) => item.searchTerms ?? "").join(" ") ?? "";
 
     expect(uncleSearchText).toContain("தந்தையின் சகோதரர்");

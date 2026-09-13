@@ -80,7 +80,7 @@ const copy = {
 const money = (value: number) => value.toFixed(2);
 
 export function CalculationTrace({ result, language = "en" }: Props) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
   const [method, setMethod] = useState<Method>("lcm");
   const t = copy[language];
   const fixedRows = result.trace.rows.filter((row) => row.method === "fixed");
