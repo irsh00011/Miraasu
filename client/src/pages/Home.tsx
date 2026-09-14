@@ -148,7 +148,7 @@ function MobileStepNav({ step, onNavigate }: { step: Step; onNavigate: (target: 
 }
 
 export default function Home() {
-  const [view, setView] = useState<View>("calculator");
+  const [view, setView] = useState<View>(() => window.location.search.includes("start=1") ? "calculator" : "welcome");
   const [step, setStep] = useState<Step>(1);
   const [estate, setEstate] = useState<EstateInput>(initialEstate);
   const [heirs, setHeirs] = useState<HeirInput>(initialHeirs);

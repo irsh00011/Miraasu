@@ -21,13 +21,17 @@ const copy = {
 
 function saveAndOpen(language: AppLanguage, gender: Gender, setLocation: (path: string) => void) {
   localStorage.setItem("miraasu_onboarding", JSON.stringify({ language, deceasedGender: gender, completedAt: new Date().toISOString() }));
-  setLocation(language === "ta" ? "/ta" : language === "ar" ? "/ar" : "/en");
+  setLocation(`${language === "ta" ? "/ta" : language === "ar" ? "/ar" : "/en"}?start=1`);
 }
 
 export default function Onboarding() {
   const [, setLocation] = useLocation();
-  const [stage, setStage] = useState<Stage>("welcome");
-  const [language, setLanguage] = useState<AppLanguage>("ta");
+  const [stage, setStage] = useState<Stage>(() => {
+    try { return localStorage.getItem("miraasu_onboarding") ? "gender" : "welcome"; } catch { return "welcome"; }
+  });
+  const [language, setLanguage] = useState<AppLanguage>(() => {
+    try { return (JSON.parse(localStorage.getItem("miraasu_onboarding") ?? "{}").language as AppLanguage) || "ta"; } catch { return "ta"; }
+  });
   const [gender, setGender] = useState<Gender | null>(null);
   const t = copy[language];
   const progress = stage === "welcome" ? 1 : stage === "language" ? 2 : 3;
