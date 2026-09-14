@@ -26,9 +26,7 @@ function saveAndOpen(language: AppLanguage, gender: Gender, setLocation: (path: 
 
 export default function Onboarding() {
   const [, setLocation] = useLocation();
-  const [stage, setStage] = useState<Stage>(() => {
-    try { return localStorage.getItem("miraasu_onboarding") ? "gender" : "welcome"; } catch { return "welcome"; }
-  });
+  const [stage, setStage] = useState<Stage>("welcome");
   const [language, setLanguage] = useState<AppLanguage>(() => {
     try { return (JSON.parse(localStorage.getItem("miraasu_onboarding") ?? "{}").language as AppLanguage) || "ta"; } catch { return "ta"; }
   });
@@ -67,7 +65,7 @@ export default function Onboarding() {
         {stage === "gender" ? <div className="page-enter">
           <div className="mx-auto grid size-14 place-items-center rounded-2xl bg-blue-50 text-[#133D76]"><UserRound size={28} /></div>
           <h1 className="mt-6 text-center text-3xl font-black tracking-tight">{t.chooseGender}</h1>
-          <div className="mt-8 grid gap-4 sm:grid-cols-2">{(["male", "female"] as Gender[]).map((value) => { const selected = gender === value; const isMale = value === "male"; return <button key={value} type="button" onClick={() => setGender(value)} className={`group overflow-hidden rounded-3xl border bg-white text-center shadow-sm transition ${selected ? "border-[#133D76] ring-4 ring-blue-100" : "border-slate-200 hover:-translate-y-1 hover:border-blue-200 hover:shadow-lg"}`}><div className="relative aspect-square overflow-hidden bg-[#17265f]"><img src={isMale ? "/miraasu-male-card.png" : "/miraasu-female-card.png"} alt="" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" /><div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#101b4b] to-transparent px-4 pb-3 pt-10 text-left"><span className="block text-lg font-black text-white">{isMale ? t.male : t.female}</span><span className="mt-1 block text-xs font-semibold text-white/80">{isMale ? t.maleHint : t.femaleHint}</span></div>{selected ? <span className="absolute right-3 top-3 grid size-9 place-items-center rounded-full bg-white text-[#133D76] shadow-lg"><Check size={18} /></span> : null}</div></button>; })}</div>
+          <div className="mt-8 grid gap-4 sm:grid-cols-2">{(["male", "female"] as Gender[]).map((value) => { const selected = gender === value; const isMale = value === "male"; return <button key={value} type="button" onClick={() => setGender(value)} className={`rounded-3xl border bg-white p-6 text-center shadow-sm transition ${selected ? "border-[#133D76] ring-4 ring-blue-100" : "border-slate-200 hover:-translate-y-1 hover:border-blue-200 hover:shadow-lg"}`}><span className={`mx-auto grid size-24 place-items-center rounded-[2rem] ${isMale ? "bg-blue-50 text-[#133D76]" : "bg-rose-50 text-rose-700"}`}><UserRound size={44} strokeWidth={1.7} /></span><span className="mt-5 block text-xl font-black">{isMale ? t.male : t.female}</span><span className="mt-1 block text-xs font-semibold text-slate-500">{isMale ? t.maleHint : t.femaleHint}</span>{selected ? <span className="mx-auto mt-4 grid size-8 place-items-center rounded-full bg-[#133D76] text-white"><Check size={16} /></span> : null}</button>; })}</div>
           <div className="mt-8 flex gap-3"><button type="button" onClick={() => setStage("language")} className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-600"><ArrowLeft size={17} />{t.back}</button><button type="button" disabled={!gender} onClick={() => gender && saveAndOpen(language, gender, setLocation)} className="inline-flex min-h-12 flex-[1.5] items-center justify-center gap-2 rounded-xl bg-[#133D76] px-4 text-sm font-extrabold text-white shadow-sm enabled:hover:bg-[#102f5e] disabled:cursor-not-allowed disabled:opacity-40">{t.continue}<ArrowRight size={17} /></button></div>
         </div> : null}
       </section>
