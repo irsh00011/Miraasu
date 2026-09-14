@@ -238,7 +238,7 @@ export default function Home() {
   const startNewCalculation = () => {
     setEstate(initialEstate);
     setHeirs(initialHeirs);
-    openCalculator();
+    window.location.assign("/");
   };
 
   const reopenCalculation = (record: SavedCalculation) => {

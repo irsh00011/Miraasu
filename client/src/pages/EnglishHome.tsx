@@ -72,7 +72,7 @@ export default function EnglishHome() {
   const updateHeir = (key: keyof HeirInput, value: number) => setHeirs((current) => ({ ...current, [key]: Math.max(0, value) }));
   const resetHeirKeys = (keys: (keyof HeirInput)[]) => setHeirs((current) => Object.fromEntries(Object.entries(current).map(([key, value]) => [key, keys.includes(key as keyof HeirInput) ? 0 : value])) as HeirInput);
   const openCalculator = () => { setJustSaved(false); setView("calculator"); setStep(1); };
-  const startNew = () => { setEstate(initialEstate); setHeirs(initialHeirs); setFamilyQuery(""); openCalculator(); };
+  const startNew = () => { setEstate(initialEstate); setHeirs(initialHeirs); setFamilyQuery(""); window.location.assign("/"); };
   const saveCalculation = () => {
     if (result.netEstate <= 0 || result.allocations.length === 0) return;
     const record: SavedCalculation = { id: crypto.randomUUID(), fingerprint, createdAt: new Date().toISOString(), estate, heirs, netEstate: result.netEstate, totalHeirs: heirCount(heirs) };
