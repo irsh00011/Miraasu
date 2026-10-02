@@ -131,13 +131,13 @@ export default function EnglishHome() {
                 text={{
                   kicker: "STEP 1 OF 3",
                   title: "Estate amount",
-                  gross: "Total estate value",
+                  gross: "Estate value",
                   optional: "Optional",
-                  addExtras: "Costs · debts · bequest",
-                  costs: "Necessary costs",
-                  debts: "Total debts",
+                  addExtras: "Deductions",
+                  costs: "Funeral costs",
+                  debts: "Debts",
                   bequest: "Bequest",
-                  distributable: "DISTRIBUTABLE ESTATE",
+                  distributable: "TO DISTRIBUTE",
                   next: "Continue",
                 }}
               />

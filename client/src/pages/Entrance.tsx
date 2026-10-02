@@ -1,7 +1,6 @@
 /**
  * Design: Entrance flow — three quiet screens.
- *   1. Welcome  → medallion, wordmark, one quiet tagline, the hadith as an
- *                 editorial quote, and a single Start button. No gimmicks.
+ *   1. Welcome  → only "Welcome" and one Start button.
  *   2. Language → three premium cards (Tamil · English · Arabic).
  *   3. Gender   → two premium cards with a single symbol each, shown in the chosen language.
  * Frontend only: no calculation or routing logic is changed. Language cards still open /ta, /en, /ar.
@@ -91,17 +90,24 @@ export default function Entrance() {
         <div className="ent-stage">
           {step === "welcome" ? (
             <section key="welcome" className="ent-welcome">
-              <div className="ent-medallion ent-rise">
-                <img src="/book-cover-icon-192.png" alt="Miraasu" className="ent-logo" />
-              </div>
-              <p className="ent-eyebrow ent-rise" style={{ animationDelay: "70ms" }}>Islamic inheritance calculator</p>
-              <h1 className="ent-wordmark ent-rise" style={{ animationDelay: "130ms" }}>Miraasu</h1>
-              <p className="ent-tagline ent-rise" style={{ animationDelay: "190ms" }}>Clear shares · Honest math · Scholar-reviewed rules</p>
-              <figure className="ent-hadith ent-rise" style={{ animationDelay: "250ms" }}>
-                <blockquote className="ent-hadith-quote">“Learn the inheritance and teach it, for it is half of knowledge, but it will be forgotten — and it is the first thing that will be taken away from my nation.”</blockquote>
-                <figcaption className="ent-hadith-source">Sunan Ibn Majah 2719 · Grade: Daʿif <a href="https://sunnah.com/ibnmajah:2719" target="_blank" rel="noreferrer">sunnah.com</a></figcaption>
-              </figure>
-              <button type="button" onClick={() => setStep("language")} className="ent-start ent-rise" style={{ animationDelay: "310ms" }}>
+              <img src="/book-cover-icon-192.png" alt="" className="ent-logo ent-rise" style={{ animationDelay: "0ms" }} />
+              <h1 className="ent-welcome-title" aria-label="Welcome">
+                <span className="sr-only">Welcome</span>
+                <span aria-hidden="true" className="ent-letter-row">
+                  {"Welcome".split("").map((letter, index) => (
+                    <span key={`${letter}-${index}`} className="ent-welcome-letter ent-rise" style={{ animationDelay: `${90 + index * 55}ms` }}>{letter}</span>
+                  ))}
+                </span>
+              </h1>
+              <span className="ent-rule ent-rise" style={{ animationDelay: "170ms" }} aria-hidden="true" />
+              <p className="ent-brand ent-rise" style={{ animationDelay: "230ms" }}>Miraasu</p>
+              <article className="ent-hadith ent-rise" lang="en" style={{ animationDelay: "280ms" }}>
+                <p className="ent-hadith-kicker">A teaching on inheritance</p>
+                <blockquote className="ent-hadith-quote">“O Abu Hurairah. Learn about the inheritance and teach it, for it is half of knowledge, but it will be forgotten. This is the first thing that will be taken away from my nation.”</blockquote>
+                <p className="ent-hadith-source">Narrated by Abu Hurairah · <a href="https://sunnah.com/ibnmajah:2719" target="_blank" rel="noreferrer">Sunan Ibn Majah 2719</a></p>
+                <p className="ent-hadith-grade">Grade: Daʿif (weak) · Darussalam</p>
+              </article>
+              <button type="button" onClick={() => setStep("language")} className="ent-start ent-rise" style={{ animationDelay: "320ms" }}>
                 Start <ArrowRight size={18} />
               </button>
             </section>

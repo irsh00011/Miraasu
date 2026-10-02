@@ -95,15 +95,15 @@ export default function ArabicHome() {
                 onNext={() => setStep(2)}
                 text={{
                   kicker: "الخطوة 1 من 3",
-                  title: "ما قيمة التركة؟",
-                  gross: "إجمالي قيمة التركة",
+                  title: "قيمة التركة",
+                  gross: "قيمة التركة",
                   optional: "اختياري",
-                  addExtras: "تكاليف · ديون · وصية",
-                  costs: "التكاليف اللازمة",
-                  debts: "إجمالي الديون",
+                  addExtras: "الخصومات",
+                  costs: "تكاليف الدفن",
+                  debts: "الديون",
                   bequest: "الوصية",
                   bequestHelp: "بحسب الضوابط المناسبة",
-                  distributable: "التركة القابلة للقسمة",
+                  distributable: "صافي التركة",
                   next: "التالي",
                 }}
               />

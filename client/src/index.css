@@ -264,9 +264,27 @@
   .ms-input:focus { border-color: var(--ms-royal); box-shadow: 0 0 0 4px rgba(22, 79, 134, 0.12); }
   .ms-input-xl { font-size: clamp(1.7rem, 6.5vw, 2.2rem); padding-block: 0.9rem; letter-spacing: -0.03em; }
   .ms-help { margin-top: 0.4rem; color: var(--ms-muted); font-size: 0.74rem; line-height: 1.55; }
-  .ms-deductions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.6rem; }
-  @media (min-width: 640px) { .ms-deductions { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-  .ms-deduction-tile { border: 1px solid var(--ms-line); border-radius: 1rem; background: #fff; padding: 0.8rem; }
+  .ms-deduct-panel {
+    border: 1px solid rgba(22, 79, 134, 0.22); border-radius: 1.2rem;
+    background: linear-gradient(180deg, #f3f8fd 0%, #e4eef9 100%);
+    box-shadow: inset 0 1px 0 #fff, 0 10px 22px -16px rgba(11, 42, 79, 0.3);
+    padding: 0.35rem 0.9rem 0.95rem;
+  }
+  .ms-deduct-head { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 0.75rem 0.15rem 0.6rem; }
+  .ms-deduct-head h2 { font-size: 0.82rem; font-weight: 800; letter-spacing: 0.02em; color: #164f86; }
+  .ms-deduct-opt {
+    flex: none; border-radius: 999px; background: #fff; border: 1px solid rgba(22, 79, 134, 0.28);
+    color: #31577f; font-size: 0.65rem; font-weight: 800; padding: 0.3rem 0.7rem;
+  }
+  .ms-deduct-list { display: grid; gap: 0.6rem; }
+  @media (min-width: 640px) { .ms-deduct-list { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  .ms-deduction-tile {
+    border: 1px solid rgba(22, 79, 134, 0.2); border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: inset 0 1px 0 #fff, 0 4px 10px -8px rgba(11, 42, 79, 0.25);
+    padding: 0.8rem;
+  }
+  .ms-deduction-tile .ms-label { color: #164f86; }
   .ms-total-row {
     display: flex; align-items: center; justify-content: space-between; gap: 1rem;
     border-top: 1px solid var(--ms-line-strong); padding-top: 1rem; margin-top: 1.1rem;
@@ -302,10 +320,9 @@
     position: relative; display: flex; align-items: center; gap: 0.6rem; text-align: start;
     border: 1px solid var(--ms-line); border-radius: 1rem; background: #fff;
     padding: 0.6rem 0.65rem; min-height: 3.4rem;
-    transition: border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+    transition: background 0.18s ease, border-color 0.18s ease;
   }
-  .ms-chip:hover { border-color: var(--ms-line-strong); box-shadow: 0 4px 10px -6px rgba(11, 42, 79, 0.25); }
-  .ms-chip:active { transform: scale(0.98); }
+  .ms-chip:hover { border-color: var(--ms-line-strong); }
   .ms-chip-icon {
     display: grid; place-items: center; width: 2.1rem; height: 2.1rem; flex: none;
     border-radius: 0.7rem; background: linear-gradient(150deg, #eef4fb, #dde9f7);
@@ -314,16 +331,21 @@
   }
   .ms-chip-name { min-width: 0; flex: 1; font-size: 0.8rem; font-weight: 700; color: var(--ms-ink); line-height: 1.35; }
   .ms-chip.is-on {
-    border-color: var(--ms-royal); background: linear-gradient(150deg, #ffffff 0%, #e8f1fb 100%);
-    box-shadow: 0 0 0 1px var(--ms-royal), 0 10px 20px -12px rgba(22, 79, 134, 0.55), inset 0 1px 0 #fff;
+    background: linear-gradient(150deg, #205e98 0%, #134374 100%);
+    border-color: #0e3a68;
   }
-  .ms-chip.is-on .ms-chip-icon { background: linear-gradient(150deg, #164f86, #0e3a66); color: #fff; border-color: transparent; }
-  .ms-chip.is-on::after {
-    content: ""; position: absolute; inset-inline-end: 0.55rem; top: 0.55rem;
-    width: 0.5rem; height: 0.5rem; border-radius: 999px; background: var(--ms-gold);
-    box-shadow: 0 0 0 3px rgba(184, 137, 45, 0.18);
+  .ms-chip.is-on .ms-chip-name { color: #fff; }
+  .ms-chip.is-on .ms-chip-icon { background: rgba(255, 255, 255, 0.18); color: #fff; border-color: transparent; }
+  .ms-chip.is-on .ms-stepper button { background: rgba(255, 255, 255, 0.16); border-color: rgba(255, 255, 255, 0.3); color: #fff; }
+  .ms-chip.is-on .ms-stepper button:hover { background: rgba(255, 255, 255, 0.3); }
+  .ms-chip.is-on .ms-stepper button:disabled { opacity: 0.4; }
+  .ms-chip.is-on .ms-stepper output { color: #fff; }
+
+  /* Phones: one chip per row so the name never gets squeezed narrow */
+  @media (max-width: 479px) {
+    .ms-chips { grid-template-columns: 1fr; }
+    .ms-chip { padding: 0.65rem 0.75rem; }
   }
-  [dir="rtl"] .ms-chip.is-on::after { inset-inline-end: auto; inset-inline-start: 0.55rem; }
 
   .ms-stepper { display: flex; align-items: center; gap: 0.15rem; flex: none; }
   .ms-stepper button {
@@ -549,20 +571,18 @@
   .ent-top-logo { width: 2.5rem; height: 2.5rem; border-radius: 0.8rem; box-shadow: 0 6px 16px rgba(11, 42, 79, 0.16); }
   .ent-stage { display: flex; flex: 1; align-items: center; justify-content: center; padding: 1.5rem 0; }
   .ent-rise { opacity: 0; animation: ent-rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; }
-  .ent-welcome { display: flex; flex-direction: column; align-items: center; text-align: center; max-width: 36rem; }
-  .ent-medallion {
-    display: grid; place-items: center; width: 7.5rem; height: 7.5rem; border-radius: 999px;
-    background: linear-gradient(180deg, #ffffff, #eef4fb);
-    box-shadow: 0 24px 48px -20px rgba(11, 42, 79, 0.4), inset 0 0 0 1px rgba(184, 137, 45, 0.35), inset 0 0 0 6px #fff;
-  }
-  .ent-logo { width: 4.6rem; height: 4.6rem; border-radius: 1.1rem; object-fit: cover; }
-  .ent-eyebrow { margin-top: 1.6rem; color: #4d77a6; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.22em; text-transform: uppercase; }
-  .ent-wordmark { margin-top: 0.5rem; color: #0b2a4f; font-family: var(--font-display); font-weight: 700; font-size: clamp(2.6rem, 10vw, 3.9rem); line-height: 1.05; letter-spacing: -0.02em; }
-  .ent-tagline { margin-top: 0.7rem; color: #5b7390; font-size: 0.92rem; font-weight: 600; }
-  .ent-hadith { width: min(100%, 32rem); margin-top: 2rem; padding-top: 1.4rem; border-top: 1px solid rgba(184, 137, 45, 0.4); }
-  .ent-hadith-quote { color: #33475f; font-family: var(--font-display); font-style: italic; font-size: clamp(0.95rem, 4vw, 1.08rem); line-height: 1.7; }
-  .ent-hadith-source { margin-top: 0.8rem; color: #8ba0b8; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.04em; }
+  .ent-welcome { display: flex; flex-direction: column; align-items: center; text-align: center; }
+  .ent-logo { width: 5rem; height: 5rem; border-radius: 1.5rem; object-fit: cover; box-shadow: 0 18px 40px -12px rgba(11, 42, 79, 0.35), 0 0 0 1px rgba(184, 137, 45, 0.4); }
+  .ent-welcome-title { margin-top: 1.75rem; color: #0b2a4f; font-family: var(--font-display); font-weight: 700; font-size: clamp(3.25rem, 13vw, 6rem); line-height: 1; letter-spacing: -0.03em; }
+  .ent-letter-row, .ent-welcome-letter { display: inline-block; }
+  .ent-hadith { width: min(100%, 34rem); margin-top: 1.35rem; padding: 1rem 1.1rem; border: 1px solid rgba(184, 137, 45, 0.38); border-radius: 1.15rem; background: rgba(255, 255, 255, 0.82); box-shadow: 0 10px 24px -18px rgba(11, 42, 79, 0.3); text-align: start; }
+  .ent-hadith-kicker { color: #164f86; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; }
+  .ent-hadith-quote { margin-top: 0.45rem; color: #263c55; font-size: clamp(0.84rem, 3.7vw, 0.96rem); line-height: 1.58; }
+  .ent-hadith-source { margin-top: 0.65rem; color: #5b7390; font-size: 0.72rem; font-weight: 700; line-height: 1.5; }
   .ent-hadith-source a { color: #164f86; text-decoration: underline; text-underline-offset: 2px; }
+  .ent-hadith-grade { margin-top: 0.35rem; color: #8a4b13; font-size: 0.68rem; font-weight: 800; line-height: 1.45; }
+  .ent-rule { display: block; width: 3.5rem; height: 2px; margin: 1.5rem 0 1rem; background: linear-gradient(90deg, transparent, #b8892d, transparent); }
+  .ent-brand { padding-inline-start: 0.42em; color: #4d77a6; font-size: 0.85rem; font-weight: 800; letter-spacing: 0.42em; text-transform: uppercase; }
   .ent-start {
     display: inline-flex; align-items: center; gap: 0.6rem; min-height: 3.5rem; margin-top: 2.5rem; padding: 0 2.1rem;
     border-radius: 999px; color: #fff; font-size: 1.05rem; font-weight: 800;

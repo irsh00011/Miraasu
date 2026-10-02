@@ -243,9 +243,9 @@ export default function Home() {
                 text={{
                   kicker: "படி 1 / 3",
                   title: "மொத்த சொத்து",
-                  gross: "மொத்தச் சொத்து மதிப்பு",
+                  gross: "சொத்தின் மதிப்பு",
                   optional: "விருப்பம்",
-                  addExtras: "அடக்கச் செலவு · கடன் · வஸிய்யத்",
+                  addExtras: "கழிவுகள்",
                   costs: "அடக்கச் செலவு",
                   debts: "கடன்",
                   bequest: "வஸிய்யத்",

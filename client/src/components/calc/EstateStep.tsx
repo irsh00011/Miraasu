@@ -43,19 +43,19 @@ export function EstateStep({ estate, onChange, netEstateText, onNext, notices, t
         />
       </div>
 
-      <section className="premium-pop mt-4" style={{ animationDelay: "70ms" }} aria-label={text.addExtras}>
-        <div className="mb-2.5 flex items-center justify-between gap-3">
-          <h2 className="text-[0.82rem] font-extrabold tracking-wide text-[#15395f]">{text.addExtras}</h2>
-          <span className="rounded-full border border-[rgba(22,79,134,0.3)] bg-white px-2.5 py-1 text-[0.65rem] font-extrabold text-[#31577f]">{text.optional}</span>
+      <section className="ms-deduct-panel premium-pop mt-4" style={{ animationDelay: "70ms" }} aria-label={text.addExtras}>
+        <div className="ms-deduct-head">
+          <h2>{text.addExtras}</h2>
+          <span className="ms-deduct-opt">{text.optional}</span>
         </div>
-        <div className="ms-deductions">
+        <div className="ms-deduct-list">
           <div className="ms-deduction-tile">
             <MoneyField label={text.costs} value={estate.funeralCosts} onValueChange={(value) => onChange("funeralCosts", value)} onKeyDown={onKeyDown} />
           </div>
           <div className="ms-deduction-tile">
             <MoneyField label={text.debts} value={estate.debts} onValueChange={(value) => onChange("debts", value)} onKeyDown={onKeyDown} />
           </div>
-          <div className="ms-deduction-tile col-span-2 sm:col-span-1">
+          <div className="ms-deduction-tile">
             <MoneyField label={text.bequest} help={text.bequestHelp} value={estate.bequest} onValueChange={(value) => onChange("bequest", value)} onKeyDown={onKeyDown} />
           </div>
         </div>
