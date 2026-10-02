@@ -280,7 +280,7 @@ export default function Home() {
 
             {step === 3 ? (
               <div className="space-y-4">
-                <ResultHero kicker="படி 3 / 3" title="பங்கீட்டு முடிவு" subtitle="பங்குகள் · தொகைகள்" amount={money(result.netEstate)} savedNote={justSaved ? "வரலாற்றில் சேமிக்கப்பட்டது" : undefined} />
+                <ResultHero kicker="படி 3 / 3" title="பங்கீட்டு முடிவு" subtitle="பங்குகள் · தொகைகள்" savedNote={justSaved ? "வரலாற்றில் சேமிக்கப்பட்டது" : undefined} />
                 <SegmentedTabs
                   value={resultMode}
                   onChange={setResultMode}
@@ -310,7 +310,7 @@ export default function Home() {
                           <strong className="num">{money(distributedTotal)}</strong>
                         </div>
                         {remainingAmount > 0.005 ? (
-                          <div className="ms-total-strip bg-[#7c5a1c]!">
+                          <div className="ms-total-strip is-warn">
                             <span>மீதமுள்ள தொகை</span>
                             <strong className="num">{money(remainingAmount)}</strong>
                           </div>

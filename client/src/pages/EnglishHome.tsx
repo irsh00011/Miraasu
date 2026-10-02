@@ -160,7 +160,7 @@ export default function EnglishHome() {
 
             {step === 3 ? (
               <div className="space-y-4">
-                <ResultHero kicker="STEP 3 OF 3" title="Distribution result" subtitle="Shares & amounts" amount={money(result.netEstate)} savedNote={justSaved ? "Saved to history" : undefined} />
+                <ResultHero kicker="STEP 3 OF 3" title="Distribution result" subtitle="Shares & amounts" savedNote={justSaved ? "Saved to history" : undefined} />
 
                 {result.notices.length > 0 ? <div className="space-y-2">{result.notices.map((notice) => <p key={notice} className="ms-notice">{noticeInEnglish(notice)}</p>)}</div> : null}
                 {result.requiresScholarReview ? <p className="ms-notice font-extrabold!">Scholar review required — this result is not final.</p> : null}
@@ -195,7 +195,7 @@ export default function EnglishHome() {
                           <strong className="num">{money(distributedTotal)}</strong>
                         </div>
                         {remainingAmount > 0.005 ? (
-                          <div className="ms-total-strip bg-[#7c5a1c]!">
+                          <div className="ms-total-strip is-warn">
                             <span>Remaining amount</span>
                             <strong className="num">{money(remainingAmount)}</strong>
                           </div>

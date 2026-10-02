@@ -126,7 +126,7 @@ export default function ArabicHome() {
 
             {step === 3 ? (
               <div className="space-y-4">
-                <ResultHero kicker="الخطوة 3 من 3" title="نتيجة القسمة" subtitle="الأنصبة والمبالغ" amount={money(result.netEstate)} />
+                <ResultHero kicker="الخطوة 3 من 3" title="نتيجة القسمة" subtitle="الأنصبة والمبالغ" />
                 {result.notices.map((notice) => <div key={notice} className="ms-notice">{noticeArabic(notice)}</div>)}
                 {result.requiresScholarReview ? <p className="ms-notice font-extrabold!">يلزم تأكيد من مختص — هذه النتيجة غير نهائية.</p> : null}
 
@@ -160,7 +160,7 @@ export default function ArabicHome() {
                           <strong className="num">{money(distributedTotal)}</strong>
                         </div>
                         {remainingAmount > 0.005 ? (
-                          <div className="ms-total-strip bg-[#7c5a1c]!">
+                          <div className="ms-total-strip is-warn">
                             <span>المبلغ المتبقي</span>
                             <strong className="num">{money(remainingAmount)}</strong>
                           </div>
