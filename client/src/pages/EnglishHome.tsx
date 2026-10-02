@@ -195,7 +195,7 @@ export default function EnglishHome() {
                           <strong className="num">{money(distributedTotal)}</strong>
                         </div>
                         {remainingAmount > 0.005 ? (
-                          <div className="ms-total-strip is-warn">
+                          <div className="ms-total-strip bg-[#7c5a1c]!">
                             <span>Remaining amount</span>
                             <strong className="num">{money(remainingAmount)}</strong>
                           </div>
