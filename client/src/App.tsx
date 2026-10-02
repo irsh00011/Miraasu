@@ -8,13 +8,13 @@ import EnglishHome from "./pages/EnglishHome";
 import ArabicHome from "./pages/ArabicHome";
 import Home from "./pages/Home";
 import ResearchPage from "./pages/ResearchPage";
-import Onboarding from "./pages/Onboarding";
+import Entrance from "./pages/Entrance";
 
 
 function Router() {
   return (
     <Switch>
-      <Route path={"/"} component={Onboarding} />
+      <Route path={"/"} component={Entrance} />
       <Route path={"/ta"} component={Home} />
       <Route path={"/en"} component={EnglishHome} />
       <Route path={"/ar"} component={ArabicHome} />

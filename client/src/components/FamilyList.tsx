@@ -1,4 +1,4 @@
-/** Design: Ledger of Justice — every family member in one plain flat list, full names always visible, no category text. */
+/** Design: Miraasu Scholarly Ledger — compact chip grid for the close family; search + spouse selector on top. */
 import { useMemo } from "react";
 import { RotateCcw, Search } from "lucide-react";
 import { HeirRow } from "@/components/HeirRow";
@@ -63,12 +63,13 @@ export function FamilyList({ heirs, onChange, onResetAll, query, onQueryChange, 
   return (
     <div className="space-y-4" dir={language === "ar" ? "rtl" : "ltr"}>
       <div className="flex flex-col gap-2 sm:flex-row">
-        <label className="relative block flex-1">
+        <label className="ms-search block flex-1">
           <span className="sr-only">{copy.search}</span>
-          <Search className={`pointer-events-none absolute inset-y-0 my-auto text-[#133D76] ${language === "ar" ? "right-4" : "left-4"}`} size={18} />
+          <span className="ms-search-icon"><Search size={18} /></span>
           <input
             value={query}
             onChange={(event) => onQueryChange(event.target.value)}
+            aria-keyshortcuts="Enter"
             onKeyDown={(event) => {
               if (event.key === "Enter") {
                 event.preventDefault();
@@ -76,15 +77,12 @@ export function FamilyList({ heirs, onChange, onResetAll, query, onQueryChange, 
               }
             }}
             placeholder={copy.search}
-            className={`w-full rounded-2xl border border-blue-200 bg-blue-50/60 py-3 text-sm font-semibold text-slate-900 outline-none placeholder:text-slate-400 focus:border-[#133D76] focus:bg-white focus:ring-4 focus:ring-blue-100 ${
-              language === "ar" ? "pr-11 pl-4" : "pl-11 pr-4"
-            }`}
           />
         </label>
         <button
           type="button"
           onClick={onResetAll}
-          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-[#133D76]"
+          className="ms-btn ms-btn-soft min-h-11! py-2! text-sm"
         >
           <RotateCcw size={16} /> {copy.clear}
         </button>
@@ -92,23 +90,18 @@ export function FamilyList({ heirs, onChange, onResetAll, query, onQueryChange, 
 
       {!normalizedQuery ? (
         <div>
-          <div className="grid grid-cols-3 gap-2 rounded-2xl bg-slate-100 p-2">
+          <div className="ms-spouse-row">
             {([["none", copy.spouseNone], ["husband", copy.husband], ["wives", copy.wife]] as const).map(([value, label]) => {
               const active = (value === "none" && heirs.husband === 0 && heirs.wives === 0) || (value === "husband" && heirs.husband > 0) || (value === "wives" && heirs.wives > 0);
               return (
-                <button
-                  key={value}
-                  type="button"
-                  onClick={() => chooseSpouse(value)}
-                  className={`min-h-11 rounded-xl px-2 text-sm font-bold ${active ? "bg-[#133D76] text-white shadow-sm" : "text-slate-600 hover:bg-white"}`}
-                >
+                <button key={value} type="button" onClick={() => chooseSpouse(value)} aria-pressed={active} className={`ms-spouse ${active ? "is-on" : ""}`}>
                   {label}
                 </button>
               );
             })}
           </div>
           {heirs.wives > 0 ? (
-            <div className="mt-2">
+            <div className="mt-2 ms-chips" style={{ gridTemplateColumns: "minmax(0,1fr)" }}>
               <HeirRow emoji="💑" label={copy.wivesLabel} value={heirs.wives} onChange={(value) => onChange("wives", Math.max(1, Math.min(4, value)))} max={4} language={language} />
             </div>
           ) : null}
@@ -116,9 +109,9 @@ export function FamilyList({ heirs, onChange, onResetAll, query, onQueryChange, 
       ) : null}
 
       {filteredRows.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-center text-sm text-slate-500">{copy.none}</p>
+        <p className="rounded-2xl border border-dashed border-[rgba(22,79,134,0.3)] bg-white/70 px-4 py-6 text-center text-sm text-slate-500">{copy.none}</p>
       ) : (
-        <div className="grid gap-2 sm:grid-cols-2">
+        <div className="ms-chips">
           {filteredRows.map((row) => (
             <HeirRow key={row.key} emoji={row.emoji} label={row.label} value={heirs[row.key] ?? 0} onChange={(value) => onChange(row.key, value)} max={row.max} language={language} />
           ))}

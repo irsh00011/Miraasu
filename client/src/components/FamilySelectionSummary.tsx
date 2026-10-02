@@ -1,5 +1,4 @@
-/** Design: A calm, live selection ledger that lets a user verify or remove a chosen relationship without losing their place. */
-/** Design: Ledger of Justice — compact audit sidebar grouping every selected relationship with a direct removal control. */
+/** Design: Miraasu Scholarly Ledger — calm live selection ledger with direct removal controls. */
 import { BookOpenCheck, X } from "lucide-react";
 import { ARABIC_EXTENDED_COPY, getSelectedExtendedHeirs, type AppLanguage, type HeirInput } from "@/lib/inheritance";
 
@@ -31,11 +30,41 @@ export function FamilySelectionSummary({ heirs, onClear, language = "ta" }: Fami
   const selectedExtended = getSelectedExtendedHeirs(heirs).map((item) => ({ ...item, displayLabel: language === "en" ? item.labelEn : language === "ar" ? ARABIC_EXTENDED_COPY[item.key].label : item.label }));
   const selected = [...selectedCore, ...selectedExtended];
 
+  const renderGroup = (items: typeof selected, groupTitle: string) => (
+    <section>
+      <p className="mb-2 text-[11px] font-extrabold uppercase tracking-wider text-slate-400">{groupTitle}</p>
+      <div className="space-y-1.5">
+        {items.map((item) => (
+          <div key={item.key} className="flex items-center gap-2 rounded-xl bg-[#f2f7fc] px-2.5 py-2">
+            <span aria-hidden="true" className="text-base">{item.emoji}</span>
+            <p className="min-w-0 flex-1 text-xs font-bold leading-5 text-slate-800">{item.displayLabel} <span className="num text-[#164f86]">· {item.count}</span></p>
+            <button type="button" onClick={() => onClear(item.key as keyof HeirInput)} className="grid size-8 place-items-center rounded-lg text-slate-400 hover:bg-white hover:text-rose-700" aria-label={`${copy.removeVerb} ${item.displayLabel}`}><X size={15} /></button>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+
   return (
-    <aside className="family-guide mt-5 rounded-2xl border border-blue-200 bg-white p-4 shadow-sm lg:sticky lg:top-6 lg:mt-0" aria-label={copy.aria}>
-      <div className="flex items-start gap-2"><span className="grid size-8 shrink-0 place-items-center rounded-lg bg-blue-100 text-[#133D76]"><BookOpenCheck size={17} /></span><div><p className="font-extrabold text-[#133D76]">{copy.title}</p><p className="mt-0.5 text-xs leading-5 text-slate-500">{copy.remove}</p></div></div>
-      {selected.length === 0 ? <p className="mt-4 rounded-xl bg-slate-50 px-3 py-3 text-sm leading-6 text-slate-500">{copy.empty}</p> : <div className="mt-4 max-h-[52vh] space-y-4 overflow-y-auto pr-1">{selectedCore.length > 0 ? <section><p className="mb-2 text-[11px] font-extrabold uppercase tracking-wide text-slate-400">{copy.close}</p><div className="space-y-2">{selectedCore.map((item) => <div key={item.key} className="flex items-center gap-2 rounded-xl bg-blue-50 px-2.5 py-2"><span aria-hidden="true">{item.emoji}</span><p className="min-w-0 flex-1 text-xs font-bold leading-5 text-slate-800">{item.displayLabel} <span className="text-[#133D76]">· {item.count}</span></p><button type="button" onClick={() => onClear(item.key)} className="grid size-8 place-items-center rounded-lg text-slate-400 hover:bg-white hover:text-rose-700" aria-label={`${copy.removeVerb} ${item.displayLabel}`}><X size={15} /></button></div>)}</div></section> : null}{selectedExtended.length > 0 ? <section><p className="mb-2 text-[11px] font-extrabold uppercase tracking-wide text-slate-400">{copy.other}</p><div className="space-y-2">{selectedExtended.map((item) => <div key={item.key} className="flex items-center gap-2 rounded-xl bg-blue-50 px-2.5 py-2"><span aria-hidden="true">{item.emoji}</span><p className="min-w-0 flex-1 text-xs font-bold leading-5 text-slate-800">{item.displayLabel} <span className="text-[#133D76]">· {item.count}</span></p><button type="button" onClick={() => onClear(item.key)} className="grid size-8 place-items-center rounded-lg text-slate-400 hover:bg-white hover:text-rose-700" aria-label={`${copy.removeVerb} ${item.displayLabel}`}><X size={15} /></button></div>)}</div></section> : null}</div>}
-      <div className="mt-4 border-t border-slate-100 pt-3"><p className="text-xs leading-5 text-slate-500"><strong className="text-slate-700">{copy.review}</strong> {copy.note}</p></div>
+    <aside className="ms-card p-4 lg:sticky lg:top-20" aria-label={copy.aria}>
+      <div className="flex items-start gap-2.5">
+        <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-[#eaf2fb] text-[#164f86]"><BookOpenCheck size={17} /></span>
+        <div>
+          <p className="font-extrabold text-[#164f86]">{copy.title}</p>
+          <p className="mt-0.5 text-xs leading-5 text-slate-500">{copy.remove}</p>
+        </div>
+      </div>
+      {selected.length === 0 ? (
+        <p className="mt-4 rounded-xl bg-slate-50 px-3 py-3 text-sm leading-6 text-slate-500">{copy.empty}</p>
+      ) : (
+        <div className="mt-4 max-h-[52vh] space-y-4 overflow-y-auto pe-1">
+          {selectedCore.length > 0 ? renderGroup(selectedCore, copy.close) : null}
+          {selectedExtended.length > 0 ? renderGroup(selectedExtended, copy.other) : null}
+        </div>
+      )}
+      <div className="mt-4 border-t border-[rgba(22,79,134,0.1)] pt-3">
+        <p className="text-xs leading-5 text-slate-500"><strong className="text-slate-700">{copy.review}</strong> {copy.note}</p>
+      </div>
     </aside>
   );
 }

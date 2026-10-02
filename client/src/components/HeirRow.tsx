@@ -1,4 +1,4 @@
-/** Design: Ledger of Justice — a plain row control (icon + full name + stepper) so every relative's name is always fully readable on mobile and desktop, with no text clamping. */
+/** Design: Miraasu Scholarly Ledger — compact premium heir chip: icon + name + stepper/toggle, clear selected state. */
 import { Check, Minus, Plus } from "lucide-react";
 
 type HeirRowProps = {
@@ -21,12 +21,9 @@ export function HeirRow({ emoji, label, value, onChange, max = 20, language = "t
   const isToggle = max === 1;
 
   return (
-    <div
-      className={`flex min-h-[3.25rem] items-center gap-3 rounded-xl border px-3 py-2 transition ${
-        selected ? "border-[#133D76] bg-blue-50" : "border-slate-200 bg-white"
-      }`}
-    >
-      <span className="min-w-0 flex-1 break-words text-sm font-bold leading-snug text-slate-800">{label}</span>
+    <div className={`ms-chip ${selected ? "is-on" : ""}`}>
+      {emoji ? <span aria-hidden="true" className="ms-chip-emoji">{emoji}</span> : null}
+      <span className="ms-chip-name">{label}</span>
 
       {isToggle ? (
         <button
@@ -34,17 +31,17 @@ export function HeirRow({ emoji, label, value, onChange, max = 20, language = "t
           onClick={() => onChange(selected ? 0 : 1)}
           aria-pressed={selected}
           aria-label={label}
-          className={`inline-flex min-h-9 shrink-0 items-center gap-1 rounded-lg px-3 text-xs font-extrabold transition ${
-            selected ? "bg-[#133D76] text-white" : "border border-slate-200 text-slate-600 hover:border-blue-300 hover:bg-blue-50"
+          className={`inline-flex min-h-8 shrink-0 items-center gap-1 rounded-lg px-2.5 text-[11px] font-extrabold transition ${
+            selected ? "bg-[#164f86] text-white" : "border border-[rgba(22,79,134,0.25)] text-[#164f86] hover:bg-[#eaf2fb]"
           }`}
         >
           {selected ? <Check size={13} /> : copy.add}
         </button>
       ) : (
-        <div className="flex shrink-0 items-center gap-1.5" aria-label={label}>
-          <button type="button" onClick={() => onChange(Math.max(0, value - 1))} disabled={value === 0} aria-label={`${label} ${copy.decrease}`} className="grid size-8 place-items-center rounded-lg border border-slate-200 text-slate-600 transition hover:border-blue-300 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-30"><Minus size={13} /></button>
-          <output className="min-w-5 text-center text-sm font-extrabold tabular-nums text-[#133D76]">{value}</output>
-          <button type="button" onClick={() => onChange(Math.min(max, value + 1))} disabled={value >= max} aria-label={`${label} ${copy.increase}`} className="grid size-8 place-items-center rounded-lg bg-[#133D76] text-white transition hover:bg-[#102F5E] disabled:cursor-not-allowed disabled:opacity-30"><Plus size={13} /></button>
+        <div className="ms-stepper" aria-label={label}>
+          <button type="button" onClick={() => onChange(Math.max(0, value - 1))} disabled={value === 0} aria-label={`${label} ${copy.decrease}`}><Minus size={12} /></button>
+          <output className="num">{value}</output>
+          <button type="button" onClick={() => onChange(Math.min(max, value + 1))} disabled={value >= max} aria-label={`${label} ${copy.increase}`}><Plus size={12} /></button>
         </div>
       )}
     </div>

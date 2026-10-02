@@ -1,4 +1,4 @@
-/** Design: Ledger of Justice — a compact source-book reference that keeps the supplied cover visibly connected to the calculator. */
+/** Design: Miraasu Scholarly Ledger — compact source-book reference with the supplied cover. */
 type BookSourceCardProps = { language?: "ta" | "en" | "ar" };
 
 const copy = {
@@ -9,5 +9,15 @@ const copy = {
 
 export function BookSourceCard({ language = "ta" }: BookSourceCardProps) {
   const text = copy[language];
-  return <figure className="mt-5 flex items-center gap-3 border-t border-blue-100 pt-4"><div className="h-24 w-20 shrink-0 overflow-hidden border border-blue-200 bg-white shadow-sm"><img src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663614458043/BYjDkbMmTRUAbYjz.png" alt={text.alt} className="size-full object-cover object-right" /></div><figcaption><p className="text-xs font-extrabold text-[#133D76]">{text.title}</p><p className="mt-1 text-xs leading-5 text-slate-500">{text.detail}</p></figcaption></figure>;
+  return (
+    <figure className="mt-6 flex items-center gap-4 border-t border-[rgba(22,79,134,0.14)] pt-5">
+      <div className="h-28 w-24 shrink-0 overflow-hidden rounded-xl border border-[rgba(22,79,134,0.2)] bg-white shadow-md shadow-blue-100">
+        <img src="/book-cover-icon-512.png" alt={text.alt} className="size-full object-cover object-right" loading="lazy" />
+      </div>
+      <figcaption>
+        <p className="text-xs font-extrabold tracking-wide text-[#164f86]">{text.title}</p>
+        <p className="mt-1.5 text-xs leading-5 text-slate-500">{text.detail}</p>
+      </figcaption>
+    </figure>
+  );
 }

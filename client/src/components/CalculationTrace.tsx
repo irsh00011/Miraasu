@@ -1,202 +1,338 @@
-import { useState } from "react";
-import { ChevronDown } from "lucide-react";
-import { ASABAH_GENDER, asabahPartsFor, fractionToNumber, fractionToText, type AppLanguage, type CalculationResult } from "@/lib/inheritance";
+/** Design: Miraasu Scholarly Ledger — teacher-review audit: metric strip, schedule, fixed/remainder work, reconciliation, notes, trace. */
+import { STATUS_LABEL, fractionToNumber, fractionToText, type AppLanguage, type CalculationResult } from "@/lib/inheritance";
 
-type Props = { result: CalculationResult; language?: AppLanguage };
-type Method = "lcm" | "percentage";
+type Props = { result: CalculationResult; language?: AppLanguage; heirLabels?: Record<string, string> };
 
 const copy = {
   en: {
-    explicit: "Explicit calculation",
-    show: "Show explicit calculation",
-    hide: "Hide explicit calculation",
-    lcm: "LCM method",
-    percentage: "Percentage method",
-    estate: "Estate",
-    fixed: "Fixed shares",
-    fixedUnits: "Fixed-share units",
-    fixedTotal: "Sum of fixed units",
-    lcmValue: "LCM",
-    remainder: "Remaining Taʿṣīb",
-    ratio: "Taʿṣīb default ratio",
-    parts: "Taʿṣīb members' parts",
-    amount: "Amount",
-    check: "Final total / check",
-    distributed: "Total distributed",
-    remaining: "Remaining amount",
-    noRemainder: "No remainder",
-    caseTitle: "Case summary",
-    awl: "ʿAwl applied",
-    radd: "Radd applied",
-    asabah: "Taʿṣīb remainder",
-    excluded: "Heirs not receiving a share",
-    noExcluded: "No excluded heirs",
-    male: "male",
-    female: "female",
-    equal: "one equal part per member",
+    title: "Teacher review · Calculation audit",
+    subtitle: "Follow the shares, unit conversion, remainder, and final reconciliation.",
+    netEstate: "Distributable estate",
+    fixedTotal: "Fixed-share total",
+    remainder: "Remainder",
+    root: "Root LCM",
+    schedule: "Allocation schedule",
+    scheduleNote: "Group amount is for the listed relatives together; per-person amount is shown separately.",
+    heir: "Heir",
+    count: "People",
+    method: "Method",
+    groupShare: "Group share",
+    sharePercent: "Estate %",
+    basis: "Units / parts",
+    groupAmount: "Group amount",
+    perPerson: "Per person",
+    perPart: "Per part",
+    fixedUnits: "fixed units",
+    parts: "parts",
+    noRows: "No allocated heirs in this case.",
+    fixedWork: "Fixed-share calculation",
+    fixedUnitsSum: "Fixed units total",
+    fixedAmount: "Fixed-share amount",
+    remainderWork: "Remainder calculation",
+    rule: "Allocation rule",
+    asabahRule: "Where applicable: male = 2 parts, female = 1 part.",
+    raddRule: "No Asabah recipient: the remainder is returned to eligible fixed-share heirs.",
+    returned: "Returned remainder",
+    heldBackNote: "No automatic recipient is shown; this amount remains held for review.",
+    noRemainder: "No remainder is available in this case.",
+    reconciliation: "Final reconciliation",
+    unitCheck: "Units",
+    amountCheck: "Money",
+    distributed: "Distributed",
+    heldBack: "Held back",
+    net: "Estate total",
+    pass: "Balances",
+    fail: "Needs review",
+    caseNotes: "Case notes",
+    excluded: "Excluded / not receiving a share",
+    noExcluded: "None",
+    reviewRequired: "Scholar review required for this case.",
+    trace: "Full calculation trace",
+    traceNote: "Engine-generated working notes · source text in English",
+    step: "Step",
   },
   ta: {
-    explicit: "விரிவான கணக்கு",
-    show: "கணக்கீட்டு முறைகளைக் காட்டு",
-    hide: "கணக்கீட்டு முறைகளை மறை",
-    lcm: "LCM முறை",
-    percentage: "சதவீத முறை",
-    estate: "சொத்து",
-    fixed: "நிர்ணயப் பங்குகள்",
-    fixedUnits: "நிர்ணயப் பங்கு அலகுகள்",
-    fixedTotal: "நிர்ணய அலகுகளின் கூட்டுத்தொகை",
-    lcmValue: "LCM",
-    remainder: "மீதமுள்ள அஸபா",
-    ratio: "அஸபா இயல்பான விகிதம்",
-    parts: "அஸபா வாரிசுகளின் பங்குகள்",
-    amount: "தொகை",
-    check: "இறுதி மொத்தம் / சரிபார்ப்பு",
-    distributed: "மொத்தம் பகிரப்பட்டது",
-    remaining: "மீதமுள்ள தொகை",
-    noRemainder: "மீதி இல்லை",
-    caseTitle: "வழக்கு சுருக்கம்",
-    awl: "அவுல் நடைமுறைப்படுத்தப்பட்டது",
-    radd: "ரத் நடைமுறைப்படுத்தப்பட்டது",
-    asabah: "அஸபா மீதி",
-    excluded: "பங்கு பெறாதவர்கள்",
-    noExcluded: "பங்கு இழந்தவர்கள் இல்லை",
-    male: "ஆண்",
-    female: "பெண்",
-    equal: "ஒவ்வொரு உறுப்பினருக்கும் ஒரு சம பங்கு",
+    title: "ஆசிரியர் சரிபார்ப்பு · கணக்குத் தணிக்கை",
+    subtitle: "பங்குகள், அலகு மாற்றம், மீதி, இறுதிச் சரிபார்ப்பு ஆகியவற்றைப் பார்க்கவும்.",
+    netEstate: "பகிரக்கூடிய சொத்து",
+    fixedTotal: "நிர்ணயப் பங்குகளின் மொத்தம்",
+    remainder: "மீதிப் பங்கு",
+    root: "அடிப்படை LCM",
+    schedule: "பங்கீட்டு அட்டவணை",
+    scheduleNote: "குழுத் தொகை என்பது அந்த உறவினர் குழுவின் மொத்தம்; ஒருவருக்கான தொகை தனியாகக் காட்டப்பட்டுள்ளது.",
+    heir: "வாரிசு",
+    count: "நபர்கள்",
+    method: "முறை",
+    groupShare: "குழுப் பங்கு",
+    sharePercent: "சொத்து %",
+    basis: "அலகுகள் / பங்குகள்",
+    groupAmount: "குழுத் தொகை",
+    perPerson: "ஒருவருக்கு",
+    perPart: "ஒரு பங்குக்கு",
+    fixedUnits: "நிர்ணய அலகுகள்",
+    parts: "பங்குகள்",
+    noRows: "இந்த நிலையில் பங்கு பெறும் வாரிசுகள் இல்லை.",
+    fixedWork: "நிர்ணயப் பங்குக் கணக்கு",
+    fixedUnitsSum: "நிர்ணய அலகுகளின் மொத்தம்",
+    fixedAmount: "நிர்ணயப் பங்குத் தொகை",
+    remainderWork: "மீதிக் கணக்கு",
+    rule: "பங்கீட்டு விதி",
+    asabahRule: "பொருந்தும் இடத்தில்: ஆண் = 2 பங்குகள்; பெண் = 1 பங்கு.",
+    raddRule: "அஸபா பெறுநர் இல்லை: மீதி தகுதியான நிர்ணயப் பங்கு வாரிசுகளுக்குத் திருப்பப்படுகிறது.",
+    returned: "திருப்பிய மீதித் தொகை",
+    heldBackNote: "தானியங்கி பெறுநர் காட்டப்படவில்லை; இந்தத் தொகை மறுஆய்வுக்காக நிறுத்தப்பட்டுள்ளது.",
+    noRemainder: "இந்த நிலையில் மீதி இல்லை.",
+    reconciliation: "இறுதிச் சரிபார்ப்பு",
+    unitCheck: "அலகுகள்",
+    amountCheck: "தொகை",
+    distributed: "பகிரப்பட்டது",
+    heldBack: "நிறுத்தி வைக்கப்பட்டது",
+    net: "சொத்து மொத்தம்",
+    pass: "சரியாகப் பொருந்துகிறது",
+    fail: "மறுஆய்வு தேவை",
+    caseNotes: "வழக்கு குறிப்புகள்",
+    excluded: "பங்கு பெறாதவர்கள் / விலக்கப்பட்டவர்கள்",
+    noExcluded: "யாரும் இல்லை",
+    reviewRequired: "இந்த நிலைக்கு அறிஞர் மறுஆய்வு தேவை.",
+    trace: "முழுக் கணக்கீட்டுத் தடம்",
+    traceNote: "கணக்கீட்டு இயந்திரம் உருவாக்கிய படிப்படியான குறிப்புகள் · மூல உரை ஆங்கிலத்தில்",
+    step: "படி",
   },
   ar: {
-    explicit: "الحساب التفصيلي / المجموع الصريح",
-    show: "إظهار طرق الحساب",
-    hide: "إخفاء طرق الحساب",
-    lcm: "طريقة LCM",
-    percentage: "طريقة النسبة المئوية",
-    estate: "التركة",
-    fixed: "الأنصبة المفروضة",
-    fixedUnits: "وحدات الأنصبة المفروضة",
-    fixedTotal: "مجموع الوحدات المفروضة",
-    lcmValue: "LCM",
-    remainder: "باقي العصبة",
-    ratio: "النسبة الافتراضية للعصبة",
-    parts: "أسهم أفراد العصبة",
-    amount: "المبلغ",
-    check: "المجموع النهائي / التحقق",
-    distributed: "إجمالي الموزع",
-    remaining: "المبلغ المتبقي",
-    noRemainder: "لا يوجد باقي",
-    caseTitle: "ملخص الحالة",
-    awl: "تم تطبيق العول",
-    radd: "تم تطبيق الرد",
-    asabah: "باقي العصبة",
-    excluded: "الورثة الذين لا يأخذون نصيباً",
-    noExcluded: "لا يوجد ورثة محجوبون",
-    male: "ذكر",
-    female: "أنثى",
-    equal: "سهم متساوٍ لكل فرد",
+    title: "مراجعة المعلم · تدقيق الحساب",
+    subtitle: "راجع الأنصبة وتحويل الوحدات والباقي ومطابقة المجموع النهائي.",
+    netEstate: "التركة القابلة للقسمة",
+    fixedTotal: "مجموع الأنصبة المفروضة",
+    remainder: "الباقي",
+    root: "أصل المسألة (LCM)",
+    schedule: "جدول التوزيع",
+    scheduleNote: "مبلغ المجموعة هو مجموع نصيب أفراد القرابة؛ ويُعرض نصيب الفرد منفصلاً.",
+    heir: "الوارث",
+    count: "الأشخاص",
+    method: "الطريقة",
+    groupShare: "نصيب المجموعة",
+    sharePercent: "٪ من التركة",
+    basis: "الوحدات / الأسهم",
+    groupAmount: "مبلغ المجموعة",
+    perPerson: "لكل شخص",
+    perPart: "لكل سهم",
+    fixedUnits: "وحدات مفروضة",
+    parts: "أسهم",
+    noRows: "لا يوجد ورثة مستحقون في هذه الحالة.",
+    fixedWork: "حساب الأنصبة المفروضة",
+    fixedUnitsSum: "مجموع الوحدات المفروضة",
+    fixedAmount: "مبلغ الأنصبة المفروضة",
+    remainderWork: "حساب الباقي",
+    rule: "قاعدة التوزيع",
+    asabahRule: "عند انطباقها: للذكر سهمان وللأنثى سهم واحد.",
+    raddRule: "لا يوجد مستحق للعصبة: يُرد الباقي إلى أصحاب الأنصبة المفروضة المؤهلين.",
+    returned: "الباقي المردود",
+    heldBackNote: "لا يُعرض مستحق تلقائي؛ يبقى هذا المبلغ موقوفاً للمراجعة.",
+    noRemainder: "لا يوجد باقي في هذه الحالة.",
+    reconciliation: "المطابقة النهائية",
+    unitCheck: "الوحدات",
+    amountCheck: "المبالغ",
+    distributed: "الموزع",
+    heldBack: "المحتفظ به",
+    net: "مجموع التركة",
+    pass: "متطابق",
+    fail: "يحتاج إلى مراجعة",
+    caseNotes: "ملاحظات الحالة",
+    excluded: "المحجوبون / غير المستحقين لنصيب",
+    noExcluded: "لا أحد",
+    reviewRequired: "تتطلب هذه الحالة مراجعة مختص في المواريث.",
+    trace: "سجل الحساب الكامل",
+    traceNote: "خطوات أنشأها محرك الحساب · النص الأصلي باللغة الإنجليزية",
+    step: "الخطوة",
   },
 } as const;
 
-const money = (value: number) => value.toFixed(2);
+const money = (value: number) => (Number.isFinite(value) ? value : 0).toFixed(2);
+const nameFor = (key: string, fallback: string, labels?: Record<string, string>) => labels?.[key] ?? fallback;
 
-export function CalculationTrace({ result, language = "en" }: Props) {
-  const [open, setOpen] = useState(true);
-  const [method, setMethod] = useState<Method>("lcm");
+export function CalculationTrace({ result, language = "en", heirLabels }: Props) {
   const t = copy[language];
-  const fixedRows = result.trace.rows.filter((row) => row.method === "fixed");
-  const asabahRows = result.trace.rows.filter((row) => row.method === "remainder");
-  const hasMixed = asabahRows.some((row) => ASABAH_GENDER[row.key] === "male") && asabahRows.some((row) => ASABAH_GENDER[row.key] === "female");
-  const remainderAmount = Math.max(0, result.netEstate * fractionToNumber(result.trace.remainder));
-  const distributedAmount = result.trace.rows.reduce((total, row) => total + row.amount, 0);
-  const remainingAmount = Math.max(0, result.netEstate - distributedAmount);
-  const fixedUnitTotal = fixedRows.reduce((total, row) => total + row.integerShares, 0);
-  const totalParts = asabahRows.reduce((total, row) => total + asabahPartsFor(row, asabahRows), 0);
-  const ratioText = hasMixed ? `${t.male} = 2 : ${t.female} = 1` : t.equal;
-  const fixedShareAmount = result.netEstate * fractionToNumber(result.trace.fixedShareTotal);
-
-  const panel = method === "lcm" ? (
-    <div className="space-y-4">
-      <div className="grid gap-3 sm:grid-cols-2">
-        <Info label={t.estate} value={money(result.netEstate)} />
-        <Info label={t.lcmValue} value={String(result.trace.baseLcm)} prominent />
-      </div>
-      <section className="rounded-2xl border border-slate-200 p-4">
-        <h3 className="font-extrabold text-slate-900">{t.fixed}</h3>
-        <div className="mt-3 space-y-2 text-sm">
-          {fixedRows.length ? fixedRows.map((row) => <div className="grid grid-cols-1 items-start gap-1.5 border-b border-slate-100 pb-3 last:border-0 last:pb-0 sm:grid-cols-[minmax(0,1fr)_auto] sm:gap-3" key={`${row.key}-lcm`}><span className="min-w-0 break-words font-semibold">{row.label} × {row.count}</span><strong className="break-words leading-5 sm:text-right">{fractionToText(row.fraction)} → {row.integerShares} {t.fixedUnits.toLowerCase()}</strong></div>) : <span className="text-slate-500">—</span>}
-        </div>
-        <p className="mt-3 border-t border-slate-100 pt-3 text-sm font-bold">{t.fixedTotal}: {fixedUnitTotal} units = {money(fixedShareAmount)}</p>
-      </section>
-      <section className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
-        <h3 className="font-extrabold text-amber-950">{t.remainder}</h3>
-        <p className="mt-1 break-words text-sm font-bold leading-6">{money(result.netEstate)} − {money(fixedShareAmount)} = {money(remainderAmount)}</p>
-        <p className="mt-3 text-sm font-bold">{t.ratio}: {ratioText}</p>
-        {asabahRows.length ? <Parts rows={asabahRows} totalParts={totalParts} remainderAmount={remainderAmount} language={language} /> : <p className="mt-2 text-sm text-amber-900">{t.noRemainder}</p>}
-      </section>
-      <CaseSummary result={result} t={t} />
-      <CheckBlock distributed={distributedAmount} remaining={remainingAmount} estate={result.netEstate} label={t.check} t={t} />
-    </div>
-  ) : (
-    <div className="space-y-4">
-      <Info label={t.estate} value={money(result.netEstate)} />
-      <section className="rounded-2xl border border-slate-200 p-4">
-        <h3 className="font-extrabold text-slate-900">{t.fixed}</h3>
-        <div className="mt-3 space-y-2 text-sm">
-          {fixedRows.length ? fixedRows.map((row) => <div className="grid grid-cols-1 items-start gap-1.5 border-b border-slate-100 pb-3 last:border-0 last:pb-0 sm:grid-cols-[minmax(0,1fr)_auto] sm:gap-3" key={`${row.key}-percentage`}><span className="min-w-0 break-words font-semibold">{row.label} × {row.count}</span><strong className="sm:text-right">{(fractionToNumber(row.fraction) * 100).toFixed(2)}%</strong></div>) : <span className="text-slate-500">—</span>}
-        </div>
-        <p className="mt-3 border-t border-slate-100 pt-3 text-sm font-bold">{t.fixedTotal}: {(fractionToNumber(result.trace.fixedShareTotal) * 100).toFixed(2)}% = {money(fixedShareAmount)}</p>
-      </section>
-      <section className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
-        <h3 className="font-extrabold text-amber-950">{t.remainder}</h3>
-        <p className="mt-1 break-words text-sm font-bold leading-6">100% − {(fractionToNumber(result.trace.fixedShareTotal) * 100).toFixed(2)}% = {(fractionToNumber(result.trace.remainder) * 100).toFixed(2)}% = {money(remainderAmount)}</p>
-        <p className="mt-3 text-sm font-bold">{t.ratio}: {ratioText}</p>
-        {asabahRows.length ? <Parts rows={asabahRows} totalParts={totalParts} remainderAmount={remainderAmount} language={language} /> : <p className="mt-2 text-sm text-amber-900">{t.noRemainder}</p>}
-      </section>
-      <CaseSummary result={result} t={t} />
-      <CheckBlock distributed={distributedAmount} remaining={remainingAmount} estate={result.netEstate} label={t.check} t={t} />
-    </div>
-  );
+  const { trace } = result;
+  const fixedRows = trace.rows.filter((row) => row.method === "fixed");
+  const remainderRows = trace.rows.filter((row) => row.method === "remainder");
+  const redistributionRows = trace.rows.filter((row) => row.method === "redistribution");
+  const fixedUnits = fixedRows.reduce((total, row) => total + row.integerShares, 0);
+  const totalRemainderParts = remainderRows.reduce((total, row) => total + row.integerShares, 0);
+  const fixedAmount = result.netEstate * fractionToNumber(trace.fixedShareTotal);
+  const remainderAmount = result.netEstate * fractionToNumber(trace.remainder);
+  const check = trace.integrityCheck;
+  const finalUnits = trace.steps.find((item) => item.id === "final-units")?.data;
+  const fixedUnitsReported = Number(finalUnits?.fixedDisplayedUnits ?? fixedUnits);
+  const remainderUnitsReported = Number(finalUnits?.remainingUnits ?? 0);
+  const totalUnitsReported = Number(finalUnits?.totalUnits ?? check.totalUnits);
+  const unitsPass = check.unitsBalanced && check.totalUnits === fixedUnitsReported + remainderUnitsReported;
+  const moneyPass = check.moneyBalanced && Math.abs(check.distributedMoney + check.heldBackMoney - check.netEstate) < 0.01;
 
   return (
-    <section className="mt-5 rounded-3xl border border-blue-100 bg-white p-5 shadow-sm sm:p-7" dir={language === "ar" ? "rtl" : "ltr"}>
-      <button type="button" onClick={() => setOpen((value) => !value)} className="flex min-h-12 w-full items-center justify-between gap-3 text-start">
-        <span className="text-lg font-extrabold text-slate-950">{t.explicit}</span>
-        <ChevronDown size={20} className={`shrink-0 text-[#133D76] transition ${open ? "rotate-180" : ""}`} />
-      </button>
-      {open ? <div className="mt-4 border-t border-slate-100 pt-4">
-        <div className="mb-4 grid grid-cols-2 gap-2 rounded-xl bg-slate-100 p-1">
-          <button type="button" onClick={() => setMethod("lcm")} className={`rounded-lg px-3 py-2 text-sm font-extrabold ${method === "lcm" ? "bg-white text-[#133D76] shadow-sm" : "text-slate-500"}`}>{t.lcm}</button>
-          <button type="button" onClick={() => setMethod("percentage")} className={`rounded-lg px-3 py-2 text-sm font-extrabold ${method === "percentage" ? "bg-white text-[#133D76] shadow-sm" : "text-slate-500"}`}>{t.percentage}</button>
+    <div className="ms-trace" dir={language === "ar" ? "rtl" : "ltr"}>
+      <header className="ms-card p-4 sm:p-5">
+        <p className="ms-kicker">{t.title}</p>
+        <p className="mt-1.5 text-sm leading-6 text-slate-600">{t.subtitle}</p>
+        {result.requiresScholarReview ? <p className="ms-notice mt-3 font-extrabold!">{t.reviewRequired}</p> : null}
+      </header>
+
+      <section aria-label={t.title} className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <Metric label={t.netEstate} value={money(trace.distributableEstate)} strong />
+        <Metric label={t.fixedTotal} value={`${fractionToText(trace.fixedShareTotal)} · ${money(fixedAmount)}`} />
+        <Metric label={t.remainder} value={`${fractionToText(trace.remainder)} · ${money(remainderAmount)}`} />
+        <Metric label={t.root} value={String(trace.baseLcm)} />
+      </section>
+
+      <section className="ms-trace-card" aria-labelledby="audit-schedule-heading">
+        <div className="ms-trace-head">
+          <h3 id="audit-schedule-heading">{t.schedule}</h3>
+          <p>{t.scheduleNote}</p>
         </div>
-        {panel}
-      </div> : <p className="mt-2 text-xs font-bold text-[#133D76]">{open ? t.hide : t.show}</p>}
-    </section>
+        <div className="ms-trace-body">
+          <div className="grid gap-2.5 pt-2.5 sm:grid-cols-2" role="list">
+            {trace.rows.length ? trace.rows.map((row) => (
+              <article key={`${row.key}-${row.method}`} role="listitem" className="premium-pop min-w-0 rounded-xl border border-[rgba(22,79,134,0.12)] bg-white p-3">
+                <div className="flex min-w-0 items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <h4 className="break-words text-sm font-extrabold text-slate-950">{nameFor(row.key, row.label, heirLabels)}</h4>
+                    <p className="mt-1 text-xs font-semibold text-slate-500">{t.count}: <span className="num">{row.count}</span></p>
+                  </div>
+                  <span className="ms-tag ms-tag-fraction shrink-0 text-[11px]!">{STATUS_LABEL[language][row.method]}</span>
+                </div>
+                <div className="mt-3 grid grid-cols-2 gap-1.5 border-t border-[rgba(22,79,134,0.1)] pt-3">
+                  <Value label={t.groupShare} value={fractionToText(row.fraction)} />
+                  <Value label={t.sharePercent} value={`${row.percentage.toFixed(2)}%`} />
+                  <Value label={t.basis} value={row.method === "fixed" ? `${row.integerShares} / ${trace.baseLcm} ${t.fixedUnits}` : `${row.integerShares} ${t.parts}`} />
+                  <Value label={t.groupAmount} value={money(row.amount)} strong />
+                  <Value label={t.perPerson} value={money(row.amount / Math.max(1, row.count))} strong />
+                </div>
+              </article>
+            )) : <p className="rounded-xl border border-dashed border-slate-200 p-4 text-sm text-slate-500">{t.noRows}</p>}
+          </div>
+        </div>
+      </section>
+
+      <div className="grid gap-3 sm:grid-cols-2">
+        <section className="ms-trace-card">
+          <div className="ms-trace-head"><h3>{t.fixedWork}</h3></div>
+          <div className="ms-trace-body">
+            <p className="num mt-2.5 rounded-xl bg-slate-50 px-3 py-2.5 text-sm font-bold text-slate-800">
+              {fractionToText(trace.fixedShareTotal)} × {money(result.netEstate)} = {money(fixedAmount)}
+            </p>
+            <p className="mt-2 text-xs text-slate-600">{t.fixedUnitsSum}: <strong className="num text-slate-900">{fixedUnits}</strong> / <strong className="num text-slate-900">{trace.baseLcm}</strong> · {t.fixedAmount}: <strong className="num text-slate-900">{money(fixedAmount)}</strong></p>
+          </div>
+        </section>
+
+        <section className="ms-trace-card border-[rgba!(184,137,45,0.4)]">
+          <div className="ms-trace-head bg-[#fdf6e3]!"><h3 className="text-[#7c5a1c]!">{t.remainderWork}</h3></div>
+          <div className="ms-trace-body">
+            <p className="num mt-2.5 rounded-xl bg-[#fdf6e3] px-3 py-2.5 text-sm font-bold text-[#7c5a1c]">
+              {money(result.netEstate)} × {fractionToText(trace.remainder)} = {money(remainderAmount)}
+            </p>
+            {remainderRows.length ? (
+              <div className="mt-3 space-y-2">
+                <p className="text-xs font-extrabold text-[#7c5a1c]">{t.rule}: {totalRemainderParts} {t.parts}</p>
+                <p className="text-xs text-[#7c5a1c]">{t.asabahRule}</p>
+                {remainderRows.map((row) => (
+                  <p key={`remainder-${row.key}`} className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 border-t border-[rgba(184,137,45,0.3)] pt-2 text-xs text-[#7c5a1c]">
+                    <span className="font-bold">{nameFor(row.key, row.label, heirLabels)} × {row.count} · {row.integerShares} {t.parts}</span>
+                    <strong className="num">{t.perPart}: {money(row.amount / Math.max(1, totalRemainderParts))} · {t.groupAmount}: {money(row.amount)}</strong>
+                  </p>
+                ))}
+              </div>
+            ) : redistributionRows.length ? (
+              <div className="mt-3 space-y-2">
+                <p className="text-xs text-[#7c5a1c]">{t.raddRule}</p>
+                {redistributionRows.map((row) => (
+                  <p key={`returned-${row.key}`} className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 border-t border-[rgba(184,137,45,0.3)] pt-2 text-xs text-[#7c5a1c]">
+                    <span className="font-bold">{nameFor(row.key, row.label, heirLabels)} × {row.count} · {t.returned}</span>
+                    <strong className="num">{t.perPerson}: {money(row.amount / Math.max(1, row.count))} · {t.returned}: {money(row.amount)}</strong>
+                  </p>
+                ))}
+              </div>
+            ) : check.heldBackMoney > 0.005 ? (
+              <p className="ms-notice mt-3 font-bold!">{t.heldBackNote} · {money(check.heldBackMoney)}</p>
+            ) : <p className="mt-3 text-xs text-[#7c5a1c]">{t.noRemainder}</p>}
+          </div>
+        </section>
+      </div>
+
+      <section className="ms-trace-card border-[rgba!(22,120,80,0.3)]" aria-labelledby="reconciliation-heading">
+        <div className="ms-trace-head bg-[#f0faf4]!">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h3 id="reconciliation-heading" className="text-[#14532d]!">{t.reconciliation}</h3>
+            <span className={`rounded-full px-2.5 py-1 text-xs font-extrabold ${unitsPass && moneyPass ? "bg-white text-emerald-800 ring-1 ring-emerald-200" : "bg-rose-100 text-rose-800 ring-1 ring-rose-200"}`}>
+              {unitsPass && moneyPass ? t.pass : t.fail}
+            </span>
+          </div>
+        </div>
+        <div className="ms-trace-body">
+          <div className="grid gap-2 pt-2.5 sm:grid-cols-2">
+            <div className="rounded-xl border border-emerald-200 bg-white/80 p-3">
+              <p className="text-xs font-bold text-emerald-800">{t.unitCheck}</p>
+              <p className="num mt-1 break-words text-sm font-extrabold text-emerald-950">{fixedUnitsReported} + {remainderUnitsReported} = {totalUnitsReported}</p>
+              <p className="mt-1 text-xs text-emerald-800">{unitsPass ? t.pass : t.fail}</p>
+            </div>
+            <div className="rounded-xl border border-emerald-200 bg-white/80 p-3">
+              <p className="text-xs font-bold text-emerald-800">{t.amountCheck}</p>
+              <p className="num mt-1 break-words text-sm font-extrabold text-emerald-950">{money(check.distributedMoney)} + {money(check.heldBackMoney)} = {money(check.netEstate)}</p>
+              <p className="mt-1 text-xs text-emerald-800">{t.distributed}: {money(check.distributedMoney)} · {t.heldBack}: {money(check.heldBackMoney)}</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="ms-trace-card" aria-labelledby="case-notes-heading">
+        <div className="ms-trace-head"><h3 id="case-notes-heading">{t.caseNotes}</h3></div>
+        <div className="ms-trace-body">
+          <p className="mt-2.5 text-xs font-extrabold text-rose-800">{t.excluded}</p>
+          {result.exclusions.length ? (
+            <div className="mt-2 grid gap-2 sm:grid-cols-2">{result.exclusions.map((item) => (
+              <article key={`${item.key ?? item.label}-${item.label}`} className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs">
+                <p className="font-extrabold text-rose-900">{nameFor(item.key ?? "", item.label, heirLabels)}</p>
+                <p className="mt-1 leading-5 text-rose-800">{item.reason}</p>
+              </article>
+            ))}</div>
+          ) : <p className="mt-1 text-xs text-slate-500">{t.noExcluded}</p>}
+        </div>
+      </section>
+
+      <details open className="ms-trace-card">
+        <summary className="ms-trace-head cursor-pointer list-inside">
+          <span className="text-sm font-extrabold text-slate-950">{t.trace}</span> <span className="text-xs font-semibold text-slate-500">· {trace.steps.length} {t.step}</span>
+          <p className="mt-1 text-xs font-normal text-slate-500">{t.traceNote}</p>
+        </summary>
+        <div className="ms-trace-body">
+          <ol className="grid gap-2.5 pt-2.5">
+            {trace.steps.map((step, index) => (
+              <li key={`${step.id}-${index}`} className="rounded-xl border border-[rgba(22,79,134,0.12)] bg-slate-50 p-3">
+                <p className="text-xs font-extrabold text-[#164f86]">{t.step} {index + 1} · {step.title}</p>
+                <p className="mt-1.5 break-words text-xs leading-5 text-slate-700">{step.detail}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </details>
+    </div>
   );
 }
 
-function Info({ label, value, prominent = false }: { label: string; value: string; prominent?: boolean }) {
-  return <div className={`min-w-0 rounded-2xl p-4 ${prominent ? "bg-blue-50" : "bg-slate-50"}`}><p className="text-xs font-bold uppercase tracking-wide text-slate-500">{label}</p><p className={`mt-1 break-words font-extrabold tabular-nums ${prominent ? "text-2xl text-[#133D76] sm:text-3xl" : "text-lg text-slate-950"}`}>{value}</p></div>;
-}
-
-function Parts({ rows, totalParts, remainderAmount, language }: { rows: CalculationResult["trace"]["rows"]; totalParts: number; remainderAmount: number; language: AppLanguage }) {
-  const labels = { en: "parts", ta: "பங்குகள்", ar: "أسهم" }[language];
-  return <div className="mt-3 space-y-3 border-t border-amber-200 pt-3"><p className="break-words text-xs font-bold leading-5 text-amber-900">{money(remainderAmount)} ÷ {totalParts} {labels} = {money(remainderAmount / Math.max(1, totalParts))} per part</p>{rows.map((row) => <div className="grid grid-cols-1 items-start gap-1.5 border-b border-amber-200/70 pb-3 text-sm last:border-0 sm:grid-cols-[minmax(0,1fr)_auto] sm:gap-3" key={`${row.key}-parts`}><span className="min-w-0 break-words font-semibold">{row.label} × {row.count}</span><strong className="break-words leading-5 sm:max-w-[62%] sm:text-right">{asabahPartsFor(row, rows)} {labels} × {money(remainderAmount / Math.max(1, totalParts))} = {money(row.amount)}</strong></div>)}<p className="border-t border-amber-200 pt-2 text-xs font-extrabold text-amber-950">{totalParts} {labels} = {money(remainderAmount)}</p></div>;
-}
-
-function CaseSummary({ result, t }: { result: CalculationResult; t: { caseTitle: string; awl: string; radd: string; asabah: string; excluded: string; noExcluded: string } }) {
-  const hasRadd = result.allocations.some((allocation) => allocation.method === "redistribution");
-  const hasAsabah = result.allocations.some((allocation) => allocation.method === "remainder");
-  const status = result.fixedSharesAdjusted ? t.awl : hasRadd ? t.radd : hasAsabah ? t.asabah : null;
-  return <section className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-    <h3 className="font-extrabold text-slate-900">{t.caseTitle}</h3>
-    {status ? <p className="mt-3 rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-extrabold text-[#133D76]">{status}</p> : null}
-    <div className="mt-3 border-t border-slate-200 pt-3">
-      <p className="text-sm font-extrabold text-rose-800">{t.excluded}</p>
-      {result.exclusions.length ? <div className="mt-2 space-y-2">{result.exclusions.map((item) => <div key={`${item.key ?? item.label}-${item.label}`} className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm"><p className="font-extrabold text-rose-900">{item.label}</p><p className="mt-1 leading-5 text-rose-800">{item.reason}</p></div>)}</div> : <p className="mt-2 text-sm text-slate-500">{t.noExcluded}</p>}
+function Metric({ label, value, strong = false }: { label: string; value: string; strong?: boolean }) {
+  return (
+    <div className={`min-w-0 rounded-2xl border p-3 ${strong ? "border-[rgba(22,79,134,0.3)] bg-[#eaf2fb]" : "border-[rgba(22,79,134,0.12)] bg-white"}`}>
+      <p className="text-[11px] font-bold leading-4 text-slate-500">{label}</p>
+      <p className={`num mt-1 break-words text-sm font-extrabold leading-5 ${strong ? "text-[#164f86]" : "text-slate-950"}`}>{value}</p>
     </div>
-  </section>;
+  );
 }
 
-function CheckBlock({ distributed, remaining, estate, label, t }: { distributed: number; remaining: number; estate: number; label: string; t: { distributed: string; remaining: string } }) {
-  return <section className="rounded-2xl bg-emerald-50 p-4"><h3 className="font-extrabold text-emerald-950">{label}</h3><div className="mt-2 space-y-1 text-sm"><p>{t.distributed}: <strong>{money(distributed)}</strong></p>{remaining > 0.005 ? <p>{t.remaining}: <strong>{money(remaining)}</strong></p> : null}<p className="border-t border-emerald-200 pt-2 font-extrabold">{money(distributed + remaining)} = {money(estate)}</p></div></section>;
+function Value({ label, value, strong = false }: { label: string; value: string; strong?: boolean }) {
+  return (
+    <div className="min-w-0 rounded-lg bg-slate-50 px-2.5 py-2">
+      <p className="text-[10px] font-bold leading-4 text-slate-500">{label}</p>
+      <p className={`num mt-0.5 break-words text-xs ${strong ? "font-extrabold text-[#164f86]" : "font-bold text-slate-900"}`}>{value}</p>
+    </div>
+  );
 }
 
 export default CalculationTrace;

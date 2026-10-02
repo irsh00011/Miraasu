@@ -1,6 +1,4 @@
-/** Design: A simple white-and-blue Tamil-first worksheet control with large touch targets. */
-/** Design: Ledger of Justice — high-contrast, touch-safe count control for every language and script direction. */
-/** Compact square/near-square tile. max=1 → whole tile toggles selection. max>1 → tile shows a mini stepper. */
+/** Design: Miraasu Scholarly Ledger — compact chip tile; max=1 toggles, max>1 shows a mini stepper. */
 import { useEffect, useState } from "react";
 import { Check, Minus, Plus } from "lucide-react";
 
@@ -52,29 +50,24 @@ export function HeirCounter({ emoji, label, description, searchText, value, onCh
         onClick={() => onChange(selected ? 0 : 1)}
         aria-pressed={selected}
         aria-label={label}
-        className={`relative flex aspect-square min-h-[4.25rem] flex-col items-center justify-center gap-1 rounded-2xl border-2 p-1.5 text-center transition ${selected ? "border-[#133D76] bg-blue-50 shadow-sm" : "border-slate-200 bg-white hover:border-blue-200 hover:bg-blue-50/40"}`}
+        className={`ms-chip ${selected ? "is-on" : ""}`}
+        title={description}
       >
-        {selected ? (
-          <span className="absolute right-1 top-1 grid size-4 place-items-center rounded-full bg-[#133D76] text-white">
-            <Check size={10} />
-          </span>
-        ) : null}
-        <span className="line-clamp-2 text-[11px] font-bold leading-tight text-slate-800">{label}</span>
+        {emoji ? <span aria-hidden="true" className="ms-chip-emoji">{emoji}</span> : null}
+        <span className="ms-chip-name">{label}</span>
+        {selected ? <span className="grid size-5 flex-none place-items-center rounded-full bg-[#164f86] text-white"><Check size={11} /></span> : null}
       </button>
     );
   }
 
   return (
-    <div
-      hidden={!isSearchMatch}
-      data-family-counter
-      className={`flex aspect-square min-h-[4.25rem] flex-col items-center justify-between gap-1 rounded-2xl border-2 p-1.5 text-center transition ${selected ? "border-[#133D76] bg-blue-50 shadow-sm" : "border-slate-200 bg-white"}`}
-    >
-      <span className="line-clamp-2 text-[11px] font-bold leading-tight text-slate-800">{label}</span>
-      <div className="flex shrink-0 items-center gap-1" aria-label={`${label} ${counterCopy.count}`}>
-        <button type="button" onClick={() => onChange(Math.max(0, value - 1))} disabled={value === 0} className="grid size-6 place-items-center rounded-lg border border-slate-200 text-slate-600 transition hover:border-blue-300 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-30" aria-label={`${label} ${counterCopy.decrease}`}><Minus size={12} /></button>
-        <output className="min-w-4 text-center text-xs font-extrabold tabular-nums text-[#133D76]">{value}</output>
-        <button type="button" onClick={() => onChange(Math.min(max, value + 1))} disabled={value >= max} className="grid size-6 place-items-center rounded-lg bg-[#133D76] text-white transition hover:bg-[#102F5E] disabled:cursor-not-allowed disabled:opacity-30" aria-label={`${label} ${counterCopy.increase}`}><Plus size={12} /></button>
+    <div hidden={!isSearchMatch} data-family-counter className={`ms-chip ${selected ? "is-on" : ""}`} title={description}>
+      {emoji ? <span aria-hidden="true" className="ms-chip-emoji">{emoji}</span> : null}
+      <span className="ms-chip-name">{label}</span>
+      <div className="ms-stepper" aria-label={`${label} ${counterCopy.count}`}>
+        <button type="button" onClick={() => onChange(Math.max(0, value - 1))} disabled={value === 0} aria-label={`${label} ${counterCopy.decrease}`}><Minus size={12} /></button>
+        <output className="num">{value}</output>
+        <button type="button" onClick={() => onChange(Math.min(max, value + 1))} disabled={value >= max} aria-label={`${label} ${counterCopy.increase}`}><Plus size={12} /></button>
       </div>
     </div>
   );

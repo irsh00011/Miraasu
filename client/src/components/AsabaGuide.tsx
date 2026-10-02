@@ -1,4 +1,4 @@
-/** Design: Ledger of Justice — a focused, click-to-expand rule sheet that explains residual heir order without hiding review boundaries. */
+/** Design: Miraasu Scholarly Ledger — click-to-expand residuary order rule sheet. */
 import { useState } from "react";
 import { BookOpenCheck, ChevronDown, Scale } from "lucide-react";
 import type { AppLanguage } from "@/lib/inheritance";
@@ -17,5 +17,36 @@ const copy = {
 export function AsabaGuide({ language = "ta" }: AsabaGuideProps) {
   const [open, setOpen] = useState(false);
   const text = copy[language];
-  return <section className="border border-blue-100 bg-white"><button type="button" onClick={() => setOpen((value) => !value)} className="flex min-h-14 w-full items-center justify-between gap-3 px-4 text-start hover:bg-blue-50"><span className="flex items-center gap-3"><span className="grid size-8 place-items-center rounded-full bg-[#133D76] text-white"><Scale size={16} /></span><span><span className="block text-sm font-extrabold text-[#133D76]">{text.button}</span><span className="mt-0.5 block text-[11px] text-slate-500">{text.automatic} · {text.review}</span></span></span><ChevronDown size={18} className={`shrink-0 text-[#133D76] transition ${open ? "rotate-180" : ""}`} /></button>{open ? <div className="border-t border-blue-100 px-4 pb-5 pt-4"><div className="flex items-start gap-3 border-s-2 border-[#B8892D] bg-amber-50/60 p-3"><BookOpenCheck size={17} className="mt-0.5 shrink-0 text-[#B8892D]" /><div><h3 className="font-extrabold text-slate-950">{text.title}</h3><p className="mt-1 text-sm leading-6 text-slate-600">{text.intro}</p></div></div><div className="mt-4 grid gap-4 lg:grid-cols-3"><section><h4 className="text-sm font-extrabold text-[#133D76]">{text.self}</h4><ol className="mt-2 space-y-2">{text.degrees.map((item, index) => <li key={item} className="flex gap-2 text-xs leading-5 text-slate-600"><span className="font-bold text-[#B8892D]">{index + 1}.</span>{item}</li>)}</ol></section><section><h4 className="text-sm font-extrabold text-[#133D76]">{text.through}</h4><ul className="mt-2 space-y-2">{text.throughRules.map((item) => <li key={item} className="text-xs leading-5 text-slate-600">• {item}</li>)}</ul></section><section><h4 className="text-sm font-extrabold text-[#133D76]">{text.with}</h4><ul className="mt-2 space-y-2">{text.withRules.map((item) => <li key={item} className="text-xs leading-5 text-slate-600">• {item}</li>)}</ul></section></div><div className="mt-5 border-t border-slate-100 pt-4"><p className="text-sm font-extrabold text-[#133D76]">{text.examplesTitle}</p><div className="mt-2 grid gap-2 md:grid-cols-3">{text.examples.map(([title, detail]) => <article key={title} className="border border-slate-200 bg-slate-50 p-3"><p className="text-sm font-extrabold text-slate-900">{title}</p><p className="mt-1 text-xs leading-5 text-slate-600">{detail}</p></article>)}</div></div><p className="mt-4 rounded-xl border border-amber-200 bg-amber-50/70 p-3 text-xs leading-5 text-slate-700">{text.uncle}</p></div> : null}</section>;
+  return (
+    <section className="ms-card overflow-hidden">
+      <button type="button" onClick={() => setOpen((value) => !value)} className="flex min-h-14 w-full items-center justify-between gap-3 px-4 text-start hover:bg-[#f8fbff]">
+        <span className="flex items-center gap-3">
+          <span className="grid size-9 place-items-center rounded-xl bg-[#164f86] text-white"><Scale size={16} /></span>
+          <span>
+            <span className="block text-sm font-extrabold text-[#164f86]">{text.button}</span>
+            <span className="mt-0.5 block text-[11px] text-slate-500">{text.automatic} · {text.review}</span>
+          </span>
+        </span>
+        <ChevronDown size={18} className={`shrink-0 text-[#164f86] transition ${open ? "rotate-180" : ""}`} />
+      </button>
+      {open ? (
+        <div className="border-t border-[rgba(22,79,134,0.12)] px-4 pb-5 pt-4">
+          <div className="flex items-start gap-3 border-s-2 border-[#B8892D] bg-amber-50/60 p-3 rounded-e-xl">
+            <BookOpenCheck size={17} className="mt-0.5 shrink-0 text-[#B8892D]" />
+            <div><h3 className="font-extrabold text-slate-950">{text.title}</h3><p className="mt-1 text-sm leading-6 text-slate-600">{text.intro}</p></div>
+          </div>
+          <div className="mt-4 grid gap-4 lg:grid-cols-3">
+            <section><h4 className="text-sm font-extrabold text-[#164f86]">{text.self}</h4><ol className="mt-2 space-y-2">{text.degrees.map((item, index) => <li key={item} className="flex gap-2 text-xs leading-5 text-slate-600"><span className="font-bold text-[#B8892D]">{index + 1}.</span>{item}</li>)}</ol></section>
+            <section><h4 className="text-sm font-extrabold text-[#164f86]">{text.through}</h4><ul className="mt-2 space-y-2">{text.throughRules.map((item) => <li key={item} className="text-xs leading-5 text-slate-600">• {item}</li>)}</ul></section>
+            <section><h4 className="text-sm font-extrabold text-[#164f86]">{text.with}</h4><ul className="mt-2 space-y-2">{text.withRules.map((item) => <li key={item} className="text-xs leading-5 text-slate-600">• {item}</li>)}</ul></section>
+          </div>
+          <div className="mt-5 border-t border-[rgba(22,79,134,0.1)] pt-4">
+            <p className="text-sm font-extrabold text-[#164f86]">{text.examplesTitle}</p>
+            <div className="mt-2 grid gap-2 md:grid-cols-3">{text.examples.map(([title, detail]) => <article key={title} className="rounded-xl border border-[rgba(22,79,134,0.12)] bg-slate-50 p-3"><p className="text-sm font-extrabold text-slate-900">{title}</p><p className="mt-1 text-xs leading-5 text-slate-600">{detail}</p></article>)}</div>
+          </div>
+          <p className="ms-notice mt-4">{text.uncle}</p>
+        </div>
+      ) : null}
+    </section>
+  );
 }
