@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, ArrowRight, Calculator, History, Printer, UsersRound } from "lucide-react";
 import { FamilyList } from "@/components/FamilyList";
 import { BookSourceCard } from "@/components/BookSourceCard";
-import { aggregateAllocationsForDisplay, asabahPartsFor, calculateInheritance, fractionToNumber, fractionToText, sourcePercentage, type EstateInput, type HeirInput } from "@/lib/inheritance";
+import { ARABIC_EXTENDED_COPY, aggregateAllocationsForDisplay, asabahPartsFor, calculateInheritance, fractionToNumber, fractionToText, sourcePercentage, type EstateInput, type HeirInput } from "@/lib/inheritance";
 import { CalculationTrace } from "@/components/CalculationTrace";
 import { AppHeader } from "@/components/calc/AppHeader";
 import { EstateStep } from "@/components/calc/EstateStep";
@@ -23,7 +23,14 @@ const initialEstate: EstateInput = { grossEstate: 0, funeralCosts: 0, debts: 0, 
 const initialHeirs: HeirInput = { husband: 0, wives: 0, father: 0, mother: 0, paternalGrandfather: 0, sons: 0, daughters: 0, fullBrothers: 0, fullSisters: 0, maternalBrothers: 0, maternalSisters: 0, sonsSons: 0, sonsDaughters: 0, furtherSonsLineDescendants: 0, maternalGrandfather: 0, paternalGrandmothers: 0, maternalGrandmothers: 0, furtherPaternalAncestors: 0, paternalBrothers: 0, paternalSisters: 0, fullBrothersSons: 0, paternalBrothersSons: 0, paternalUncles: 0, paternalUnclesSons: 0, consanguinePaternalUncles: 0, consanguinePaternalUnclesSons: 0, daughtersChildren: 0, sonsDaughtersChildren: 0, fullBrothersDaughters: 0, fullSistersChildren: 0, maternalBrothersChildren: 0, fathersMaternalBrothers: 0, fathersMaternalBrothersDescendants: 0, mothersSiblings: 0, mothersSiblingsDescendants: 0 };
 
 const stepLabels = ["المبلغ", "العائلة", "النتيجة"] as const;
-const arabicLabels: Record<string, string> = { husband: "الزوج", wives: "الزوجة / الزوجات", father: "الأب", mother: "الأم", paternalGrandfather: "جد الأب", sons: "الأبناء", daughters: "البنات", fullBrothers: "الإخوة الأشقاء", fullSisters: "الأخوات الشقيقات", maternalBrothers: "الإخوة لأم", maternalSisters: "الأخوات لأم", sonsSons: "أبناء الابن", sonsDaughters: "بنات الابن", paternalGrandmothers: "جدة الأب", maternalGrandmothers: "جدة الأم", paternalBrothers: "الإخوة لأب", paternalSisters: "الأخوات لأب" };
+const arabicLabels: Record<string, string> = {
+  husband: "الزوج", wives: "الزوجة / الزوجات", father: "الأب", mother: "الأم", paternalGrandfather: "جد الأب", sons: "الأبناء", daughters: "البنات",
+  fullBrothers: "الإخوة الأشقاء", fullSisters: "الأخوات الشقيقات", maternalBrothers: "الإخوة لأم", maternalSisters: "الأخوات لأم",
+  sonsSons: "أبناء الابن", sonsDaughters: "بنات الابن", paternalGrandmothers: "جدة الأب", maternalGrandmothers: "جدة الأم",
+  paternalBrothers: "الإخوة لأب", paternalSisters: "الأخوات لأب",
+  // Extended relatives: Arabic copy so no Tamil text leaks into the Arabic screen.
+  ...Object.fromEntries(Object.entries(ARABIC_EXTENDED_COPY).map(([key, value]) => [key, value.label])),
+};
 const arabicExclusionLabels: Record<string, string> = { "தந்தையின் தந்தை": "جد الأب", "தந்தை வழி பாட்டி": "جدة الأب", "தாய் வழி பாட்டி": "جدة الأم", "மகனின் மகள்": "بنت الابن", "தாய் வழி சகோதரர் / சகோதரி": "الإخوة لأم", "உடன் பிறந்த சகோதரர் / சகோதரி": "الإخوة الأشقاء", "தந்தை வழி சகோதரி": "الأخوات لأب" };
 const money = (value: number) => new Intl.NumberFormat("ar", { style: "currency", currency: "INR", maximumFractionDigits: 2 }).format(Number.isFinite(value) ? value : 0);
 const heirCount = (heirs: HeirInput) => Object.values(heirs).reduce((total, item) => total + item, 0);
@@ -126,7 +133,7 @@ export default function ArabicHome() {
 
             {step === 3 ? (
               <div className="space-y-4">
-                <ResultHero kicker="الخطوة 3 من 3" title="نتيجة القسمة" subtitle="الأنصبة والمبالغ" />
+                <ResultHero title="نتيجة القسمة" />
                 {result.notices.map((notice) => <div key={notice} className="ms-notice">{noticeArabic(notice)}</div>)}
                 {result.requiresScholarReview ? <p className="ms-notice font-extrabold!">يلزم تأكيد من مختص — هذه النتيجة غير نهائية.</p> : null}
 
@@ -134,7 +141,6 @@ export default function ArabicHome() {
 
                 {resultMode === "simple" ? (
                   <div className="result-card-list space-y-2.5">
-                    <h2 className="ms-h2 px-1">من يرث؟</h2>
                     {result.allocations.length > 0 ? (
                       <>
                         {displayAllocations.map((item) => {

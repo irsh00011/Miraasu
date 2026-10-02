@@ -280,7 +280,7 @@ export default function Home() {
 
             {step === 3 ? (
               <div className="space-y-4">
-                <ResultHero kicker="படி 3 / 3" title="பங்கீட்டு முடிவு" subtitle="பங்குகள் · தொகைகள்" savedNote={justSaved ? "வரலாற்றில் சேமிக்கப்பட்டது" : undefined} />
+                <ResultHero title="பங்கீட்டு முடிவு" savedNote={justSaved ? "வரலாற்றில் சேமிக்கப்பட்டது" : undefined} />
                 <SegmentedTabs
                   value={resultMode}
                   onChange={setResultMode}
@@ -289,7 +289,6 @@ export default function Home() {
 
                 {resultMode === "simple" ? (
                   <div className="result-card-list space-y-2.5">
-                    <h2 className="ms-h2 px-1">யாருக்கு எவ்வளவு?</h2>
                     {resultRows.length > 0 ? (
                       <>
                         {shareRows.map((row) => (

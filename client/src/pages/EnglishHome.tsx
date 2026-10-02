@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, Calculator, History, Printer, UsersRound } from "lucide-react";
 import { FamilyList } from "@/components/FamilyList";
 import { BookSourceCard } from "@/components/BookSourceCard";
-import { aggregateAllocationsForDisplay, asabahPartsFor, calculateInheritance, fractionToNumber, fractionToText, sourcePercentage, type EstateInput, type HeirInput } from "@/lib/inheritance";
+import { aggregateAllocationsForDisplay, asabahPartsFor, calculateInheritance, fractionToNumber, fractionToText, sourcePercentage, EXTENDED_HEIR_SECTIONS, type EstateInput, type HeirInput } from "@/lib/inheritance";
 import { CalculationTrace } from "@/components/CalculationTrace";
 import { AppHeader } from "@/components/calc/AppHeader";
 import { EstateStep } from "@/components/calc/EstateStep";
@@ -31,7 +31,14 @@ const stepLabels = ["Amount", "Family", "Result"] as const;
 const money = (value: number) => new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 2 }).format(Number.isFinite(value) ? value : 0);
 const heirCount = (heirs: HeirInput) => Object.values(heirs).reduce((total, item) => total + item, 0);
 const formatDate = (value: string) => new Intl.DateTimeFormat("en-IN", { day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(value));
-const labels: Record<string, string> = { husband: "Husband", wives: "Wife / wives", mother: "Mother", father: "Father", paternalGrandfather: "Father’s father", sons: "Sons", daughters: "Daughters", sonsSons: "Sons of sons", sonsDaughters: "Daughters of sons", paternalGrandmothers: "Father’s mother", maternalGrandmothers: "Mother’s mother", fullBrothers: "Full brothers", fullSisters: "Full sisters", paternalBrothers: "Paternal half-brothers", paternalSisters: "Paternal half-sisters", maternalBrothers: "Maternal half-brothers", maternalSisters: "Maternal half-sisters" };
+const labels: Record<string, string> = {
+  husband: "Husband", wives: "Wife / wives", mother: "Mother", father: "Father", paternalGrandfather: "Father’s father", sons: "Sons", daughters: "Daughters",
+  sonsSons: "Sons of sons", sonsDaughters: "Daughters of sons", paternalGrandmothers: "Father’s mother", maternalGrandmothers: "Mother’s mother",
+  fullBrothers: "Full brothers", fullSisters: "Full sisters", paternalBrothers: "Paternal half-brothers", paternalSisters: "Paternal half-sisters",
+  maternalBrothers: "Maternal half-brothers", maternalSisters: "Maternal half-sisters",
+  // Extended relatives: use the engine's English labels so no Tamil text leaks into the English screen.
+  ...Object.fromEntries(EXTENDED_HEIR_SECTIONS.flatMap((section) => section.items).map((item) => [item.key, item.labelEn])),
+};
 
 function noticeInEnglish(notice: string) {
   if (notice.includes("சொத்து மதிப்பை")) return "Enter the estate value to continue.";
@@ -160,7 +167,7 @@ export default function EnglishHome() {
 
             {step === 3 ? (
               <div className="space-y-4">
-                <ResultHero kicker="STEP 3 OF 3" title="Distribution result" subtitle="Shares & amounts" savedNote={justSaved ? "Saved to history" : undefined} />
+                <ResultHero title="Distribution result" savedNote={justSaved ? "Saved to history" : undefined} />
 
                 {result.notices.length > 0 ? <div className="space-y-2">{result.notices.map((notice) => <p key={notice} className="ms-notice">{noticeInEnglish(notice)}</p>)}</div> : null}
                 {result.requiresScholarReview ? <p className="ms-notice font-extrabold!">Scholar review required — this result is not final.</p> : null}
@@ -169,7 +176,6 @@ export default function EnglishHome() {
 
                 {resultMode === "simple" ? (
                   <div className="result-card-list space-y-2.5">
-                    <h2 className="ms-h2 px-1">Who receives what?</h2>
                     {result.allocations.length > 0 ? (
                       <>
                         {displayAllocations.map((item) => {
