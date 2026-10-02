@@ -1,8 +1,8 @@
 /** Design: Miraasu Scholarly Ledger — compact premium heir chip: icon + name + stepper/toggle, clear selected state. */
-import { Check, Minus, Plus } from "lucide-react";
+import { Check, Minus, Plus, type LucideIcon } from "lucide-react";
 
 type HeirRowProps = {
-  emoji?: string;
+  icon?: LucideIcon;
   label: string;
   value: number;
   onChange: (value: number) => void;
@@ -10,7 +10,7 @@ type HeirRowProps = {
   language?: "ta" | "en" | "ar";
 };
 
-export function HeirRow({ emoji, label, value, onChange, max = 20, language = "ta" }: HeirRowProps) {
+export function HeirRow({ icon: Icon, label, value, onChange, max = 20, language = "ta" }: HeirRowProps) {
   const copy =
     language === "en"
       ? { add: "Add", decrease: "decrease", increase: "increase" }
@@ -22,7 +22,7 @@ export function HeirRow({ emoji, label, value, onChange, max = 20, language = "t
 
   return (
     <div className={`ms-chip ${selected ? "is-on" : ""}`}>
-      {emoji ? <span aria-hidden="true" className="ms-chip-emoji">{emoji}</span> : null}
+      {Icon ? <span aria-hidden="true" className="ms-chip-icon"><Icon size={17} strokeWidth={2.1} /></span> : null}
       <span className="ms-chip-name">{label}</span>
 
       {isToggle ? (

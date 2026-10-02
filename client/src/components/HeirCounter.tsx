@@ -1,9 +1,9 @@
 /** Design: Miraasu Scholarly Ledger — compact chip tile; max=1 toggles, max>1 shows a mini stepper. */
 import { useEffect, useState } from "react";
-import { Check, Minus, Plus } from "lucide-react";
+import { Check, Minus, Plus, type LucideIcon } from "lucide-react";
 
 type HeirCounterProps = {
-  emoji?: string;
+  icon?: LucideIcon;
   label: string;
   description?: string;
   searchText?: string;
@@ -13,7 +13,7 @@ type HeirCounterProps = {
   language?: "ta" | "en" | "ar";
 };
 
-export function HeirCounter({ emoji, label, description, searchText, value, onChange, max = 20, language }: HeirCounterProps) {
+export function HeirCounter({ icon: Icon, label, description, searchText, value, onChange, max = 20, language }: HeirCounterProps) {
   const resolvedLanguage = language ?? (/[\u0B80-\u0BFF]/.test(label) ? "ta" : /[\u0600-\u06FF]/.test(label) ? "ar" : "en");
   const counterCopy = resolvedLanguage === "ta" ? { count: "எண்ணிக்கை", decrease: "குறைக்க", increase: "அதிகரிக்க" } : resolvedLanguage === "ar" ? { count: "العدد", decrease: "إنقاص", increase: "زيادة" } : { count: "count", decrease: "decrease", increase: "increase" };
   const [familySearch, setFamilySearch] = useState("");
@@ -53,7 +53,7 @@ export function HeirCounter({ emoji, label, description, searchText, value, onCh
         className={`ms-chip ${selected ? "is-on" : ""}`}
         title={description}
       >
-        {emoji ? <span aria-hidden="true" className="ms-chip-emoji">{emoji}</span> : null}
+        {Icon ? <span aria-hidden="true" className="ms-chip-icon"><Icon size={17} strokeWidth={2.1} /></span> : null}
         <span className="ms-chip-name">{label}</span>
         {selected ? <span className="grid size-5 flex-none place-items-center rounded-full bg-[#164f86] text-white"><Check size={11} /></span> : null}
       </button>
@@ -62,7 +62,7 @@ export function HeirCounter({ emoji, label, description, searchText, value, onCh
 
   return (
     <div hidden={!isSearchMatch} data-family-counter className={`ms-chip ${selected ? "is-on" : ""}`} title={description}>
-      {emoji ? <span aria-hidden="true" className="ms-chip-emoji">{emoji}</span> : null}
+      {Icon ? <span aria-hidden="true" className="ms-chip-icon"><Icon size={17} strokeWidth={2.1} /></span> : null}
       <span className="ms-chip-name">{label}</span>
       <div className="ms-stepper" aria-label={`${label} ${counterCopy.count}`}>
         <button type="button" onClick={() => onChange(Math.max(0, value - 1))} disabled={value === 0} aria-label={`${label} ${counterCopy.decrease}`}><Minus size={12} /></button>

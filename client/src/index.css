@@ -116,19 +116,8 @@
   .ms-container { width: 100%; max-width: 46rem; margin-inline: auto; padding-inline: 1rem; }
   @media (min-width: 640px) { .ms-container { padding-inline: 1.5rem; } }
 
-  /* Subtle book watermark layer — place behind content, very low presence */
+  /* Clean page surface — book watermark removed; calm paper background instead */
   .ms-watermark { position: relative; isolation: isolate; }
-  .ms-watermark::before {
-    content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
-    background-image: url("/book-cover-icon-512.png");
-    background-repeat: no-repeat;
-    background-position: 115% -4rem;
-    background-size: min(34rem, 90vw) auto;
-    opacity: 0.5;
-  }
-  @media (min-width: 768px) {
-    .ms-watermark::before { background-position: 108% -6rem; background-size: 38rem auto; }
-  }
 
   .ms-kicker {
     color: var(--ms-royal); font-size: 0.68rem; font-weight: 800;
@@ -143,10 +132,19 @@
   .ms-h2 { color: var(--ms-navy); font-size: 1.05rem; font-weight: 800; letter-spacing: -0.01em; }
   .ms-lead { margin-top: 0.4rem; color: var(--ms-muted); font-size: 0.86rem; line-height: 1.65; }
   .ms-card {
-    background: var(--ms-surface);
+    position: relative;
+    background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
     border: 1px solid var(--ms-line);
     border-radius: 1.25rem;
-    box-shadow: 0 1px 2px rgba(11, 42, 79, 0.04), 0 14px 30px -22px rgba(11, 42, 79, 0.25);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.9),
+      0 1px 2px rgba(11, 42, 79, 0.05),
+      0 18px 36px -24px rgba(11, 42, 79, 0.28);
+  }
+  .ms-card::before {
+    content: ""; position: absolute; inset: 0 0 auto 0; height: 1px; border-radius: 1.25rem 1.25rem 0 0;
+    background: linear-gradient(90deg, transparent, rgba(22, 79, 134, 0.22), transparent);
+    pointer-events: none;
   }
   .ms-gold-rule { display: block; width: 2.75rem; height: 2px; border-radius: 2px; background: linear-gradient(90deg, var(--ms-gold), rgba(184, 137, 45, 0.15)); }
 }
@@ -227,11 +225,28 @@
 /* ════════════════ Estate / money fields ════════════════ */
 @layer components {
   .ms-amount-hero {
-    border: 1.5px solid var(--ms-line-strong); border-radius: 1.3rem;
-    background: linear-gradient(150deg, #fbfdff 0%, #edf4fc 100%);
-    box-shadow: inset 0 1px 0 #fff, 0 6px 16px -8px rgba(11, 42, 79, 0.18);
-    padding: 1.1rem;
+    position: relative; overflow: hidden;
+    border: 1px solid #0d2c4f; border-radius: 1.3rem;
+    background: linear-gradient(145deg, #1c5386 0%, #123c68 55%, #0b2a4f 100%);
+    box-shadow: 0 22px 40px -22px rgba(11, 42, 79, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.18), inset 0 0 0 1px rgba(236, 217, 166, 0.14);
+    padding: 1.15rem;
   }
+  .ms-amount-hero::before {
+    content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(30rem 14rem at 110% -4rem, rgba(140, 190, 240, 0.32), transparent 60%),
+      radial-gradient(22rem 12rem at -8% 115%, rgba(184, 137, 45, 0.16), transparent 60%);
+  }
+  .ms-amount-hero .ms-field { position: relative; z-index: 1; }
+  .ms-amount-hero .ms-label { color: #cfe2f5; }
+  .ms-amount-hero .ms-money-currency { color: #9dc2e8; }
+  .ms-amount-hero .ms-input {
+    background: rgba(255, 255, 255, 0.97);
+    border-color: rgba(255, 255, 255, 0.4);
+    box-shadow: inset 0 2px 6px rgba(11, 42, 79, 0.12), 0 8px 20px -10px rgba(0, 0, 0, 0.45);
+  }
+  .ms-amount-hero .ms-input:focus { border-color: #fff; box-shadow: 0 0 0 4px rgba(140, 190, 240, 0.35), inset 0 2px 6px rgba(11, 42, 79, 0.1); }
+  .ms-amount-hero .ms-help { color: #a9c6e4; }
   .ms-field { display: block; }
   .ms-label { display: block; margin-bottom: 0.5rem; color: #244567; font-size: 0.8rem; font-weight: 800; letter-spacing: 0.015em; }
   .ms-money { position: relative; display: block; }
@@ -291,17 +306,18 @@
   }
   .ms-chip:hover { border-color: var(--ms-line-strong); box-shadow: 0 4px 10px -6px rgba(11, 42, 79, 0.25); }
   .ms-chip:active { transform: scale(0.98); }
-  .ms-chip-emoji {
+  .ms-chip-icon {
     display: grid; place-items: center; width: 2.1rem; height: 2.1rem; flex: none;
-    border-radius: 0.7rem; background: var(--ms-tint-soft); font-size: 1.15rem;
-    transition: background 0.18s ease;
+    border-radius: 0.7rem; background: linear-gradient(150deg, #eef4fb, #dde9f7);
+    color: var(--ms-royal); border: 1px solid rgba(22, 79, 134, 0.12);
+    transition: background 0.18s ease, color 0.18s ease;
   }
   .ms-chip-name { min-width: 0; flex: 1; font-size: 0.8rem; font-weight: 700; color: var(--ms-ink); line-height: 1.35; }
   .ms-chip.is-on {
-    border-color: var(--ms-royal); background: linear-gradient(150deg, #f2f7fd, #e4eef9);
-    box-shadow: 0 0 0 1px var(--ms-royal), 0 6px 14px -8px rgba(22, 79, 134, 0.5);
+    border-color: var(--ms-royal); background: linear-gradient(150deg, #ffffff 0%, #e8f1fb 100%);
+    box-shadow: 0 0 0 1px var(--ms-royal), 0 10px 20px -12px rgba(22, 79, 134, 0.55), inset 0 1px 0 #fff;
   }
-  .ms-chip.is-on .ms-chip-emoji { background: #fff; }
+  .ms-chip.is-on .ms-chip-icon { background: linear-gradient(150deg, #164f86, #0e3a66); color: #fff; border-color: transparent; }
   .ms-chip.is-on::after {
     content: ""; position: absolute; inset-inline-end: 0.55rem; top: 0.55rem;
     width: 0.5rem; height: 0.5rem; border-radius: 999px; background: var(--ms-gold);
@@ -346,12 +362,14 @@
   }
   @media (min-width: 640px) { .ms-hero { padding: 1.9rem; } }
   .ms-hero::after {
-    content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0.16;
-    background-image: url("/book-cover-icon-512.png"); background-repeat: no-repeat;
-    background-position: right -6rem top -4rem; background-size: 26rem auto;
-    filter: brightness(2.2);
+    content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 1;
+    background:
+      radial-gradient(42rem 20rem at 110% -6rem, rgba(120, 175, 230, 0.28), transparent 60%),
+      radial-gradient(30rem 16rem at -10% 120%, rgba(184, 137, 45, 0.14), transparent 60%);
   }
-  [dir="rtl"] .ms-hero::after { background-position: left -6rem top -4rem; }
+  [dir="rtl"] .ms-hero::after { background:
+      radial-gradient(42rem 20rem at -10% -6rem, rgba(120, 175, 230, 0.28), transparent 60%),
+      radial-gradient(30rem 16rem at 110% 120%, rgba(184, 137, 45, 0.14), transparent 60%); }
   .ms-hero-kicker { position: relative; z-index: 1; color: #bcd3ea; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; }
   .ms-hero-title { position: relative; z-index: 1; margin-top: 0.4rem; font-family: var(--font-display); font-size: 1.35rem; font-weight: 700; }
   .ms-hero-amount {
@@ -374,13 +392,20 @@
   .ms-tabs button[aria-selected="true"] { background: #fff; color: var(--ms-royal); box-shadow: 0 2px 6px rgba(11, 42, 79, 0.12); }
 
   .ms-share {
-    display: flex; align-items: center; justify-content: space-between; gap: 0.9rem;
-    border: 1px solid var(--ms-line); border-radius: 1.1rem; background: #fff;
+    position: relative; display: flex; align-items: center; justify-content: space-between; gap: 0.9rem;
+    border: 1px solid var(--ms-line); border-radius: 1.1rem;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fbfe 100%);
     padding: 0.95rem 1rem;
-    box-shadow: 0 1px 2px rgba(11, 42, 79, 0.04);
-    transition: border-color 0.18s ease, box-shadow 0.18s ease;
+    box-shadow: inset 0 1px 0 #fff, 0 1px 2px rgba(11, 42, 79, 0.05), 0 12px 24px -18px rgba(11, 42, 79, 0.25);
+    transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+    overflow: hidden;
   }
-  .ms-share:hover { border-color: var(--ms-line-strong); box-shadow: 0 8px 18px -12px rgba(11, 42, 79, 0.3); }
+  .ms-share::before {
+    content: ""; position: absolute; inset-inline-start: 0; inset-block: 0.9rem; width: 3px; border-radius: 3px;
+    background: linear-gradient(180deg, var(--ms-royal), rgba(22, 79, 134, 0.15));
+  }
+  [dir="rtl"] .ms-share::before { inset-inline-start: auto; inset-inline-end: 0; }
+  .ms-share:hover { border-color: var(--ms-line-strong); box-shadow: inset 0 1px 0 #fff, 0 14px 28px -14px rgba(11, 42, 79, 0.35); transform: translateY(-1px); }
   .ms-share-name { font-size: 0.92rem; font-weight: 800; color: var(--ms-ink); line-height: 1.4; }
   .ms-share-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; margin-top: 0.45rem; }
   .ms-tag {
@@ -524,18 +549,20 @@
   .ent-top-logo { width: 2.5rem; height: 2.5rem; border-radius: 0.8rem; box-shadow: 0 6px 16px rgba(11, 42, 79, 0.16); }
   .ent-stage { display: flex; flex: 1; align-items: center; justify-content: center; padding: 1.5rem 0; }
   .ent-rise { opacity: 0; animation: ent-rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; }
-  .ent-welcome { display: flex; flex-direction: column; align-items: center; text-align: center; }
-  .ent-logo { width: 5rem; height: 5rem; border-radius: 1.5rem; object-fit: cover; box-shadow: 0 18px 40px -12px rgba(11, 42, 79, 0.35), 0 0 0 1px rgba(184, 137, 45, 0.4); }
-  .ent-welcome-title { margin-top: 1.75rem; color: #0b2a4f; font-family: var(--font-display); font-weight: 700; font-size: clamp(3.25rem, 13vw, 6rem); line-height: 1; letter-spacing: -0.03em; }
-  .ent-letter-row, .ent-welcome-letter { display: inline-block; }
-  .ent-hadith { width: min(100%, 34rem); margin-top: 1.35rem; padding: 1rem 1.1rem; border: 1px solid rgba(184, 137, 45, 0.38); border-radius: 1.15rem; background: rgba(255, 255, 255, 0.82); box-shadow: 0 10px 24px -18px rgba(11, 42, 79, 0.3); text-align: start; }
-  .ent-hadith-kicker { color: #164f86; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; }
-  .ent-hadith-quote { margin-top: 0.45rem; color: #263c55; font-size: clamp(0.84rem, 3.7vw, 0.96rem); line-height: 1.58; }
-  .ent-hadith-source { margin-top: 0.65rem; color: #5b7390; font-size: 0.72rem; font-weight: 700; line-height: 1.5; }
+  .ent-welcome { display: flex; flex-direction: column; align-items: center; text-align: center; max-width: 36rem; }
+  .ent-medallion {
+    display: grid; place-items: center; width: 7.5rem; height: 7.5rem; border-radius: 999px;
+    background: linear-gradient(180deg, #ffffff, #eef4fb);
+    box-shadow: 0 24px 48px -20px rgba(11, 42, 79, 0.4), inset 0 0 0 1px rgba(184, 137, 45, 0.35), inset 0 0 0 6px #fff;
+  }
+  .ent-logo { width: 4.6rem; height: 4.6rem; border-radius: 1.1rem; object-fit: cover; }
+  .ent-eyebrow { margin-top: 1.6rem; color: #4d77a6; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.22em; text-transform: uppercase; }
+  .ent-wordmark { margin-top: 0.5rem; color: #0b2a4f; font-family: var(--font-display); font-weight: 700; font-size: clamp(2.6rem, 10vw, 3.9rem); line-height: 1.05; letter-spacing: -0.02em; }
+  .ent-tagline { margin-top: 0.7rem; color: #5b7390; font-size: 0.92rem; font-weight: 600; }
+  .ent-hadith { width: min(100%, 32rem); margin-top: 2rem; padding-top: 1.4rem; border-top: 1px solid rgba(184, 137, 45, 0.4); }
+  .ent-hadith-quote { color: #33475f; font-family: var(--font-display); font-style: italic; font-size: clamp(0.95rem, 4vw, 1.08rem); line-height: 1.7; }
+  .ent-hadith-source { margin-top: 0.8rem; color: #8ba0b8; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.04em; }
   .ent-hadith-source a { color: #164f86; text-decoration: underline; text-underline-offset: 2px; }
-  .ent-hadith-grade { margin-top: 0.35rem; color: #8a4b13; font-size: 0.68rem; font-weight: 800; line-height: 1.45; }
-  .ent-rule { display: block; width: 3.5rem; height: 2px; margin: 1.5rem 0 1rem; background: linear-gradient(90deg, transparent, #b8892d, transparent); }
-  .ent-brand { padding-inline-start: 0.42em; color: #4d77a6; font-size: 0.85rem; font-weight: 800; letter-spacing: 0.42em; text-transform: uppercase; }
   .ent-start {
     display: inline-flex; align-items: center; gap: 0.6rem; min-height: 3.5rem; margin-top: 2.5rem; padding: 0 2.1rem;
     border-radius: 999px; color: #fff; font-size: 1.05rem; font-weight: 800;

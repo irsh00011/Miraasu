@@ -1,21 +1,22 @@
 /** Design: Miraasu Scholarly Ledger — compact chip grid for the close family; search + spouse selector on top. */
 import { useMemo } from "react";
-import { RotateCcw, Search } from "lucide-react";
+import { RotateCcw, Search, type LucideIcon } from "lucide-react";
 import { HeirRow } from "@/components/HeirRow";
+import { heirIconForEmoji, heirIconForKey } from "@/components/heirIcons";
 import { ARABIC_EXTENDED_COPY, EXTENDED_HEIR_SECTIONS, type AppLanguage, type HeirInput } from "@/lib/inheritance";
 
-type PrimaryDef = { key: keyof HeirInput; emoji: string; ta: string; en: string; ar: string; max?: number };
+type PrimaryDef = { key: keyof HeirInput; ta: string; en: string; ar: string; max?: number };
 
 const PRIMARY: PrimaryDef[] = [
-  { key: "father", emoji: "👨", ta: "அப்பா", en: "Father", ar: "الأب", max: 1 },
-  { key: "mother", emoji: "👩", ta: "அம்மா", en: "Mother", ar: "الأم", max: 1 },
-  { key: "sons", emoji: "👦", ta: "மகன்கள்", en: "Sons", ar: "الأبناء" },
-  { key: "daughters", emoji: "👧", ta: "மகள்கள்", en: "Daughters", ar: "البنات" },
-  { key: "paternalGrandfather", emoji: "👴", ta: "தாத்தா (தந்தை வழி)", en: "Father’s father", ar: "جد الأب", max: 1 },
-  { key: "fullBrothers", emoji: "👨‍🦱", ta: "உடன்பிறந்த சகோதரர்", en: "Full brothers", ar: "الإخوة الأشقاء" },
-  { key: "fullSisters", emoji: "👩‍🦰", ta: "உடன்பிறந்த சகோதரி", en: "Full sisters", ar: "الأخوات الشقيقات" },
-  { key: "maternalBrothers", emoji: "🧑", ta: "தாய் வழி சகோதரர்", en: "Maternal half-brothers", ar: "الإخوة لأم" },
-  { key: "maternalSisters", emoji: "👩", ta: "தாய் வழி சகோதரி", en: "Maternal half-sisters", ar: "الأخوات لأم" },
+  { key: "father", ta: "அப்பா", en: "Father", ar: "الأب", max: 1 },
+  { key: "mother", ta: "அம்மா", en: "Mother", ar: "الأم", max: 1 },
+  { key: "sons", ta: "மகன்கள்", en: "Sons", ar: "الأبناء" },
+  { key: "daughters", ta: "மகள்கள்", en: "Daughters", ar: "البنات" },
+  { key: "paternalGrandfather", ta: "தாத்தா (தந்தை வழி)", en: "Father’s father", ar: "جد الأب", max: 1 },
+  { key: "fullBrothers", ta: "உடன்பிறந்த சகோதரர்", en: "Full brothers", ar: "الإخوة الأشقاء" },
+  { key: "fullSisters", ta: "உடன்பிறந்த சகோதரி", en: "Full sisters", ar: "الأخوات الشقيقات" },
+  { key: "maternalBrothers", ta: "தாய் வழி சகோதரர்", en: "Maternal half-brothers", ar: "الإخوة لأم" },
+  { key: "maternalSisters", ta: "தாய் வழி சகோதரி", en: "Maternal half-sisters", ar: "الأخوات لأم" },
 ];
 
 type FamilyListProps = {
@@ -37,15 +38,15 @@ export function FamilyList({ heirs, onChange, onResetAll, query, onQueryChange, 
         : { search: "உறவைத் தேடுக…", clear: "அனைத்தையும் அழி", none: "பொருத்தம் இல்லை. தேடலை அழிக்கவும்.", spouseNone: "யாருமில்லை", husband: "கணவன்", wife: "மனைவி", wivesLabel: "மனைவிகள்" };
 
   const rows = useMemo(() => {
-    const primaryRows = PRIMARY.map((item) => ({
+    const primaryRows: { key: keyof HeirInput; icon: LucideIcon; label: string; max: number | undefined }[] = PRIMARY.map((item) => ({
       key: item.key,
-      emoji: item.emoji,
+      icon: heirIconForKey(item.key),
       label: language === "en" ? item.en : language === "ar" ? item.ar : item.ta,
       max: item.max,
     }));
     const extendedRows = EXTENDED_HEIR_SECTIONS.flatMap((section) => section.items).map((item) => ({
       key: item.key as keyof HeirInput,
-      emoji: item.emoji,
+      icon: heirIconForEmoji(item.emoji),
       label: language === "en" ? item.labelEn : language === "ar" ? ARABIC_EXTENDED_COPY[item.key].label : item.label,
       max: undefined as number | undefined,
     }));
@@ -102,7 +103,7 @@ export function FamilyList({ heirs, onChange, onResetAll, query, onQueryChange, 
           </div>
           {heirs.wives > 0 ? (
             <div className="mt-2 ms-chips" style={{ gridTemplateColumns: "minmax(0,1fr)" }}>
-              <HeirRow emoji="💑" label={copy.wivesLabel} value={heirs.wives} onChange={(value) => onChange("wives", Math.max(1, Math.min(4, value)))} max={4} language={language} />
+              <HeirRow icon={heirIconForKey("wives")} label={copy.wivesLabel} value={heirs.wives} onChange={(value) => onChange("wives", Math.max(1, Math.min(4, value)))} max={4} language={language} />
             </div>
           ) : null}
         </div>
@@ -113,7 +114,7 @@ export function FamilyList({ heirs, onChange, onResetAll, query, onQueryChange, 
       ) : (
         <div className="ms-chips">
           {filteredRows.map((row) => (
-            <HeirRow key={row.key} emoji={row.emoji} label={row.label} value={heirs[row.key] ?? 0} onChange={(value) => onChange(row.key, value)} max={row.max} language={language} />
+            <HeirRow key={row.key} icon={row.icon} label={row.label} value={heirs[row.key] ?? 0} onChange={(value) => onChange(row.key, value)} max={row.max} language={language} />
           ))}
         </div>
       )}

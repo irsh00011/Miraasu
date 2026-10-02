@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { ARABIC_EXTENDED_COPY, ARABIC_SECTION_COPY, EXTENDED_HEIR_SECTIONS, VERIFIED_EXTENDED_KEYS, type AppLanguage, type ExtendedHeirKey, type HeirInput } from "@/lib/inheritance";
 import { AsabaGuide } from "@/components/AsabaGuide";
 import { HeirCounter } from "@/components/HeirCounter";
+import { heirIconForEmoji } from "@/components/heirIcons";
 import { RotateCcw } from "lucide-react";
 
 type BookFamilySectionsProps = {
@@ -92,7 +93,7 @@ export function BookFamilySections({ heirs, onChange, query, onReset, language =
             {section.items.map((item) => (
               <HeirCounter
                 key={item.key}
-                emoji={item.emoji}
+                icon={heirIconForEmoji(item.emoji)}
                 label={language === "en" ? item.labelEn : language === "ar" ? ARABIC_EXTENDED_COPY[item.key].label : item.label}
                 description={language === "en" ? item.descriptionEn : language === "ar" ? ARABIC_EXTENDED_COPY[item.key].description : item.description}
                 searchText={item.searchTerms}
