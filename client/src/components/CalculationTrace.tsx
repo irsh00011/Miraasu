@@ -1,5 +1,5 @@
 /** Design: Miraasu Scholarly Ledger — teacher-review audit: metric strip, schedule, fixed/remainder work, reconciliation, notes, trace. */
-import { STATUS_LABEL, fractionToNumber, fractionToText, type AppLanguage, type CalculationResult } from "@/lib/inheritance";
+import { fractionToNumber, fractionToText, type AppLanguage, type CalculationResult } from "@/lib/inheritance";
 
 type Props = { result: CalculationResult; language?: AppLanguage; heirLabels?: Record<string, string> };
 
@@ -172,7 +172,6 @@ export function CalculationTrace({ result, language = "en", heirLabels }: Props)
     <div className="ms-trace" dir={language === "ar" ? "rtl" : "ltr"}>
       <header className="ms-card p-4 sm:p-5">
         <p className="ms-kicker">{t.title}</p>
-        <p className="mt-1.5 text-sm leading-6 text-slate-600">{t.subtitle}</p>
         {result.requiresScholarReview ? <p className="ms-notice mt-3 font-extrabold!">{t.reviewRequired}</p> : null}
       </header>
 
@@ -186,10 +185,9 @@ export function CalculationTrace({ result, language = "en", heirLabels }: Props)
       <section className="ms-trace-card" aria-labelledby="audit-schedule-heading">
         <div className="ms-trace-head">
           <h3 id="audit-schedule-heading">{t.schedule}</h3>
-          <p>{t.scheduleNote}</p>
         </div>
         <div className="ms-trace-body">
-          <div className="grid gap-2 pt-2.5 sm:grid-cols-2" role="list">
+          <div className="grid gap-2 pt-2 sm:grid-cols-2" role="list">
             {trace.rows.length ? trace.rows.map((row) => (
               <article key={`${row.key}-${row.method}`} role="listitem" className="ms-audit-row premium-pop">
                 <div className="min-w-0">
@@ -197,7 +195,7 @@ export function CalculationTrace({ result, language = "en", heirLabels }: Props)
                   <p className="ms-audit-share">
                     <span className="ms-hl-yellow num">{fractionToText(row.fraction)}</span>
                     <span className="ms-hl-yellow num">{row.percentage.toFixed(2)}%</span>
-                    <span>· {t.count} <span className="num">{row.count}</span> · {STATUS_LABEL[language][row.method]}</span>
+                    <span className="num">×{row.count}</span>
                   </p>
                 </div>
                 <div className="ms-audit-amount">
@@ -214,23 +212,22 @@ export function CalculationTrace({ result, language = "en", heirLabels }: Props)
         <section className="ms-trace-card">
           <div className="ms-trace-head"><h3>{t.fixedWork}</h3></div>
           <div className="ms-trace-body">
-            <p className="num mt-2.5 rounded-xl bg-slate-50 px-3 py-2.5 text-sm font-bold text-slate-800">
+            <p className="ms-trace-formula num mt-2">
               {fractionToText(trace.fixedShareTotal)} × {money(result.netEstate)} = {money(fixedAmount)}
             </p>
             <p className="mt-2 text-xs text-slate-600">{t.fixedUnitsSum}: <strong className="num text-slate-900">{fixedUnits}</strong> / <strong className="num text-slate-900">{trace.baseLcm}</strong> · {t.fixedAmount}: <strong className="num text-slate-900">{money(fixedAmount)}</strong></p>
           </div>
         </section>
 
-        <section className="ms-trace-card border-[rgba!(184,137,45,0.4)]">
+        <section className="ms-trace-card border-[rgba(184,137,45,0.4)]">
           <div className="ms-trace-head bg-[#fdf6e3]!"><h3 className="text-[#7c5a1c]!">{t.remainderWork}</h3></div>
           <div className="ms-trace-body">
-            <p className="num mt-2.5 rounded-xl bg-[#fdf6e3] px-3 py-2.5 text-sm font-bold text-[#7c5a1c]">
+            <p className="ms-trace-formula ms-trace-formula-gold num mt-2">
               {money(result.netEstate)} × {fractionToText(trace.remainder)} = {money(remainderAmount)}
             </p>
             {remainderRows.length ? (
               <div className="mt-3 space-y-2">
                 <p className="text-xs font-extrabold text-[#7c5a1c]">{t.rule}: {totalRemainderParts} {t.parts}</p>
-                <p className="text-xs text-[#7c5a1c]">{t.asabahRule}</p>
                 {remainderRows.map((row) => (
                   <p key={`remainder-${row.key}`} className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 border-t border-[rgba(184,137,45,0.3)] pt-2 text-xs text-[#7c5a1c]">
                     <span className="font-bold">{nameFor(row.key, row.label, heirLabels)} × {row.count} · {row.integerShares} {t.parts}</span>
@@ -240,7 +237,6 @@ export function CalculationTrace({ result, language = "en", heirLabels }: Props)
               </div>
             ) : redistributionRows.length ? (
               <div className="mt-3 space-y-2">
-                <p className="text-xs text-[#7c5a1c]">{t.raddRule}</p>
                 {redistributionRows.map((row) => (
                   <p key={`returned-${row.key}`} className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 border-t border-[rgba(184,137,45,0.3)] pt-2 text-xs text-[#7c5a1c]">
                     <span className="font-bold">{nameFor(row.key, row.label, heirLabels)} × {row.count} · {t.returned}</span>
@@ -255,7 +251,7 @@ export function CalculationTrace({ result, language = "en", heirLabels }: Props)
         </section>
       </div>
 
-      <section className="ms-trace-card border-[rgba!(22,120,80,0.3)]" aria-labelledby="reconciliation-heading">
+      <section className="ms-trace-card border-[rgba(22,120,80,0.3)]" aria-labelledby="reconciliation-heading">
         <div className="ms-trace-head bg-[#f0faf4]!">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h3 id="reconciliation-heading" className="text-[#14532d]!">{t.reconciliation}</h3>
@@ -265,13 +261,13 @@ export function CalculationTrace({ result, language = "en", heirLabels }: Props)
           </div>
         </div>
         <div className="ms-trace-body">
-          <div className="grid gap-2 pt-2.5 sm:grid-cols-2">
-            <div className="rounded-xl border border-emerald-200 bg-white/80 p-3">
+          <div className="grid gap-2 pt-2 sm:grid-cols-2">
+            <div className="ms-trace-check">
               <p className="text-xs font-bold text-emerald-800">{t.unitCheck}</p>
               <p className="num mt-1 break-words text-sm font-extrabold text-emerald-950">{fixedUnitsReported} + {remainderUnitsReported} = {totalUnitsReported}</p>
               <p className="mt-1 text-xs text-emerald-800">{unitsPass ? t.pass : t.fail}</p>
             </div>
-            <div className="rounded-xl border border-emerald-200 bg-white/80 p-3">
+            <div className="ms-trace-check">
               <p className="text-xs font-bold text-emerald-800">{t.amountCheck}</p>
               <p className="num mt-1 break-words text-sm font-extrabold text-emerald-950">{money(check.distributedMoney)} + {money(check.heldBackMoney)} = {money(check.netEstate)}</p>
               <p className="mt-1 text-xs text-emerald-800">{t.distributed}: {money(check.distributedMoney)} · {t.heldBack}: {money(check.heldBackMoney)}</p>
@@ -295,10 +291,9 @@ export function CalculationTrace({ result, language = "en", heirLabels }: Props)
         </div>
       </section>
 
-      <details open className="ms-trace-card">
+      <details className="ms-trace-card">
         <summary className="ms-trace-head cursor-pointer list-inside">
           <span className="text-sm font-extrabold text-slate-950">{t.trace}</span> <span className="text-xs font-semibold text-slate-500">· {trace.steps.length} {t.step}</span>
-          <p className="mt-1 text-xs font-normal text-slate-500">{t.traceNote}</p>
         </summary>
         <div className="ms-trace-body">
           <ol className="grid gap-2.5 pt-2.5">

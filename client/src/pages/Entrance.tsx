@@ -100,6 +100,7 @@ export default function Entrance() {
                 </span>
               </h1>
               <span className="ent-rule ent-rise" style={{ animationDelay: "170ms" }} aria-hidden="true" />
+              <p className="ent-welcome-sub ent-rise" style={{ animationDelay: "200ms" }}>to the Islamic Inheritance Calculator</p>
               <p className="ent-brand ent-rise" style={{ animationDelay: "230ms" }}>Miraasu</p>
               <article className="ent-hadith ent-rise" lang="en" style={{ animationDelay: "280ms" }}>
                 <p className="ent-hadith-kicker">A teaching on inheritance</p>
@@ -117,7 +118,6 @@ export default function Entrance() {
             <section key="language" className="ent-section">
               <div className="ent-head ent-rise">
                 <h1 className="ent-title">Choose your language</h1>
-                <p className="ent-sub"><span lang="ta">மொழியைத் தேர்ந்தெடுக்கவும்</span> · <span lang="ar">اختر لغتك</span></p>
               </div>
               <div className="ent-lang-grid">
                 {LANGUAGES.map((item, index) => (
