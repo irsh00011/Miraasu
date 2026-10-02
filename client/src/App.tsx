@@ -6,6 +6,7 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import EnglishHome from "./pages/EnglishHome";
 import ArabicHome from "./pages/ArabicHome";
+import UrduHome from "./pages/UrduHome";
 import Home from "./pages/Home";
 import ResearchPage from "./pages/ResearchPage";
 import Entrance from "./pages/Entrance";
@@ -18,6 +19,7 @@ function Router() {
       <Route path={"/ta"} component={Home} />
       <Route path={"/en"} component={EnglishHome} />
       <Route path={"/ar"} component={ArabicHome} />
+      <Route path={"/ur"} component={UrduHome} />
       <Route path={"/research"} component={ResearchPage} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}

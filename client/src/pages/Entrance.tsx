@@ -1,15 +1,15 @@
 /**
  * Design: Entrance flow — three quiet screens.
  *   1. Welcome  → only "Welcome" and one Start button.
- *   2. Language → three premium cards (Tamil · English · Arabic).
+ *   2. Language → four premium cards (Tamil · English · Arabic · Urdu).
  *   3. Gender   → two premium cards with a single symbol each, shown in the chosen language.
- * Frontend only: no calculation or routing logic is changed. Language cards still open /ta, /en, /ar.
+ * Frontend only: no calculation or routing logic is changed. Language cards still open /ta, /en, /ar, /ur.
  */
 import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, ChevronRight } from "lucide-react";
 import { useLocation } from "wouter";
 
-type Lang = "ta" | "en" | "ar";
+type Lang = "ta" | "en" | "ar" | "ur";
 type Step = "welcome" | "language" | "gender";
 type Gender = "male" | "female";
 
@@ -17,12 +17,14 @@ const LANGUAGES: { code: Lang; href: string; native: string; label: string; mark
   { code: "ta", href: "/ta", native: "தமிழ்", label: "Tamil", mark: "த" },
   { code: "en", href: "/en", native: "English", label: "English", mark: "En" },
   { code: "ar", href: "/ar", native: "العربية", label: "Arabic", mark: "ع" },
+  { code: "ur", href: "/ur", native: "اردو", label: "Urdu", mark: "ا" },
 ];
 
 const COPY: Record<Lang, { back: string; title: string; hint: string; male: string; female: string }> = {
   ta: { back: "பின்செல்", title: "யார் காலமானார்?", hint: "தொடர ஒன்றைத் தேர்ந்தெடுக்கவும்", male: "ஆண்", female: "பெண்" },
   en: { back: "Back", title: "Who has passed away?", hint: "Choose one to continue", male: "Male", female: "Female" },
   ar: { back: "رجوع", title: "من المتوفى؟", hint: "اختر للمتابعة", male: "رجل", female: "امرأة" },
+  ur: { back: "واپس", title: "متوفی کون ہے؟", hint: "جاری رکھنے کے لیے منتخب کریں", male: "مرد", female: "عورت" },
 };
 
 /** Simple line symbols (♂ / ♀), drawn locally so they stay crisp at any size. */
@@ -54,7 +56,7 @@ export default function Entrance() {
   useEffect(() => () => window.clearTimeout(timer.current), []);
 
   const copy = COPY[lang];
-  const rtl = step === "gender" && lang === "ar";
+  const rtl = step === "gender" && (lang === "ar" || lang === "ur");
 
   const chooseLanguage = (code: Lang) => {
     setLang(code);
