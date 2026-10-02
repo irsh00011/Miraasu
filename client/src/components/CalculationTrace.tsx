@@ -189,22 +189,20 @@ export function CalculationTrace({ result, language = "en", heirLabels }: Props)
           <p>{t.scheduleNote}</p>
         </div>
         <div className="ms-trace-body">
-          <div className="grid gap-2.5 pt-2.5 sm:grid-cols-2" role="list">
+          <div className="grid gap-2 pt-2.5 sm:grid-cols-2" role="list">
             {trace.rows.length ? trace.rows.map((row) => (
-              <article key={`${row.key}-${row.method}`} role="listitem" className="premium-pop min-w-0 rounded-xl border border-[rgba(22,79,134,0.12)] bg-white p-3">
-                <div className="flex min-w-0 items-start justify-between gap-2">
-                  <div className="min-w-0">
-                    <h4 className="break-words text-sm font-extrabold text-slate-950">{nameFor(row.key, row.label, heirLabels)}</h4>
-                    <p className="mt-1 text-xs font-semibold text-slate-500">{t.count}: <span className="num">{row.count}</span></p>
-                  </div>
-                  <span className="ms-tag ms-tag-fraction shrink-0 text-[11px]!">{STATUS_LABEL[language][row.method]}</span>
+              <article key={`${row.key}-${row.method}`} role="listitem" className="ms-audit-row premium-pop">
+                <div className="min-w-0">
+                  <h4 className="ms-audit-name break-words">{nameFor(row.key, row.label, heirLabels)}</h4>
+                  <p className="ms-audit-share">
+                    <span className="ms-hl-yellow num">{fractionToText(row.fraction)}</span>
+                    <span className="ms-hl-yellow num">{row.percentage.toFixed(2)}%</span>
+                    <span>· {t.count} <span className="num">{row.count}</span> · {STATUS_LABEL[language][row.method]}</span>
+                  </p>
                 </div>
-                <div className="mt-3 grid grid-cols-2 gap-1.5 border-t border-[rgba(22,79,134,0.1)] pt-3">
-                  <Value label={t.groupShare} value={fractionToText(row.fraction)} />
-                  <Value label={t.sharePercent} value={`${row.percentage.toFixed(2)}%`} />
-                  <Value label={t.basis} value={row.method === "fixed" ? `${row.integerShares} / ${trace.baseLcm} ${t.fixedUnits}` : `${row.integerShares} ${t.parts}`} />
-                  <Value label={t.groupAmount} value={money(row.amount)} strong />
-                  <Value label={t.perPerson} value={money(row.amount / Math.max(1, row.count))} strong />
+                <div className="ms-audit-amount">
+                  <p className="ms-hl-green num">{money(row.amount)}</p>
+                  <p className="ms-audit-each">{t.perPerson} <span className="num">{money(row.amount / Math.max(1, row.count))}</span></p>
                 </div>
               </article>
             )) : <p className="rounded-xl border border-dashed border-slate-200 p-4 text-sm text-slate-500">{t.noRows}</p>}
@@ -321,7 +319,7 @@ function Metric({ label, value, strong = false }: { label: string; value: string
   return (
     <div className={`min-w-0 rounded-2xl border p-3 ${strong ? "border-[rgba(22,79,134,0.3)] bg-[#eaf2fb]" : "border-[rgba(22,79,134,0.12)] bg-white"}`}>
       <p className="text-[11px] font-bold leading-4 text-slate-500">{label}</p>
-      <p className={`num mt-1 break-words text-sm font-extrabold leading-5 ${strong ? "text-[#164f86]" : "text-slate-950"}`}>{value}</p>
+      <p className="num mt-1 break-words text-sm font-extrabold leading-5 text-[#164f86]">{value}</p>
     </div>
   );
 }
