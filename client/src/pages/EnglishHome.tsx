@@ -1,15 +1,23 @@
-/** Design: English counterpart of the calm white-and-blue inheritance worksheet, preserving the simple three-step flow and local-only data model. */
-/** Design: Ledger of Justice — English worksheet uses the same disciplined, explanation-led flow as Tamil and Arabic. */
+/**
+ * Design: Miraasu Scholarly Ledger — Amount → Family → Result, mirroring the Tamil and Arabic screens.
+ * UI only: state, handlers and every call into @/lib/inheritance are unchanged.
+ */
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, ArrowRight, Calculator, Check, Clock3, FileText, History, LogOut, Plus, Printer, RotateCcw, Trash2, UsersRound } from "lucide-react";
+import { ArrowLeft, Calculator, History, Printer, UsersRound } from "lucide-react";
 import { FamilyList } from "@/components/FamilyList";
-import { LedgerBrandMark } from "@/components/LedgerBrandMark";
+import { BookSourceCard } from "@/components/BookSourceCard";
 import { aggregateAllocationsForDisplay, asabahPartsFor, calculateInheritance, fractionToNumber, fractionToText, sourcePercentage, type EstateInput, type HeirInput } from "@/lib/inheritance";
 import { CalculationTrace } from "@/components/CalculationTrace";
+import { AppHeader } from "@/components/calc/AppHeader";
+import { EstateStep } from "@/components/calc/EstateStep";
+import { HistoryView } from "@/components/calc/HistoryView";
+import { ResultHero } from "@/components/calc/ResultHero";
+import { SegmentedTabs } from "@/components/calc/SegmentedTabs";
+import { ShareCard } from "@/components/calc/ShareCard";
+import { StepBar, StepNav, type Step } from "@/components/calc/StepBar";
 import { readCalculationHistory, writeCalculationHistory, type SavedCalculation } from "@/lib/localHistory";
 
-type Step = 1 | 2 | 3;
-type View = "welcome" | "calculator" | "history";
+type View = "calculator" | "history";
 
 const initialEstate: EstateInput = { grossEstate: 0, funeralCosts: 0, debts: 0, bequest: 0 };
 const initialHeirs: HeirInput = {
@@ -19,18 +27,11 @@ const initialHeirs: HeirInput = {
   fullBrothersDaughters: 0, fullSistersChildren: 0, maternalBrothersChildren: 0, fathersMaternalBrothers: 0, fathersMaternalBrothersDescendants: 0, mothersSiblings: 0, mothersSiblingsDescendants: 0,
 };
 
+const stepLabels = ["Amount", "Family", "Result"] as const;
 const money = (value: number) => new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 2 }).format(Number.isFinite(value) ? value : 0);
 const heirCount = (heirs: HeirInput) => Object.values(heirs).reduce((total, item) => total + item, 0);
 const formatDate = (value: string) => new Intl.DateTimeFormat("en-IN", { day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(value));
 const labels: Record<string, string> = { husband: "Husband", wives: "Wife / wives", mother: "Mother", father: "Father", paternalGrandfather: "Father’s father", sons: "Sons", daughters: "Daughters", sonsSons: "Sons of sons", sonsDaughters: "Daughters of sons", paternalGrandmothers: "Father’s mother", maternalGrandmothers: "Mother’s mother", fullBrothers: "Full brothers", fullSisters: "Full sisters", paternalBrothers: "Paternal half-brothers", paternalSisters: "Paternal half-sisters", maternalBrothers: "Maternal half-brothers", maternalSisters: "Maternal half-sisters" };
-
-function BrandMark() {
-  return <img src="/book-cover-icon-192.png" alt="" className="size-10 shrink-0 rounded-2xl object-cover shadow-lg shadow-blue-200" />;
-}
-
-function StepProgress({ step, onBack }: { step: Step; onBack: (step: Step) => void }) {
-  return <div className="flex items-center gap-2" aria-label={`Step ${step} of 3`}>{["Estate", "Family", "Result"].map((label, index) => { const current = (index + 1) as Step; const done = current < step; return <button key={label} type="button" onClick={() => done && onBack(current)} disabled={!done} className={`flex min-h-9 items-center gap-2 rounded-full px-3 text-xs font-bold ${current === step ? "bg-[#133D76] text-white" : done ? "bg-blue-100 text-[#133D76] hover:bg-blue-200" : "bg-slate-100 text-slate-400"}`}><span className="grid size-5 place-items-center rounded-full bg-white/20 text-[11px]">{done ? <Check size={12} /> : current}</span><span className="hidden sm:inline">{label}</span></button>; })}</div>;
-}
 
 function noticeInEnglish(notice: string) {
   if (notice.includes("சொத்து மதிப்பை")) return "Enter the estate value to continue.";
@@ -50,14 +51,14 @@ function noticeInEnglish(notice: string) {
 }
 
 export default function EnglishHome() {
-  const [view, setView] = useState<View>(() => window.location.search.includes("start=1") ? "calculator" : "welcome");
+  const [view, setView] = useState<View>("calculator");
   const [step, setStep] = useState<Step>(1);
   const [estate, setEstate] = useState<EstateInput>(initialEstate);
   const [heirs, setHeirs] = useState<HeirInput>(initialHeirs);
   const [history, setHistory] = useState<SavedCalculation[]>([]);
   const [familyQuery, setFamilyQuery] = useState("");
   const [justSaved, setJustSaved] = useState(false);
-  const [showExplicit, setShowExplicit] = useState(false);
+  const [resultMode, setResultMode] = useState<"simple" | "explicit">("simple");
   const result = useMemo(() => calculateInheritance(estate, heirs), [estate, heirs]);
   const fingerprint = useMemo(() => JSON.stringify({ estate, heirs }), [estate, heirs]);
   const distributedTotal = useMemo(() => result.allocations.reduce((total, item) => total + result.netEstate * fractionToNumber(item.share), 0), [result]);
@@ -72,7 +73,7 @@ export default function EnglishHome() {
   const updateHeir = (key: keyof HeirInput, value: number) => setHeirs((current) => ({ ...current, [key]: Math.max(0, value) }));
   const resetHeirKeys = (keys: (keyof HeirInput)[]) => setHeirs((current) => Object.fromEntries(Object.entries(current).map(([key, value]) => [key, keys.includes(key as keyof HeirInput) ? 0 : value])) as HeirInput);
   const openCalculator = () => { setJustSaved(false); setView("calculator"); setStep(1); };
-  const startNew = () => { setEstate(initialEstate); setHeirs(initialHeirs); setFamilyQuery(""); window.location.assign("/"); };
+  const startNew = () => { setEstate(initialEstate); setHeirs(initialHeirs); setFamilyQuery(""); openCalculator(); };
   const saveCalculation = () => {
     if (result.netEstate <= 0 || result.allocations.length === 0) return;
     const record: SavedCalculation = { id: crypto.randomUUID(), fingerprint, createdAt: new Date().toISOString(), estate, heirs, netEstate: result.netEstate, totalHeirs: heirCount(heirs) };
@@ -82,18 +83,151 @@ export default function EnglishHome() {
   const finishCalculation = () => { setJustSaved(false); setStep(3); saveCalculation(); };
   const reopen = (record: SavedCalculation) => { setEstate(record.estate); setHeirs(record.heirs); setView("calculator"); setStep(3); };
   const deleteRecord = (id: string) => setHistory((current) => { const next = current.filter((item) => item.id !== id); writeCalculationHistory(next); return next; });
-  const moneyInput = (key: keyof EstateInput, label: string, help?: string) => <label className="block"><span className="mb-2 block text-sm font-bold text-slate-800">{label}</span><div className="relative"><span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 font-bold text-[#133D76]">₹</span><input type="number" inputMode="decimal" min="0" value={estate[key] || ""} onChange={(event) => updateEstate(key, Number(event.target.value))} onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); setStep(2); } }} className="w-full rounded-2xl border border-slate-200 bg-white py-3.5 pl-9 pr-4 text-lg font-bold tabular-nums text-slate-950 outline-none transition focus:border-[#133D76] focus:ring-4 focus:ring-blue-100" placeholder="0" /></div>{help ? <span className="mt-1.5 block text-xs leading-5 text-slate-500">{help}</span> : null}</label>;
 
-  return <div className="min-h-screen bg-slate-50 text-slate-900">
-    <header className="border-b border-blue-100 bg-white"><div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3.5 sm:px-6"><button type="button" onClick={() => setView("welcome")} className="flex min-w-0 items-center gap-2.5 text-left"><BrandMark /><div className="min-w-0"><p className="truncate text-base font-extrabold tracking-tight text-slate-950">Mīrāth Calculator</p><p className="truncate text-[11px] text-slate-500">Reason-led inheritance worksheet</p></div></button><div className="flex gap-1"><a href="/ta" className="inline-flex min-h-10 items-center rounded-xl bg-blue-50 px-3 text-sm font-bold text-[#133D76] hover:bg-blue-100">தமிழ்</a><a href="/ar" className="inline-flex min-h-10 items-center rounded-xl bg-blue-50 px-3 text-sm font-bold text-[#133D76] hover:bg-blue-100">العربية</a>{view !== "history" ? <button type="button" onClick={() => setView("history")} className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-blue-50 px-3 text-sm font-bold text-[#133D76] hover:bg-blue-100"><History size={17} /><span className="hidden sm:inline">History</span></button> : null}</div></div></header>
-    <main className="mx-auto max-w-5xl px-4 py-7 sm:px-6 sm:py-10">
-      {view === "welcome" ? <section className="page-enter mx-auto max-w-3xl py-4 sm:py-10"><div className="worksheet-frame overflow-hidden bg-white"><div className="grid lg:grid-cols-[1.15fr_0.85fr]"><div className="worksheet-spine px-6 py-8 sm:px-10 sm:py-11"><div className="flex items-center gap-3 text-[#133D76]"><span className="grid size-11 place-items-center border-y-2 border-[#133D76] bg-blue-50"><LedgerBrandMark className="size-7" /></span><p className="text-sm font-extrabold tracking-wide">INHERITANCE WORKSHEET</p></div><p className="mt-8 text-sm font-bold text-[#133D76]">Prepare the details first</p><h1 className="mt-2 font-serif text-3xl font-bold leading-tight tracking-tight text-slate-950 sm:text-4xl">See the reason behind every inheritance share.</h1><p className="mt-4 max-w-xl text-base leading-7 text-slate-600">Record the estate and surviving relatives. The calculator shows each share, amount, and explanation.</p><button type="button" onClick={openCalculator} className="mt-8 inline-flex min-h-12 items-center gap-2 rounded-xl bg-[#133D76] px-5 py-3 font-extrabold text-white shadow-sm transition hover:bg-[#102F5E] active:scale-[0.98]">Prepare the estate and add heirs <ArrowRight size={18} /></button><div className="mt-7 flex gap-2 border-l-2 border-[#133D76] bg-blue-50/80 px-3 py-2.5 text-sm leading-6 text-slate-600"><Check className="mt-1 shrink-0 text-[#133D76]" size={16} /><p><strong className="text-slate-900">Educational aid only.</strong> Confirm any real distribution with a qualified Islamic inheritance scholar and relevant legal professional.</p></div></div><div className="worksheet-stages border-t border-slate-200 bg-slate-50/70 px-6 py-7 sm:px-10 lg:border-l lg:border-t-0"><p className="text-xs font-extrabold uppercase tracking-[0.14em] text-slate-400">WORKSHEET ORDER</p><ol className="mt-4 divide-y divide-slate-200">{[["01", "Estate", "Prepare the distributable estate"], ["02", "Family", "Add surviving relatives"], ["03", "Review", "Read the share, reason, and amount"]].map(([number, title, detail]) => <li key={number} className="flex gap-3 py-4 first:pt-0"><span className="font-serif text-lg font-bold text-[#133D76]">{number}</span><div><p className="font-extrabold text-slate-900">{title}</p><p className="mt-1 text-xs leading-5 text-slate-500">{detail}</p></div></li>)}</ol><div className="mt-5 border-t border-slate-200 pt-4"><p className="text-xs leading-5 text-slate-500">Saved calculations stay only in this browser.</p>{history.length > 0 ? <button type="button" onClick={() => setView("history")} className="mt-2 text-sm font-bold text-[#133D76] hover:underline">View {history.length} saved records</button> : null}</div></div></div></div></section> : null}
-      {view === "history" ? <section className="page-enter mx-auto max-w-3xl"><div className="flex flex-col gap-4 border-b border-slate-200 pb-5 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-sm font-bold text-[#133D76]">Only on this device</p><h1 className="mt-1 text-2xl font-extrabold tracking-tight text-slate-950">Saved calculations</h1></div><button type="button" onClick={() => setView("welcome")} className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-blue-50 px-3 text-sm font-bold text-[#133D76] hover:bg-blue-100"><ArrowLeft size={16} /> Home</button></div>{history.length === 0 ? <div className="mt-8 rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-14 text-center"><Clock3 className="mx-auto text-[#133D76]" size={26} /><h2 className="mt-4 text-lg font-extrabold text-slate-900">No saved calculation yet</h2><p className="mt-2 text-sm text-slate-600">A completed calculation is automatically saved here.</p><button type="button" onClick={startNew} className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#133D76] px-4 py-2.5 text-sm font-bold text-white"><Plus size={17} /> New calculation</button></div> : <div className="mt-5 space-y-3">{history.map((record) => <article key={record.id} className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"><div className="grid size-11 shrink-0 place-items-center rounded-2xl bg-blue-50 text-[#133D76]"><FileText size={20} /></div><button type="button" onClick={() => reopen(record)} className="min-w-0 flex-1 text-left"><p className="font-extrabold text-slate-900">{money(record.netEstate)}</p><p className="mt-1 truncate text-xs text-slate-500">{formatDate(record.createdAt)} · {record.totalHeirs} selected relatives</p></button><button type="button" onClick={() => deleteRecord(record.id)} className="grid size-10 place-items-center rounded-xl text-slate-400 hover:bg-rose-50 hover:text-rose-700" aria-label="Delete calculation"><Trash2 size={17} /></button></article>)}</div>}</section> : null}
-      {view === "calculator" ? <section className="page-enter mx-auto max-w-3xl"><div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"><StepProgress step={step} onBack={setStep} /><div className="flex flex-wrap gap-1"><button type="button" onClick={startNew} className="inline-flex min-h-10 items-center gap-2 rounded-xl px-3 text-sm font-bold text-slate-500 hover:bg-white hover:text-[#133D76]"><RotateCcw size={16} /> New calculation</button><button type="button" onClick={() => setView("welcome")} className="inline-flex min-h-10 items-center gap-2 rounded-xl px-3 text-sm font-bold text-slate-500 hover:bg-white hover:text-[#133D76]"><LogOut size={16} /> Exit</button></div></div>
-        {step === 1 ? <div className="ledger-panel rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8"><p className="text-sm font-bold text-[#133D76]">STEP 1 OF 3</p><h1 className="mt-1 text-2xl font-extrabold tracking-tight text-slate-950">What is the total estate?</h1><p className="mt-2 text-sm leading-6 text-slate-600">Enter the total value. Add costs or debt only if you need them.</p><div className="mt-7">{moneyInput("grossEstate", "Total estate value")}</div><div className="mt-6"><div className="mb-3 flex items-center justify-between"><p className="text-sm font-extrabold text-slate-900">Additional details</p><span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-bold text-slate-500">Optional</span></div><div className="grid gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:grid-cols-3">{moneyInput("funeralCosts", "Necessary costs")}{moneyInput("debts", "Total debts")}{moneyInput("bequest", "Bequest")}</div></div><div className="mt-8 flex items-center justify-between border-t border-slate-100 pt-5"><div><p className="text-xs font-bold text-slate-400">DISTRIBUTABLE ESTATE</p><p className="mt-1 text-lg font-extrabold tabular-nums text-[#102B52]">{money(result.netEstate)}</p></div><button type="button" onClick={() => setStep(2)} className="inline-flex min-h-12 items-center gap-2 rounded-2xl bg-[#133D76] px-5 py-3 font-extrabold text-white shadow-lg shadow-blue-200 hover:bg-[#102F5E]">Continue <ArrowRight size={18} /></button></div></div> : null}
-        {step === 2 ? <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8"><p className="text-sm font-bold text-[#133D76]">STEP 2 OF 3</p><h1 className="mt-1 text-2xl font-extrabold tracking-tight text-slate-950">Which family members are alive?</h1><p className="mt-2 text-sm leading-6 text-slate-600">Add only surviving relatives. Enter the number for each person.</p><div className="mt-6"><FamilyList heirs={heirs} onChange={updateHeir} onResetAll={() => resetHeirKeys(Object.keys(initialHeirs) as (keyof HeirInput)[])} query={familyQuery} onQueryChange={setFamilyQuery} onSearchEnter={finishCalculation} language="en" /></div><div className="mt-8 flex items-center justify-between border-t border-slate-100 pt-5"><button type="button" onClick={() => setStep(1)} className="inline-flex min-h-11 items-center gap-2 rounded-xl px-3 text-sm font-bold text-slate-500 hover:bg-slate-100"><ArrowLeft size={17} /> Back</button><button type="button" onClick={finishCalculation} className="inline-flex min-h-12 items-center gap-2 rounded-2xl bg-[#133D76] px-5 py-3 font-extrabold text-white shadow-lg shadow-blue-200 hover:bg-[#102F5E]"><Calculator size={18} /> See result</button></div></div> : null}
-        {step === 3 ? <div className="space-y-4"><div className="ledger-summary rounded-3xl bg-[#133D76] p-5 text-white shadow-xl shadow-blue-200 sm:p-7"><p className="text-sm font-bold text-blue-100">STEP 3 OF 3</p><div className="mt-2 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><h1 className="text-2xl font-extrabold tracking-tight">Distribution result</h1><p className="mt-1 text-sm text-blue-100">Each share, amount, and reason appear below.</p></div><p className="rounded-2xl bg-white/10 px-4 py-3 text-xl font-extrabold tabular-nums">{money(result.netEstate)}</p></div>{justSaved ? <p className="mt-4 inline-flex items-center gap-2 rounded-xl bg-white/10 px-3 py-2 text-xs font-bold"><Check size={14} /> This calculation has been saved in local history</p> : null}</div>{result.notices.length > 0 ? <div className="space-y-2">{result.notices.map((notice) => <p key={notice} className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">{noticeInEnglish(notice)}</p>)}</div> : null}{result.requiresScholarReview ? <p className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-extrabold text-amber-900">Scholar review required — this result is not final.</p> : null}<div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7"><div className="border-b border-slate-100 pb-4"><h2 className="text-lg font-extrabold text-slate-950">Who receives what?</h2><p className="mt-1 text-xs text-slate-500">Share and final amount</p></div>{result.allocations.length > 0 ? <><div className="mt-4 space-y-3">{aggregateAllocationsForDisplay(result.allocations).map((item) => { const amount = result.netEstate * fractionToNumber(item.share); const isAsabah = item.method === "remainder"; const parts = asabahPartsFor(item, aggregateAllocationsForDisplay(result.allocations).filter((entry) => entry.method === "remainder")); return <article key={`${item.key}-${item.method}`} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-2xl border border-slate-100 bg-slate-50/70 p-4"><div><p className="font-extrabold text-slate-950">{labels[item.key] ?? item.label}{item.count > 1 ? ` (${item.count})` : ""}</p><p className="mt-1 text-sm font-semibold text-slate-600">{isAsabah ? <><span className="mr-2 rounded-md bg-amber-100 px-1.5 py-0.5 text-xs font-extrabold text-amber-800">Taʿṣīb</span>{parts} {parts === 1 ? "part" : "parts"}{item.count > 1 ? <span className="mt-1 block text-xs font-bold text-amber-800">Per person: {money(amount / item.count)}</span> : null}</> : <>{fractionToText(item.share)} <span className="text-slate-400">·</span> {sourcePercentage(item.share)}</>}</p></div><p className="max-w-[48%] break-words text-right text-lg font-extrabold tabular-nums text-slate-950">{money(amount)}</p></article>; })}</div><div className="mt-4 space-y-1 border-t border-slate-100 pt-4 text-sm font-bold"><p>Total distributed: {money(distributedTotal)}</p>{remainingAmount > 0.005 ? <p className="text-amber-800">Remaining amount: {money(remainingAmount)}</p> : null}</div></> : <div className="py-8 text-center"><UsersRound className="mx-auto text-slate-300" size={30} /><p className="mt-3 font-bold text-slate-700">Add family members to see a result.</p><button type="button" onClick={() => setStep(2)} className="mt-2 text-sm font-bold text-[#133D76] hover:underline">Edit family</button></div>}</div><div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><button type="button" onClick={() => setStep(2)} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-3 text-sm font-bold text-slate-600 hover:bg-white"><ArrowLeft size={17} /> Edit family</button><div className="flex flex-wrap gap-2"><button type="button" onClick={() => setShowExplicit((value) => !value)} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-blue-100 bg-blue-50 px-3 text-sm font-bold text-[#133D76] hover:bg-blue-100">{showExplicit ? "Hide explicit calculation" : "Show explicit calculation"}</button><button type="button" onClick={() => window.print()} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-bold text-slate-700 hover:bg-slate-50"><Printer size={16} /> Print</button><button type="button" onClick={() => setView("history")} className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#133D76] px-4 text-sm font-bold text-white hover:bg-[#102F5E]"><History size={16} /> History</button></div></div><p className="text-center text-xs leading-5 text-slate-500">Educational aid only. Confirm any real distribution with qualified Islamic and legal professionals.</p></div> : null}
-      {showExplicit ? <CalculationTrace result={result} language="en" /> : null}</section> : null}
-    </main>
-  </div>;
+  const displayAllocations = aggregateAllocationsForDisplay(result.allocations);
+  const asabahGroup = displayAllocations.filter((entry) => entry.method === "remainder");
+
+  return (
+    <div className="ms-page ms-watermark">
+      <AppHeader
+        title="Mīrāth Calculator"
+        subtitle="Reason-led inheritance worksheet"
+        homeLabel="Home"
+        historyLabel="History"
+        calculatorLabel="Calculator"
+        historyActive={view === "history"}
+        onToggleHistory={() => setView(view === "history" ? "calculator" : "history")}
+      />
+
+      <main className="ms-container pb-28 pt-6 sm:pb-14 sm:pt-9">
+        {view === "history" ? (
+          <HistoryView
+            kicker="Only on this device"
+            title="Saved calculations"
+            records={history}
+            formatMoney={money}
+            formatDate={formatDate}
+            countText={(count) => `${count} selected relatives`}
+            onOpen={reopen}
+            onDelete={deleteRecord}
+            onNew={startNew}
+            text={{ clear: "Clear all", deleteLabel: "Delete calculation", emptyTitle: "No saved calculation yet", emptyBody: "A completed calculation is automatically saved here.", newLabel: "New calculation" }}
+          />
+        ) : null}
+
+        {view === "calculator" ? (
+          <section className="page-enter">
+            <StepBar step={step} labels={stepLabels} ariaLabel="Steps" resetLabel="New calculation" onGo={setStep} onReset={startNew} />
+
+            {step === 1 ? (
+              <EstateStep
+                estate={estate}
+                onChange={updateEstate}
+                netEstateText={money(result.netEstate)}
+                onNext={() => setStep(2)}
+                notices={result.notices
+                  .filter((notice) => notice.includes("வஸிய்யத்") || notice.includes("பகிரக்கூடிய"))
+                  .map((notice) => <p key={notice} className="ms-notice">{noticeInEnglish(notice)}</p>)}
+                text={{
+                  kicker: "STEP 1 OF 3",
+                  title: "Estate amount",
+                  gross: "Total estate value",
+                  optional: "Optional",
+                  addExtras: "Costs · debts · bequest",
+                  costs: "Necessary costs",
+                  debts: "Total debts",
+                  bequest: "Bequest",
+                  distributable: "DISTRIBUTABLE ESTATE",
+                  next: "Continue",
+                }}
+              />
+            ) : null}
+
+            {step === 2 ? (
+              <div className="ms-card p-4 sm:p-7">
+                <p className="ms-kicker">STEP 2 OF 3</p>
+                <h1 className="ms-h1">Which family members are alive?</h1>
+                <p className="ms-lead">Add only surviving relatives. Enter the number for each person.</p>
+                <div className="mt-5">
+                  <FamilyList heirs={heirs} onChange={updateHeir} onResetAll={() => resetHeirKeys(Object.keys(initialHeirs) as (keyof HeirInput)[])} query={familyQuery} onQueryChange={setFamilyQuery} onSearchEnter={finishCalculation} language="en" />
+                </div>
+                <div className="mt-7 flex items-center justify-between border-t border-[rgba(22,79,134,0.12)] pt-5">
+                  <button type="button" onClick={() => setStep(1)} className="ms-btn ms-btn-ghost min-h-11! px-3! text-sm!"><ArrowLeft size={17} /> Back</button>
+                  <button type="button" onClick={finishCalculation} className="ms-btn ms-btn-primary"><Calculator size={18} /> See result</button>
+                </div>
+              </div>
+            ) : null}
+
+            {step === 3 ? (
+              <div className="space-y-4">
+                <ResultHero kicker="STEP 3 OF 3" title="Distribution result" subtitle="Shares & amounts" amount={money(result.netEstate)} savedNote={justSaved ? "Saved to history" : undefined} />
+
+                {result.notices.length > 0 ? <div className="space-y-2">{result.notices.map((notice) => <p key={notice} className="ms-notice">{noticeInEnglish(notice)}</p>)}</div> : null}
+                {result.requiresScholarReview ? <p className="ms-notice font-extrabold!">Scholar review required — this result is not final.</p> : null}
+
+                <SegmentedTabs value={resultMode} onChange={setResultMode} options={[{ value: "simple", label: "Summary" }, { value: "explicit", label: "Details" }]} />
+
+                {resultMode === "simple" ? (
+                  <div className="result-card-list space-y-2.5">
+                    <h2 className="ms-h2 px-1">Who receives what?</h2>
+                    {result.allocations.length > 0 ? (
+                      <>
+                        {displayAllocations.map((item) => {
+                          const amount = result.netEstate * fractionToNumber(item.share);
+                          const isAsabah = item.method === "remainder";
+                          const parts = asabahPartsFor(item, asabahGroup);
+                          return (
+                            <ShareCard
+                              key={`${item.key}-${item.method}`}
+                              name={labels[item.key] ?? item.label}
+                              count={item.count}
+                              tag={isAsabah ? "Taʿṣīb" : undefined}
+                              fraction={isAsabah ? `${parts} ${parts === 1 ? "part" : "parts"}` : fractionToText(item.share)}
+                              percent={isAsabah ? undefined : sourcePercentage(item.share)}
+                              amount={money(amount)}
+                              perPersonLabel="Per person"
+                              perPerson={isAsabah && item.count > 1 ? money(amount / item.count) : undefined}
+                            />
+                          );
+                        })}
+                        <div className="ms-total-strip">
+                          <span>Total distributed</span>
+                          <strong className="num">{money(distributedTotal)}</strong>
+                        </div>
+                        {remainingAmount > 0.005 ? (
+                          <div className="ms-total-strip bg-[#7c5a1c]!">
+                            <span>Remaining amount</span>
+                            <strong className="num">{money(remainingAmount)}</strong>
+                          </div>
+                        ) : null}
+                      </>
+                    ) : (
+                      <div className="ms-empty">
+                        <UsersRound className="mx-auto text-slate-300" size={30} />
+                        <p className="mt-3 font-bold text-slate-700">Add family members to see a result.</p>
+                        <button type="button" onClick={() => setStep(2)} className="mt-2 text-sm font-bold text-[#164f86] hover:underline">Edit family</button>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <CalculationTrace result={result} language="en" heirLabels={labels} />
+                )}
+
+                <div className="flex flex-col gap-3 pt-1 sm:flex-row sm:items-center sm:justify-between">
+                  <button type="button" onClick={() => setStep(2)} className="ms-btn ms-btn-ghost min-h-11! justify-center text-sm!"><ArrowLeft size={17} /> Edit family</button>
+                  <div className="flex flex-wrap gap-2">
+                    <button type="button" onClick={() => window.print()} className="ms-btn ms-btn-soft min-h-11! text-sm!"><Printer size={16} /> Print</button>
+                    <button type="button" onClick={() => setView("history")} className="ms-btn ms-btn-primary min-h-11! text-sm!"><History size={16} /> History</button>
+                  </div>
+                </div>
+                <BookSourceCard language="en" />
+                <p className="text-center text-xs leading-5 text-slate-500">Educational aid only. Confirm any real distribution with qualified Islamic and legal professionals.</p>
+              </div>
+            ) : null}
+          </section>
+        ) : null}
+      </main>
+      {view === "calculator" ? <StepNav step={step} labels={stepLabels} ariaLabel="Move between steps" onGo={setStep} /> : null}
+    </div>
+  );
 }

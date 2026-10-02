@@ -1,25 +1,11 @@
 /**
- * Design: A very short Tamil-first journey—welcome, calculate, history.
- * The interface uses one focus area per step, calm legal blue, and large touch controls.
+ * Design: Miraasu Scholarly Ledger — Amount → Family → Result, one focus per screen.
+ * UI only: state, handlers and every call into @/lib/inheritance are unchanged.
  */
-import { useEffect, useMemo, useState, type KeyboardEvent } from "react";
-import {
-  ArrowLeft,
-  ArrowRight,
-  Calculator,
-  Check,
-  Clock3,
-  FileText,
-  History,
-  LogOut,
-  Plus,
-  Printer,
-  RotateCcw,
-  Trash2,
-  UsersRound,
-  WalletCards,
-} from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { ArrowLeft, Calculator, History, Printer, UsersRound } from "lucide-react";
 import { FamilyList } from "@/components/FamilyList";
+import { BookSourceCard } from "@/components/BookSourceCard";
 import {
   asabahPartsFor,
   aggregateAllocationsForDisplay,
@@ -31,14 +17,20 @@ import {
   type HeirInput,
 } from "@/lib/inheritance";
 import { CalculationTrace } from "@/components/CalculationTrace";
+import { AppHeader } from "@/components/calc/AppHeader";
+import { EstateStep } from "@/components/calc/EstateStep";
+import { HistoryView } from "@/components/calc/HistoryView";
+import { ResultHero } from "@/components/calc/ResultHero";
+import { SegmentedTabs } from "@/components/calc/SegmentedTabs";
+import { ShareCard } from "@/components/calc/ShareCard";
+import { StepBar, StepNav, type Step } from "@/components/calc/StepBar";
 import {
   readCalculationHistory,
   writeCalculationHistory,
   type SavedCalculation,
 } from "@/lib/localHistory";
 
-type Step = 1 | 2 | 3;
-type View = "welcome" | "calculator" | "history";
+type View = "calculator" | "history";
 
 const initialEstate: EstateInput = { grossEstate: 0, funeralCosts: 0, debts: 0, bequest: 0 };
 const initialHeirs: HeirInput = {
@@ -79,76 +71,13 @@ const initialHeirs: HeirInput = {
   mothersSiblingsDescendants: 0,
 };
 
-const stepLabels = ["தொகை", "உறவுகள்", "முடிவு"];
+const stepLabels = ["தொகை", "உறவுகள்", "முடிவு"] as const;
 const money = (value: number) => new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 2 }).format(Number.isFinite(value) ? value : 0);
 const heirCount = (heirs: HeirInput) => Object.values(heirs).reduce((total, item) => total + item, 0);
 const formatDate = (value: string) => new Intl.DateTimeFormat("ta-IN", { day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(value));
 
-function BrandMark() {
-  return (
-    <img src="/book-cover-icon-192.png" alt="" className="size-10 shrink-0 rounded-2xl object-cover shadow-lg shadow-blue-200" />
-  );
-}
-
-function StepProgress({ step, onBack }: { step: Step; onBack: (target: Step) => void }) {
-  return (
-    <div className="flex items-center gap-2" aria-label={`படி ${step} / 3`}>
-      {stepLabels.map((label, index) => {
-        const id = (index + 1) as Step;
-        const isCurrent = id === step;
-        const complete = id < step;
-        return (
-          <button
-            key={label}
-            type="button"
-            onClick={() => complete && onBack(id)}
-            disabled={!complete}
-            className={`flex min-h-9 items-center gap-2 rounded-full px-3 text-xs font-bold transition ${isCurrent ? "bg-[#133D76] text-white" : complete ? "bg-blue-100 text-[#133D76] hover:bg-blue-200" : "bg-slate-100 text-slate-400"}`}
-          >
-            <span className="grid size-5 place-items-center rounded-full bg-white/20 text-[11px]">{complete ? <Check size={12} /> : id}</span>
-            <span className="hidden sm:inline">{label}</span>
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
-const stepIcons = [WalletCards, UsersRound, Calculator];
-
-function MobileStepNav({ step, onNavigate }: { step: Step; onNavigate: (target: Step) => void }) {
-  return (
-    <nav
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-blue-100 bg-white/95 px-2 pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_16px_rgba(19,61,118,0.08)] backdrop-blur sm:hidden"
-      aria-label="படிகளுக்கு இடையே செல்ல"
-    >
-      <div className="mx-auto grid max-w-3xl grid-cols-3 gap-1 py-1.5">
-        {stepLabels.map((label, index) => {
-          const id = (index + 1) as Step;
-          const Icon = stepIcons[index];
-          const isCurrent = id === step;
-          const reachable = id <= step;
-          return (
-            <button
-              key={label}
-              type="button"
-              onClick={() => reachable && onNavigate(id)}
-              disabled={!reachable}
-              aria-current={isCurrent ? "step" : undefined}
-              className={`flex min-h-14 flex-col items-center justify-center gap-0.5 rounded-xl text-[11px] font-bold transition ${isCurrent ? "bg-blue-50 text-[#133D76]" : reachable ? "text-slate-500 hover:bg-slate-50" : "text-slate-300"}`}
-            >
-              <Icon size={19} />
-              {label}
-            </button>
-          );
-        })}
-      </div>
-    </nav>
-  );
-}
-
 export default function Home() {
-  const [view, setView] = useState<View>(() => window.location.search.includes("start=1") ? "calculator" : "welcome");
+  const [view, setView] = useState<View>("calculator");
   const [step, setStep] = useState<Step>(1);
   const [estate, setEstate] = useState<EstateInput>(initialEstate);
   const [heirs, setHeirs] = useState<HeirInput>(initialHeirs);
@@ -197,6 +126,8 @@ export default function Home() {
   }, [result]);
 
   useEffect(() => {
+    document.documentElement.lang = "ta";
+    document.title = "மீராஸ் கணக்கீடு";
     setHistory(readCalculationHistory());
   }, []);
 
@@ -238,7 +169,8 @@ export default function Home() {
   const startNewCalculation = () => {
     setEstate(initialEstate);
     setHeirs(initialHeirs);
-    window.location.assign("/");
+    setFamilyQuery("");
+    openCalculator();
   };
 
   const reopenCalculation = (record: SavedCalculation) => {
@@ -263,105 +195,71 @@ export default function Home() {
     writeCalculationHistory([]);
   };
 
-  // ENTER moves focus to the next field inside the same [data-step-fields] container; ENTER on the last field advances the step instead of submitting early.
-  const handleFieldKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (event.key !== "Enter") return;
-    event.preventDefault();
-    const container = event.currentTarget.closest("[data-step-fields]");
-    const fields = container ? Array.from(container.querySelectorAll<HTMLInputElement>("input[data-field]")) : [];
-    const index = fields.indexOf(event.currentTarget);
-    const next = fields[index + 1];
-    if (next) {
-      next.focus();
-      next.select();
-    } else {
-      setStep(2);
-    }
-  };
-
-  const moneyInput = (key: keyof EstateInput, label: string, help?: string, size: "lg" | "xl" = "lg") => (
-    <label className="block">
-      <span className={`mb-2 block font-bold text-slate-800 ${size === "xl" ? "text-base" : "text-sm"}`}>{label}</span>
-      <div className="relative">
-        <span className={`pointer-events-none absolute inset-y-0 left-0 flex items-center font-bold text-[#133D76] ${size === "xl" ? "pl-4 text-2xl" : "pl-4 text-lg"}`}>₹</span>
-        <input
-          type="number"
-          inputMode="decimal"
-          min="0"
-          data-field
-          value={estate[key] || ""}
-          onChange={(event) => updateEstate(key, Number(event.target.value))}
-          onKeyDown={handleFieldKeyDown}
-          className={`w-full rounded-2xl border border-slate-200 bg-white pr-4 font-extrabold tabular-nums text-slate-950 outline-none transition focus:border-[#133D76] focus:ring-4 focus:ring-blue-100 ${size === "xl" ? "py-4 pl-12 text-3xl" : "py-3.5 pl-9 text-lg"}`}
-          placeholder="0"
-        />
-      </div>
-      {help ? <span className="mt-1.5 block text-xs leading-5 text-slate-500">{help}</span> : null}
-    </label>
-  );
+  const shareRows = resultRows.filter((row) => !row.zero);
+  const zeroRows = resultRows.filter((row) => row.zero);
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
-      <header className="border-b border-blue-100 bg-white">
-        <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3.5 sm:px-6">
-          <button type="button" onClick={startNewCalculation} className="flex min-w-0 items-center gap-2.5 text-left" aria-label="முகப்பு">
-            <BrandMark />
-            <div className="min-w-0">
-              <p className="truncate text-base font-extrabold tracking-tight text-slate-950">மீராஸ் கணக்கீடு</p>
-              <p className="truncate text-[11px] text-slate-500">பங்கு காரணம் அறியும் பதிவு</p>
-            </div>
-          </button>
-          <div className="flex gap-1">
-            <a href="/en" className="inline-flex min-h-10 items-center rounded-lg border border-blue-100 bg-blue-50 px-3 text-sm font-bold text-[#133D76] transition hover:bg-blue-100">EN</a>
-            <a href="/ar" className="inline-flex min-h-10 items-center rounded-lg border border-blue-100 bg-blue-50 px-3 text-sm font-bold text-[#133D76] transition hover:bg-blue-100">عربي</a>
-            {view !== "history" ? (
-              <button type="button" onClick={() => setView("history")} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-blue-100 bg-blue-50 px-3 text-sm font-bold text-[#133D76] transition hover:bg-blue-100">
-                <History size={17} /> <span className="hidden sm:inline">வரலாறு</span>
-              </button>
-            ) : (
-              <button type="button" onClick={() => setView("calculator")} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-blue-100 bg-blue-50 px-3 text-sm font-bold text-[#133D76] transition hover:bg-blue-100"><ArrowLeft size={17} /> முகப்பு</button>
-            )}
-          </div>
-        </div>
-      </header>
+    <div className="ms-page ms-watermark">
+      <AppHeader
+        title="மீராஸ் கணக்கீடு"
+        subtitle="பங்கு காரணம் அறியும் பதிவு"
+        homeLabel="முகப்பு"
+        historyLabel="வரலாறு"
+        calculatorLabel="கணக்கீடு"
+        historyActive={view === "history"}
+        onToggleHistory={() => setView(view === "history" ? "calculator" : "history")}
+      />
 
-      <main className="mx-auto max-w-5xl px-4 py-7 pb-28 sm:px-6 sm:py-10 sm:pb-10">
+      <main className="ms-container pb-28 pt-6 sm:pb-14 sm:pt-9">
         {view === "history" ? (
-          <section className="page-enter mx-auto max-w-3xl">
-            <div className="flex flex-col gap-4 border-b border-slate-200 pb-5 sm:flex-row sm:items-end sm:justify-between">
-              <div><p className="text-sm font-bold text-[#133D76]">இந்தச் சாதனத்தில் மட்டும்</p><h1 className="mt-1 text-2xl font-extrabold tracking-tight text-slate-950">சேமித்த கணக்குகள்</h1></div>
-              {history.length > 0 ? <button type="button" onClick={clearHistory} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl px-3 text-sm font-bold text-slate-500 hover:bg-rose-50 hover:text-rose-700"><Trash2 size={16} /> அனைத்தையும் அழி</button> : null}
-            </div>
-            {history.length === 0 ? (
-              <div className="mt-8 rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-14 text-center"><div className="mx-auto grid size-12 place-items-center rounded-2xl bg-blue-50 text-[#133D76]"><Clock3 size={22} /></div><h2 className="mt-4 text-lg font-extrabold text-slate-900">இன்னும் சேமித்த கணக்கு இல்லை</h2><p className="mt-2 text-sm leading-6 text-slate-600">ஒரு கணக்கை முடித்ததும் அது இங்கே தானாக சேமிக்கப்படும்.</p><button type="button" onClick={startNewCalculation} className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#133D76] px-4 py-2.5 text-sm font-bold text-white"><Plus size={17} /> புதிய கணக்கு</button></div>
-            ) : (
-              <div className="mt-5 space-y-3">{history.map((record) => <article key={record.id} className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-blue-200"><div className="grid size-11 shrink-0 place-items-center rounded-2xl bg-blue-50 text-[#133D76]"><FileText size={20} /></div><button type="button" onClick={() => reopenCalculation(record)} className="min-w-0 flex-1 text-left"><p className="font-extrabold text-slate-900">{money(record.netEstate)}</p><p className="mt-1 truncate text-xs text-slate-500">{formatDate(record.createdAt)} · {record.totalHeirs} உறவுகள்</p></button><button type="button" onClick={() => deleteHistoryItem(record.id)} className="grid size-10 place-items-center rounded-xl text-slate-400 hover:bg-rose-50 hover:text-rose-700" aria-label="கணக்கை அழிக்க"><Trash2 size={17} /></button></article>)}</div>
-            )}
-          </section>
+          <HistoryView
+            kicker="இந்தச் சாதனத்தில் மட்டும்"
+            title="சேமித்த கணக்குகள்"
+            records={history}
+            formatMoney={money}
+            formatDate={formatDate}
+            countText={(count) => `${count} உறவுகள்`}
+            onOpen={reopenCalculation}
+            onDelete={deleteHistoryItem}
+            onClear={clearHistory}
+            onNew={startNewCalculation}
+            text={{ clear: "அனைத்தையும் அழி", deleteLabel: "கணக்கை அழிக்க", emptyTitle: "இன்னும் சேமித்த கணக்கு இல்லை", emptyBody: "ஒரு கணக்கை முடித்ததும் அது இங்கே தானாக சேமிக்கப்படும்.", newLabel: "புதிய கணக்கு" }}
+          />
         ) : null}
 
         {view === "calculator" ? (
-          <section className="page-enter mx-auto max-w-3xl">
-            <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <StepProgress step={step} onBack={setStep} />
-              <div className="flex flex-wrap gap-1"><button type="button" onClick={startNewCalculation} className="inline-flex min-h-10 items-center gap-2 self-start rounded-xl px-3 text-sm font-bold text-slate-500 hover:bg-white hover:text-[#133D76]"><RotateCcw size={16} /> புதிய கணக்கு</button><button type="button" onClick={startNewCalculation} className="inline-flex min-h-10 items-center gap-2 self-start rounded-xl px-3 text-sm font-bold text-slate-500 hover:bg-white hover:text-[#133D76]"><LogOut size={16} /> புதிதாகத் தொடங்கு</button></div>
-            </div>
+          <section className="page-enter">
+            <StepBar step={step} labels={stepLabels} ariaLabel="படிகள்" resetLabel="புதிய கணக்கு" onGo={setStep} onReset={startNewCalculation} />
 
             {step === 1 ? (
-              <div className="overflow-hidden rounded-3xl border border-blue-100 bg-white shadow-xl shadow-blue-100/60" data-step-fields>
-                <div className="bg-gradient-to-br from-[#133D76] to-[#1d6fc4] px-5 py-7 text-white sm:px-8 sm:py-9"><p className="text-xs font-bold tracking-[0.16em] text-blue-100">01 / 03</p><h1 className="mt-3 text-3xl font-extrabold tracking-tight">மொத்த சொத்து</h1></div>
-                <div className="p-5 sm:p-8"><div className="rounded-2xl border border-blue-100 bg-blue-50/60 p-4 sm:p-5">{moneyInput("grossEstate", "மொத்தச் சொத்து மதிப்பு", "கடன் அல்லது செலவுகள் இருந்தால் கீழே சேர்க்கலாம்.", "xl")}</div>
-                <div className="mt-6"><div className="mb-3 flex items-center justify-between"><p className="text-sm font-extrabold text-slate-900">கழிவுகள்</p><span className="text-[11px] font-bold text-slate-400">தேவைப்பட்டால்</span></div><div className="grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:grid-cols-3">{moneyInput("funeralCosts", "செலவு")}{moneyInput("debts", "கடன்")}{moneyInput("bequest", "வஸிய்யத்")}</div></div>
-                {result.notices.filter((notice) => notice.includes("வஸிய்யத்") || notice.includes("பகிரக்கூடிய")).map((notice) => <p key={notice} className="mt-4 rounded-xl bg-amber-50 px-3 py-2 text-sm leading-6 text-amber-900">{notice}</p>)}
-                <div className="mt-8 flex flex-col gap-4 border-t border-slate-100 pt-5 sm:flex-row sm:items-center sm:justify-between"><div><p className="text-xs font-bold text-slate-400">பகிரக்கூடிய தொகை</p><p className="mt-1 text-2xl font-extrabold tabular-nums text-[#102B52]">{money(result.netEstate)}</p></div><button type="button" onClick={() => setStep(2)} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-[#133D76] px-5 py-3 font-extrabold text-white shadow-lg shadow-blue-200 transition hover:bg-[#102F5E] active:scale-[0.98]">தொடர்க <ArrowRight size={18} /></button></div></div>
-              </div>
+              <EstateStep
+                estate={estate}
+                onChange={updateEstate}
+                netEstateText={money(result.netEstate)}
+                onNext={() => setStep(2)}
+                notices={result.notices
+                  .filter((notice) => notice.includes("வஸிய்யத்") || notice.includes("பகிரக்கூடிய"))
+                  .map((notice) => <p key={notice} className="ms-notice">{notice}</p>)}
+                text={{
+                  kicker: "படி 1 / 3",
+                  title: "மொத்த சொத்து",
+                  gross: "மொத்தச் சொத்து மதிப்பு",
+                  optional: "விருப்பம்",
+                  addExtras: "அடக்கச் செலவு · கடன் · வஸிய்யத்",
+                  costs: "அடக்கச் செலவு",
+                  debts: "கடன்",
+                  bequest: "வஸிய்யத்",
+                  distributable: "பகிரக்கூடிய தொகை",
+                  next: "தொடர்க",
+                }}
+              />
             ) : null}
 
             {step === 2 ? (
-              <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8">
-                <p className="text-sm font-bold text-[#133D76]">படி 2 / 3</p>
-                <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-slate-950">குடும்பத்தில் யார் உள்ளனர்?</h1>
-                <p className="mt-1 text-xs leading-5 text-slate-500">உயிருடன் இருப்பவர்களை மட்டும் தட்டவும் / எண்ணிக்கை மாற்றவும்.</p>
+              <div className="ms-card p-4 sm:p-7">
+                <p className="ms-kicker">படி 2 / 3</p>
+                <h1 className="ms-h1">குடும்பத்தில் யார் உள்ளனர்?</h1>
+                <p className="ms-lead">உயிருடன் இருப்பவர்களை மட்டும் தட்டவும் / எண்ணிக்கை மாற்றவும்.</p>
                 <div className="mt-5">
                   <FamilyList
                     heirs={heirs}
@@ -373,52 +271,83 @@ export default function Home() {
                     language="ta"
                   />
                 </div>
-                <div className="mt-8 flex items-center justify-between border-t border-slate-100 pt-5"><button type="button" onClick={() => setStep(1)} className="inline-flex min-h-11 items-center gap-2 rounded-xl px-3 text-sm font-bold text-slate-500 hover:bg-slate-100"><ArrowLeft size={17} /> பின்செல்</button><button type="button" onClick={finishCalculation} className="inline-flex min-h-12 items-center gap-2 rounded-2xl bg-[#133D76] px-5 py-3 font-extrabold text-white shadow-lg shadow-blue-200 transition hover:bg-[#102F5E] active:scale-[0.98]"><Calculator size={18} /> முடிவைப் பார்க்கவும்</button></div>
+                <div className="mt-7 flex items-center justify-between border-t border-[rgba(22,79,134,0.12)] pt-5">
+                  <button type="button" onClick={() => setStep(1)} className="ms-btn ms-btn-ghost min-h-11! px-3! text-sm!"><ArrowLeft size={17} /> பின்செல்</button>
+                  <button type="button" onClick={finishCalculation} className="ms-btn ms-btn-primary"><Calculator size={18} /> முடிவைப் பார்க்கவும்</button>
+                </div>
               </div>
             ) : null}
 
             {step === 3 ? (
               <div className="space-y-4">
-                <div className="ledger-summary rounded-3xl bg-[#133D76] p-5 text-white shadow-xl shadow-blue-200 sm:p-7"><p className="text-sm font-bold text-blue-100">படி 3 / 3</p><div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"><div><h1 className="text-2xl font-extrabold tracking-tight">பங்கீட்டு முடிவு</h1><p className="mt-1 text-sm text-blue-100">ஒவ்வொரு வாரிசின் இறுதி தொகை</p></div><p className="break-words text-3xl font-extrabold tabular-nums sm:text-5xl">{money(result.netEstate)}</p></div></div>
-                <div className="grid grid-cols-2 gap-2 rounded-2xl bg-slate-100 p-1"><button type="button" onClick={() => setResultMode("simple")} className={`rounded-xl px-3 py-3 text-sm font-extrabold ${resultMode === "simple" ? "bg-white text-[#133D76] shadow-sm" : "text-slate-500"}`}>எளிய முடிவு</button><button type="button" onClick={() => setResultMode("explicit")} className={`rounded-xl px-3 py-3 text-sm font-extrabold ${resultMode === "explicit" ? "bg-white text-[#133D76] shadow-sm" : "text-slate-500"}`}>விரிவான கணக்கு</button></div>
-                {resultMode === "simple" ? <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
-                  <h2 className="text-lg font-extrabold text-slate-950">யாருக்கு எவ்வளவு?</h2>
-                  {resultRows.length > 0 ? (
-                    <>
-                    <ul className="mt-4 space-y-3">
-                      {resultRows.filter((row) => !row.zero).map((row) => (
-                        <li key={row.key} className={`grid min-h-24 grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-2xl border p-3.5 sm:grid-cols-[minmax(0,1fr)_minmax(76px,auto)_auto] sm:gap-5 sm:p-4 ${row.zero ? "border-rose-200 bg-rose-50" : "border-slate-100 bg-slate-50/70"}`}>
-                          <div className="min-w-0">
-                            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                            <span className={`text-base font-extrabold ${row.zero ? "text-rose-800" : "text-slate-950"}`}>{row.label}{row.count > 1 ? ` (${row.count})` : ""}</span>
-                            {row.zero ? <span className="rounded-md bg-rose-200 px-1.5 py-0.5 text-[10px] font-extrabold text-rose-800">பங்கு இல்லை</span> : row.isAsabah ? <span className="rounded-md bg-amber-100 px-1.5 py-0.5 text-[10px] font-extrabold text-amber-800">அஸபா</span> : null}
-                            </div>
+                <ResultHero kicker="படி 3 / 3" title="பங்கீட்டு முடிவு" subtitle="பங்குகள் · தொகைகள்" amount={money(result.netEstate)} savedNote={justSaved ? "வரலாற்றில் சேமிக்கப்பட்டது" : undefined} />
+                <SegmentedTabs
+                  value={resultMode}
+                  onChange={setResultMode}
+                  options={[{ value: "simple", label: "சுருக்கம்" }, { value: "explicit", label: "விவரம்" }]}
+                />
+
+                {resultMode === "simple" ? (
+                  <div className="result-card-list space-y-2.5">
+                    <h2 className="ms-h2 px-1">யாருக்கு எவ்வளவு?</h2>
+                    {resultRows.length > 0 ? (
+                      <>
+                        {shareRows.map((row) => (
+                          <ShareCard
+                            key={row.key}
+                            name={row.label}
+                            count={row.count}
+                            tag={row.isAsabah ? "அஸபா" : undefined}
+                            fraction={row.fractionText}
+                            percent={row.percentText}
+                            amount={money(row.amount)}
+                            perPersonLabel="ஒருவருக்கு"
+                            perPerson={row.isAsabah && row.perPerson !== null ? money(row.perPerson) : undefined}
+                          />
+                        ))}
+                        <div className="ms-total-strip">
+                          <span>மொத்தம் பகிரப்பட்டது</span>
+                          <strong className="num">{money(distributedTotal)}</strong>
+                        </div>
+                        {remainingAmount > 0.005 ? (
+                          <div className="ms-total-strip bg-[#7c5a1c]!">
+                            <span>மீதமுள்ள தொகை</span>
+                            <strong className="num">{money(remainingAmount)}</strong>
                           </div>
-                          <div className="col-start-1 border-t border-slate-200 pt-2 text-left sm:col-start-2 sm:border-l sm:border-t-0 sm:pl-5 sm:pt-0 sm:text-center">
-                            <p className={`whitespace-nowrap text-sm font-extrabold sm:text-base ${row.zero ? "text-rose-700" : "text-[#133D76]"}`}>{row.fractionText}</p>
-                            {row.percentText ? <p className="mt-0.5 whitespace-nowrap text-[11px] font-semibold text-slate-500">{row.percentText}</p> : null}
-                            {row.isAsabah && row.perPerson !== null ? <p className="mt-1 text-xs font-bold text-amber-800">ஒருவருக்கு: {money(row.perPerson)}</p> : null}
-                          </div>
-                          <div className="col-start-2 row-start-1 row-span-2 border-l border-slate-200 pl-3 text-right sm:col-start-3 sm:pl-5">
-                            <p className={`whitespace-nowrap text-2xl font-extrabold tabular-nums sm:text-3xl ${row.zero ? "text-rose-700" : "text-[#133D76]"}`}>{money(row.amount)}</p>
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
-                    <div className="mt-4 space-y-1 border-t border-slate-100 pt-4 text-sm font-bold"><p>மொத்தம் பகிரப்பட்டது: {money(distributedTotal)}</p>{remainingAmount > 0.005 ? <p className="text-amber-800">மீதமுள்ள தொகை: {money(remainingAmount)}</p> : null}</div>
-                    {resultRows.some((row) => row.zero) ? <details className="mt-4 rounded-xl border border-rose-200 bg-rose-50 p-3"><summary className="cursor-pointer text-sm font-extrabold text-rose-800">பங்கு இல்லாதவர்கள் ({resultRows.filter((row) => row.zero).length})</summary><div className="mt-2 space-y-1 text-sm text-rose-700">{resultRows.filter((row) => row.zero).map((row) => <p key={`zero-${row.key}`}>{row.label}</p>)}</div></details> : null}
-                    </>
-                  ) : (
-                    <div className="py-8 text-center"><UsersRound className="mx-auto text-slate-300" size={30} /><p className="mt-3 font-bold text-slate-700">வாரிசுகளைச் சேர்க்கவும்.</p><button type="button" onClick={() => setStep(2)} className="mt-2 text-sm font-bold text-[#133D76] hover:underline">உறவுகளை மாற்றுக</button></div>
-                  )}
-                </div> : <CalculationTrace result={result} language="ta" />}
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><button type="button" onClick={() => setStep(2)} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-3 text-sm font-bold text-slate-600 hover:bg-white"><ArrowLeft size={17} /> மாற்றுக</button><div className="flex flex-wrap gap-2"><button type="button" onClick={() => window.print()} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-bold text-slate-700 hover:bg-slate-50"><Printer size={16} /> அச்சிடுக</button><button type="button" onClick={() => setView("history")} className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#133D76] px-4 text-sm font-bold text-white hover:bg-[#102F5E]"><History size={16} /> வரலாறு</button></div></div>
+                        ) : null}
+                        {zeroRows.length > 0 ? (
+                          <details className="ms-zero-box">
+                            <summary>பங்கு இல்லாதவர்கள் (<span className="num">{zeroRows.length}</span>)</summary>
+                            <ul>{zeroRows.map((row) => <li key={`zero-${row.key}`}>{row.label}<span className="ms-zero-reason"> — {row.reason}</span></li>)}</ul>
+                          </details>
+                        ) : null}
+                      </>
+                    ) : (
+                      <div className="ms-empty">
+                        <UsersRound className="mx-auto text-slate-300" size={30} />
+                        <p className="mt-3 font-bold text-slate-700">வாரிசுகளைச் சேர்க்கவும்.</p>
+                        <button type="button" onClick={() => setStep(2)} className="mt-2 text-sm font-bold text-[#164f86] hover:underline">உறவுகளை மாற்றுக</button>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <CalculationTrace result={result} language="ta" />
+                )}
+
+                <div className="flex flex-col gap-3 pt-1 sm:flex-row sm:items-center sm:justify-between">
+                  <button type="button" onClick={() => setStep(2)} className="ms-btn ms-btn-ghost min-h-11! justify-center text-sm!"><ArrowLeft size={17} /> மாற்றுக</button>
+                  <div className="flex flex-wrap gap-2">
+                    <button type="button" onClick={() => window.print()} className="ms-btn ms-btn-soft min-h-11! text-sm!"><Printer size={16} /> அச்சிடுக</button>
+                    <button type="button" onClick={() => setView("history")} className="ms-btn ms-btn-primary min-h-11! text-sm!"><History size={16} /> வரலாறு</button>
+                  </div>
+                </div>
+                <BookSourceCard language="ta" />
               </div>
             ) : null}
           </section>
         ) : null}
       </main>
-      {view === "calculator" ? <MobileStepNav step={step} onNavigate={setStep} /> : null}
+      {view === "calculator" ? <StepNav step={step} labels={stepLabels} ariaLabel="படிகளுக்கு இடையே செல்ல" onGo={setStep} /> : null}
     </div>
   );
 }
