@@ -1,7 +1,7 @@
 /** Design: Miraasu Scholarly Ledger — teacher-review audit: metric strip, schedule, fixed/remainder work, reconciliation, notes, trace. */
 import { fractionToNumber, fractionToText, type AppLanguage, type CalculationResult } from "@/lib/inheritance";
 
-type Props = { result: CalculationResult; language?: AppLanguage; heirLabels?: Record<string, string> };
+type Props = { result: CalculationResult; language?: AppLanguage | "ur"; heirLabels?: Record<string, string> };
 
 const copy = {
   en: {
@@ -99,8 +99,7 @@ const copy = {
     step: "படி",
   },
   ar: {
-    title: "مراجعة المعلم · تدقيق الحساب",
-    subtitle: "راجع الأنصبة وتحويل الوحدات والباقي ومطابقة المجموع النهائي.",
+    title: "مراجعة المعلم · تدقيق الحساب",    subtitle: "راجع الأنصبة وتحويل الوحدات والباقي ومطابقة المجموع النهائي.",
     netEstate: "التركة القابلة للقسمة",
     fixedTotal: "مجموع الأنصبة المفروضة",
     remainder: "الباقي",
@@ -145,6 +144,53 @@ const copy = {
     traceNote: "خطوات أنشأها محرك الحساب · النص الأصلي باللغة الإنجليزية",
     step: "الخطوة",
   },
+  ur: {
+    title: "استاد کا جائزہ · حساب کی تدقیق",
+    subtitle: "حصے، یونٹ کی تبدیلی، باقی اور حتمی ملاپ دیکھیں۔",
+    netEstate: "قابلِ تقسیم ترکہ",
+    fixedTotal: "مقررہ حصوں کا مجموعہ",
+    remainder: "باقی حصہ",
+    root: "اصل مسئلہ (LCM)",
+    schedule: "تقسیم کا شیڈول",
+    scheduleNote: "گروپ کی رقم درج رشتہ داروں کا مجموعہ ہے؛ فی فرد رقم الگ دکھائی گئی ہے۔",
+    heir: "وارث",
+    count: "افراد",
+    method: "طریقہ",
+    groupShare: "گروپ کا حصہ",
+    sharePercent: "ترکہ کا ٪",
+    basis: "یونٹ / حصے",
+    groupAmount: "گروپ کی رقم",
+    perPerson: "فی فرد",
+    perPart: "فی حصہ",
+    fixedUnits: "مقررہ یونٹ",
+    parts: "حصے",
+    noRows: "اس صورت میں حصہ پانے والا کوئی وارث نہیں۔",
+    fixedWork: "مقررہ حصوں کا حساب",
+    fixedUnitsSum: "مقررہ یونٹوں کا مجموعہ",
+    fixedAmount: "مقررہ حصوں کی رقم",
+    remainderWork: "باقی کا حساب",
+    rule: "تقسیم کا قاعدہ",
+    asabahRule: "جہاں لاگو ہو: مرد = 2 حصے، عورت = 1 حصہ۔",
+    raddRule: "عصبہ کا کوئی مستحق نہیں: باقی اہل مقررہ حصہ وارثوں کو لوٹا دیا جاتا ہے۔",
+    returned: "لوٹائی گئی باقی رقم",
+    heldBackNote: "کوئی خودکار مستحق نہیں دکھایا گیا؛ یہ رقم جائزے کے لیے روکی گئی ہے۔",
+    noRemainder: "اس صورت میں کوئی باقی نہیں۔",
+    reconciliation: "حتمی ملاپ",
+    unitCheck: "یونٹ",
+    amountCheck: "رقم",
+    distributed: "تقسیم شدہ",
+    heldBack: "روکی گئی",
+    net: "ترکہ کا مجموعہ",
+    pass: "مطابق",
+    fail: "جائزہ درکار",
+    caseNotes: "کیس کے نوٹس",
+    excluded: "محجوب / بے حصہ افراد",
+    noExcluded: "کوئی نہیں",
+    reviewRequired: "اس کیس کے لیے میراث کے مستند عالم کا جائزہ ضروری ہے۔",
+    trace: "مکمل حساب کا ریکارڈ",
+    traceNote: "حساب کے انجن کے بنائے ہوئے مراحل · اصل متن انگریزی میں",
+    step: "مرحلہ",
+  },
 } as const;
 
 const money = (value: number) => (Number.isFinite(value) ? value : 0).toFixed(2);
@@ -169,7 +215,7 @@ export function CalculationTrace({ result, language = "en", heirLabels }: Props)
   const moneyPass = check.moneyBalanced && Math.abs(check.distributedMoney + check.heldBackMoney - check.netEstate) < 0.01;
 
   return (
-    <div className="ms-trace" dir={language === "ar" ? "rtl" : "ltr"}>
+    <div className="ms-trace" dir={language === "ar" || language === "ur" ? "rtl" : "ltr"}>
       <header className="ms-card p-4 sm:p-5">
         <p className="ms-kicker">{t.title}</p>
         {result.requiresScholarReview ? <p className="ms-notice mt-3 font-extrabold!">{t.reviewRequired}</p> : null}

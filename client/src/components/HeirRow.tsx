@@ -7,7 +7,7 @@ type HeirRowProps = {
   value: number;
   onChange: (value: number) => void;
   max?: number;
-  language?: "ta" | "en" | "ar";
+  language?: "ta" | "en" | "ar" | "ur";
 };
 
 export function HeirRow({ icon: Icon, label, value, onChange, max = 20, language = "ta" }: HeirRowProps) {
@@ -16,7 +16,9 @@ export function HeirRow({ icon: Icon, label, value, onChange, max = 20, language
       ? { add: "Add", decrease: "decrease", increase: "increase" }
       : language === "ar"
         ? { add: "إضافة", decrease: "إنقاص", increase: "زيادة" }
-        : { add: "சேர்", decrease: "குறைக்க", increase: "அதிகரிக்க" };
+        : language === "ur"
+          ? { add: "شامل کریں", decrease: "کم کریں", increase: "بڑھائیں" }
+          : { add: "சேர்", decrease: "குறைக்க", increase: "அதிகரிக்க" };
   const selected = value > 0;
   const isToggle = max === 1;
 
