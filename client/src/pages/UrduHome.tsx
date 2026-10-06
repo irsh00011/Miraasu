@@ -4,7 +4,7 @@
  * Mirrors the Tamil, English and Arabic screens with Urdu copy throughout.
  */
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, ArrowRight, Calculator, History, Printer, UsersRound } from "lucide-react";
+import { ArrowLeft, ArrowRight, Calculator, Download, Printer, UsersRound } from "lucide-react";
 import { FamilyList } from "@/components/FamilyList";
 import { BookSourceCard } from "@/components/BookSourceCard";
 import {
@@ -27,6 +27,7 @@ import { SegmentedTabs } from "@/components/calc/SegmentedTabs";
 import { ShareCard } from "@/components/calc/ShareCard";
 import { StepBar, StepNav, type Step } from "@/components/calc/StepBar";
 import { readCalculationHistory, writeCalculationHistory, type SavedCalculation } from "@/lib/localHistory";
+import { downloadTextFile } from "@/components/calc/download";
 
 type View = "calculator" | "history";
 
@@ -138,6 +139,23 @@ export default function UrduHome() {
 
   const displayAllocations = aggregateAllocationsForDisplay(result.allocations);
   const asabahGroup = displayAllocations.filter((entry) => entry.method === "remainder");
+  const downloadSummary = () => {
+    const lines = [
+      "میراث — تقسیم کا نتیجہ",
+      `کل جائیداد: ${money(result.netEstate)}`,
+      "",
+      ...displayAllocations.map((item) => {
+        const amount = result.netEstate * fractionToNumber(item.share);
+        const isAsabah = item.method === "remainder";
+        const parts = asabahPartsFor(item, asabahGroup);
+        const share = isAsabah ? `عصبہ (${parts} ${parts === 1 ? "حصہ" : "حصے"})` : fractionToText(item.share);
+        return `${labels[item.key] ?? item.label}${item.count > 1 ? ` ×${item.count}` : ""} — ${share} — ${money(amount)}`;
+      }),
+      "",
+      `کل تقسیم شدہ: ${money(distributedTotal)}`,
+    ];
+    downloadTextFile("miraasu-result.txt", lines.join("\n"));
+  };
 
   return (
     <div className="ms-page ms-watermark">
@@ -214,10 +232,6 @@ export default function UrduHome() {
             {step === 3 ? (
               <div className="space-y-4">
                 <ResultHero title="تقسیم کا نتیجہ" savedNote={justSaved ? "ہسٹری میں محفوظ ہو گیا" : undefined} />
-                <div className="ms-estate-panel premium-pop">
-                  <span className="ms-estate-label">کل جائیداد</span>
-                  <strong className="ms-estate-amount num">{money(result.netEstate)}</strong>
-                </div>
 
                 {result.notices.length > 0 ? <div className="space-y-2">{result.notices.map((notice) => <p key={notice} className="ms-notice">{noticeInUrdu(notice)}</p>)}</div> : null}
                 {result.requiresScholarReview ? <p className="ms-notice font-extrabold!">مستند عالم سے تصدیق ضروری ہے — یہ نتیجہ حتمی نہیں۔</p> : null}
@@ -228,7 +242,7 @@ export default function UrduHome() {
                   <div className="result-card-list space-y-2.5">
                     {result.allocations.length > 0 ? (
                       <>
-                        <p className="ms-dist-label">تقسیم</p>                        {displayAllocations.map((item) => {
+                        {displayAllocations.map((item) => {
                           const amount = result.netEstate * fractionToNumber(item.share);
                           const isAsabah = item.method === "remainder";
                           const parts = asabahPartsFor(item, asabahGroup);
@@ -246,10 +260,6 @@ export default function UrduHome() {
                             />
                           );
                         })}
-                        <div className="ms-total-strip">
-                          <span>کل</span>
-                          <strong className="num">{money(distributedTotal)}</strong>
-                        </div>
                         {remainingAmount > 0.005 ? (
                           <div className="ms-total-strip bg-[#7c5a1c]!">
                             <span>باقی رقم</span>
@@ -275,12 +285,9 @@ export default function UrduHome() {
                   <CalculationTrace result={result} language="ur" heirLabels={labels} />
                 )}
 
-                <div className="flex flex-col gap-3 pt-1 sm:flex-row sm:items-center sm:justify-between">
-                  <button type="button" onClick={() => setStep(2)} className="ms-btn ms-btn-ghost min-h-11! justify-center text-sm!"><ArrowLeft size={17} className="rtl:rotate-180" /> خاندان بدلیں</button>
-                  <div className="flex flex-wrap gap-2">
-                    <button type="button" onClick={() => window.print()} className="ms-btn ms-btn-soft min-h-11! text-sm!"><Printer size={16} /> پرنٹ</button>
-                    <button type="button" onClick={() => setView("history")} className="ms-btn ms-btn-primary min-h-11! text-sm!"><History size={16} /> ہسٹری</button>
-                  </div>
+                <div className="ms-actions-packet">
+                  <button type="button" onClick={() => window.print()} className="ms-btn-outline"><Printer size={16} /> پرنٹ</button>
+                  <button type="button" onClick={downloadSummary} className="ms-btn-outline"><Download size={16} /> ڈاؤن لوڈ</button>
                 </div>
                 <BookSourceCard language="ur" />
                 <p className="text-center text-xs leading-5 text-slate-500">صرف تعلیمی مدد کے لیے۔ کسی حقیقی تقسیم کی تصدیق مستند اسلامی اور قانونی ماہرین سے کرائیں۔</p>

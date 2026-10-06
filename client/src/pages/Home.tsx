@@ -3,7 +3,7 @@
  * UI only: state, handlers and every call into @/lib/inheritance are unchanged.
  */
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, Calculator, History, Printer, UsersRound } from "lucide-react";
+import { ArrowLeft, Calculator, Download, Printer, UsersRound } from "lucide-react";
 import { FamilyList } from "@/components/FamilyList";
 import { BookSourceCard } from "@/components/BookSourceCard";
 import {
@@ -29,6 +29,7 @@ import {
   writeCalculationHistory,
   type SavedCalculation,
 } from "@/lib/localHistory";
+import { downloadTextFile } from "@/components/calc/download";
 
 type View = "calculator" | "history";
 
@@ -201,6 +202,17 @@ export default function Home() {
 
   const shareRows = resultRows.filter((row) => !row.zero);
   const zeroRows = resultRows.filter((row) => row.zero);
+  const downloadSummary = () => {
+    const lines = [
+      "மீராஸ் — பங்கீட்டு முடிவு",
+      `மொத்த சொத்து: ${money(result.netEstate)}`,
+      "",
+      ...shareRows.map((row) => `${row.label}${row.count > 1 ? ` x${row.count}` : ""} — ${row.fractionText} — ${money(row.amount)}`),
+      "",
+      `மொத்தம் பகிரப்பட்டது: ${money(distributedTotal)}`,
+    ];
+    downloadTextFile("miraasu-result.txt", lines.join("\n"));
+  };
 
   return (
     <div className="ms-page ms-watermark">
@@ -285,10 +297,6 @@ export default function Home() {
             {step === 3 ? (
               <div className="space-y-4">
                 <ResultHero title="பங்கீட்டு முடிவு" savedNote={justSaved ? "வரலாற்றில் சேமிக்கப்பட்டது" : undefined} />
-                <div className="ms-estate-panel premium-pop">
-                  <span className="ms-estate-label">மொத்த சொத்து</span>
-                  <strong className="ms-estate-amount num">{money(result.netEstate)}</strong>
-                </div>
                 <SegmentedTabs
                   value={resultMode}
                   onChange={setResultMode}
@@ -299,7 +307,6 @@ export default function Home() {
                   <div className="result-card-list space-y-2.5">
                     {resultRows.length > 0 ? (
                       <>
-                        <p className="ms-dist-label">பங்கீடு</p>
                         {shareRows.map((row) => (
                           <ShareCard
                             key={row.key}
@@ -313,10 +320,6 @@ export default function Home() {
                             perPerson={row.isAsabah && row.perPerson !== null ? money(row.perPerson) : undefined}
                           />
                         ))}
-                        <div className="ms-total-strip">
-                          <span>மொத்தம்</span>
-                          <strong className="num">{money(distributedTotal)}</strong>
-                        </div>
                         {remainingAmount > 0.005 ? (
                           <div className="ms-total-strip bg-[#7c5a1c]!">
                             <span>மீதமுள்ள தொகை</span>
@@ -342,12 +345,9 @@ export default function Home() {
                   <CalculationTrace result={result} language="ta" />
                 )}
 
-                <div className="flex flex-col gap-3 pt-1 sm:flex-row sm:items-center sm:justify-between">
-                  <button type="button" onClick={() => setStep(2)} className="ms-btn ms-btn-ghost min-h-11! justify-center text-sm!"><ArrowLeft size={17} /> மாற்றுக</button>
-                  <div className="flex flex-wrap gap-2">
-                    <button type="button" onClick={() => window.print()} className="ms-btn ms-btn-soft min-h-11! text-sm!"><Printer size={16} /> அச்சிடுக</button>
-                    <button type="button" onClick={() => setView("history")} className="ms-btn ms-btn-primary min-h-11! text-sm!"><History size={16} /> வரலாறு</button>
-                  </div>
+                <div className="ms-actions-packet">
+                  <button type="button" onClick={() => window.print()} className="ms-btn-outline"><Printer size={16} /> அச்சிடுக</button>
+                  <button type="button" onClick={downloadSummary} className="ms-btn-outline"><Download size={16} /> பதிவிறக்குக</button>
                 </div>
                 <BookSourceCard language="ta" />
               </div>

@@ -3,7 +3,7 @@
  * UI only: state, handlers and every call into @/lib/inheritance are unchanged.
  */
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, ArrowRight, Calculator, History, Printer, UsersRound } from "lucide-react";
+import { ArrowLeft, ArrowRight, Calculator, Download, Printer, UsersRound } from "lucide-react";
 import { FamilyList } from "@/components/FamilyList";
 import { BookSourceCard } from "@/components/BookSourceCard";
 import { ARABIC_EXTENDED_COPY, aggregateAllocationsForDisplay, asabahPartsFor, calculateInheritance, fractionToNumber, fractionToText, sourcePercentage, type EstateInput, type HeirInput } from "@/lib/inheritance";
@@ -16,6 +16,7 @@ import { SegmentedTabs } from "@/components/calc/SegmentedTabs";
 import { ShareCard } from "@/components/calc/ShareCard";
 import { StepBar, StepNav, type Step } from "@/components/calc/StepBar";
 import { readCalculationHistory, writeCalculationHistory, type SavedCalculation } from "@/lib/localHistory";
+import { downloadTextFile } from "@/components/calc/download";
 
 type View = "calculator" | "history";
 
@@ -64,6 +65,23 @@ export default function ArabicHome() {
 
   const displayAllocations = aggregateAllocationsForDisplay(result.allocations);
   const asabahGroup = displayAllocations.filter((entry) => entry.method === "remainder");
+  const downloadSummary = () => {
+    const lines = [
+      "ميراسو — نتيجة القسمة",
+      `إجمالي التركة: ${money(result.netEstate)}`,
+      "",
+      ...displayAllocations.map((item) => {
+        const amount = result.netEstate * fractionToNumber(item.share);
+        const isAsabah = item.method === "remainder";
+        const parts = asabahPartsFor(item, asabahGroup);
+        const share = isAsabah ? `عصبة (${parts} ${parts === 1 ? "سهم" : "أسهم"})` : fractionToText(item.share);
+        return `${arabicLabels[item.key] ?? item.label}${item.count > 1 ? ` ×${item.count}` : ""} — ${share} — ${money(amount)}`;
+      }),
+      "",
+      `إجمالي الموزع: ${money(distributedTotal)}`,
+    ];
+    downloadTextFile("miraasu-result.txt", lines.join("\n"));
+  };
 
   return (
     <div className="ms-page ms-watermark">
@@ -138,10 +156,6 @@ export default function ArabicHome() {
             {step === 3 ? (
               <div className="space-y-4">
                 <ResultHero title="نتيجة القسمة" />
-                <div className="ms-estate-panel premium-pop">
-                  <span className="ms-estate-label">إجمالي التركة</span>
-                  <strong className="ms-estate-amount num">{money(result.netEstate)}</strong>
-                </div>
                 {result.notices.map((notice) => <div key={notice} className="ms-notice">{noticeArabic(notice)}</div>)}
                 {result.requiresScholarReview ? <p className="ms-notice font-extrabold!">يلزم تأكيد من مختص — هذه النتيجة غير نهائية.</p> : null}
 
@@ -151,7 +165,6 @@ export default function ArabicHome() {
                   <div className="result-card-list space-y-2.5">
                     {result.allocations.length > 0 ? (
                       <>
-                        <p className="ms-dist-label">التوزيع</p>
                         {displayAllocations.map((item) => {
                           const isAsabah = item.method === "remainder";
                           const parts = asabahPartsFor(item, asabahGroup);
@@ -170,10 +183,6 @@ export default function ArabicHome() {
                             />
                           );
                         })}
-                        <div className="ms-total-strip">
-                          <span>الإجمالي</span>
-                          <strong className="num">{money(distributedTotal)}</strong>
-                        </div>
                         {remainingAmount > 0.005 ? (
                           <div className="ms-total-strip bg-[#7c5a1c]!">
                             <span>المبلغ المتبقي</span>
@@ -199,12 +208,9 @@ export default function ArabicHome() {
                   <CalculationTrace result={result} language="ar" heirLabels={arabicLabels} />
                 )}
 
-                <div className="flex flex-col gap-3 pt-1 sm:flex-row sm:items-center sm:justify-between">
-                  <button type="button" onClick={() => setStep(2)} className="ms-btn ms-btn-ghost min-h-11! justify-center text-sm!"><ArrowRight size={17} />تعديل العائلة</button>
-                  <div className="flex flex-wrap gap-2">
-                    <button type="button" onClick={() => window.print()} className="ms-btn ms-btn-soft min-h-11! text-sm!"><Printer size={16} />طباعة</button>
-                    <button type="button" onClick={() => setView("history")} className="ms-btn ms-btn-primary min-h-11! text-sm!"><History size={16} />السجل</button>
-                  </div>
+                <div className="ms-actions-packet">
+                  <button type="button" onClick={() => window.print()} className="ms-btn-outline"><Printer size={16} /> طباعة</button>
+                  <button type="button" onClick={downloadSummary} className="ms-btn-outline"><Download size={16} /> تنزيل</button>
                 </div>
                 <BookSourceCard language="ar" />
               </div>
