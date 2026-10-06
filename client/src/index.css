@@ -264,41 +264,28 @@
   .ms-input:focus { border-color: var(--ms-royal); box-shadow: 0 0 0 4px rgba(22, 79, 134, 0.12); }
   .ms-input-xl { font-size: clamp(2.1rem, 8.5vw, 2.9rem); padding-block: 1.1rem; letter-spacing: -0.03em; }
   .ms-help { margin-top: 0.4rem; color: var(--ms-muted); font-size: 0.74rem; line-height: 1.55; }
-  .ms-deduct-panel {
-    position: relative; overflow: hidden;
-    border: 1px solid #0d2c4f; border-radius: 1.2rem;
-    background: linear-gradient(150deg, #1d5689 0%, #123c68 55%, #0c2c53 100%);
-    box-shadow: 0 22px 40px -22px rgba(11, 42, 79, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.18);
-    padding: 0.35rem 0.9rem 0.95rem;
+  /* ── Deductions: simple light section, no nested dark panel ── */
+  .ms-deduct-simple {
+    border: 1px solid var(--ms-line); border-radius: 1.2rem;
+    background: #f4f8fd; padding: 0.9rem;
   }
-  .ms-deduct-panel::before {
-    content: ""; position: absolute; inset: 0; pointer-events: none;
-    background:
-      radial-gradient(24rem 10rem at 108% -3rem, rgba(140, 190, 240, 0.28), transparent 60%),
-      radial-gradient(18rem 10rem at -6% 112%, rgba(184, 137, 45, 0.14), transparent 60%);
+  .ms-deduct-simple-head {
+    display: flex; align-items: center; justify-content: space-between; gap: 0.75rem;
+    padding: 0.15rem 0.25rem 0.8rem;
   }
-  .ms-deduct-head, .ms-deduct-list { position: relative; z-index: 1; }
-  .ms-deduct-head { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 0.75rem 0.15rem 0.6rem; }
-  .ms-deduct-head h2 { font-size: 0.82rem; font-weight: 800; letter-spacing: 0.02em; color: #ffffff; }
-  .ms-deduct-opt {
-    flex: none; border-radius: 999px; background: rgba(255, 255, 255, 0.14); border: 1px solid rgba(255, 255, 255, 0.35);
-    color: #eaf3fb; font-size: 0.65rem; font-weight: 800; padding: 0.3rem 0.7rem;
+  .ms-deduct-simple-head h2 { font-size: 0.95rem; font-weight: 800; color: var(--ms-navy); }
+  .ms-deduct-simple-opt {
+    flex: none; border-radius: 999px; background: #ffffff; border: 1px solid var(--ms-line);
+    color: var(--ms-muted); font-size: 0.68rem; font-weight: 800; padding: 0.3rem 0.75rem;
   }
-  .ms-deduct-list { display: grid; gap: 0.6rem; }
-  @media (min-width: 640px) { .ms-deduct-list { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-  .ms-deduction-tile {
-    border: 1px solid rgba(255, 255, 255, 0.24); border-radius: 1rem;
-    background: rgba(255, 255, 255, 0.08);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 8px 18px -12px rgba(4, 20, 40, 0.6);
-    padding: 0.6rem 0.65rem;
+  .ms-deduct-simple-list { display: grid; gap: 0.7rem; }
+  @media (min-width: 640px) { .ms-deduct-simple-list { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  .ms-deduct-row {
+    background: #ffffff; border: 1px solid var(--ms-line); border-radius: 1rem;
+    padding: 0.85rem 0.95rem;
   }
-  .ms-deduction-tile .ms-label { color: #dce9f7; font-size: 0.72rem; margin-bottom: 0.35rem; }
-  .ms-deduction-tile .ms-input {
-    font-size: 1.02rem; font-weight: 800; padding: 0.6rem 0.7rem; padding-inline-start: 2rem;
-    background: #ffffff; border-color: rgba(255, 255, 255, 0.55); color: #0d3a68;
-  }
-  .ms-deduction-tile .ms-money-currency { color: #164f86; font-size: 0.95rem; padding-inline-start: 0.8rem; }
-  .ms-deduction-tile .ms-help { color: #a9c6e4; font-size: 0.68rem; }
+  .ms-deduct-row .ms-label { color: var(--ms-muted); font-size: 0.76rem; margin-bottom: 0.35rem; }
+  .ms-deduct-row .ms-input { font-size: 1.05rem; font-weight: 800; color: var(--ms-navy); }
 
   /* Blue signal as soon as an amount is entered */
   .ms-input:not(:placeholder-shown) {
@@ -344,13 +331,13 @@
   .ms-section-title h3 { color: var(--ms-navy); font-size: 0.86rem; font-weight: 800; }
   .ms-section-title p { color: var(--ms-faint); font-size: 0.72rem; line-height: 1.5; text-align: end; max-width: 60%; }
 
-  .ms-chips { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.55rem; }
+  .ms-chips { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; }
   @media (min-width: 640px) { .ms-chips { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 
   .ms-chip {
     position: relative; display: flex; align-items: center; gap: 0.6rem; text-align: start;
     border: 3px solid rgba(22, 79, 134, 0.6); border-radius: 1rem; background: #fff;
-    padding: 0.6rem 0.65rem; min-height: 3.4rem;
+    padding: 0.7rem 0.75rem; min-height: 3.6rem;
     transition: background 0.18s ease, border-color 0.18s ease;
   }
   .ms-chip:hover { border-color: var(--ms-royal); }
@@ -360,7 +347,7 @@
     color: var(--ms-royal); border: 1px solid rgba(22, 79, 134, 0.12);
     transition: background 0.18s ease, color 0.18s ease;
   }
-  .ms-chip-name { min-width: 0; flex: 1; font-size: 0.8rem; font-weight: 700; color: var(--ms-ink); line-height: 1.35; }
+  .ms-chip-name { min-width: 0; flex: 1; font-size: 0.8rem; font-weight: 700; color: var(--ms-ink); line-height: 1.35; overflow-wrap: anywhere; }
   .ms-chip.is-on {
     background: linear-gradient(150deg, #205e98 0%, #134374 100%);
     border-color: #0e3a68;
@@ -464,7 +451,7 @@
   }
   [dir="rtl"] .ms-share::after { inset-inline-end: auto; inset-inline-start: 0; }
   .ms-share:hover { border-color: var(--ms-line-strong); box-shadow: inset 0 1px 0 #fff, 0 14px 28px -14px rgba(11, 42, 79, 0.35); transform: translateY(-1px); }
-  .ms-share-name { font-size: 0.92rem; font-weight: 800; color: var(--ms-royal); line-height: 1.4; }
+  .ms-share-name { font-size: 0.92rem; font-weight: 800; color: var(--ms-royal); line-height: 1.4; min-width: 0; overflow-wrap: anywhere; }
   .ms-share-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; margin-top: 0.45rem; }
   .ms-tag {
     display: inline-flex; align-items: center; border-radius: 0.55rem; padding: 0.22rem 0.6rem;
@@ -610,6 +597,41 @@
   .ms-card, .ms-share, .ms-hero, .ms-result-head { box-shadow: none !important; break-inside: avoid; }
   .ms-hero, .ms-result-seal { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   body { background: #fff !important; }
+}
+
+/* Print-only summary sheet (used by the Download button → "Save as PDF").
+   Hidden on screen; when body.print-summary is set, the app is hidden and
+   only this clean sheet prints. */
+.ms-print-sheet { display: none; }
+@media print {
+  body.print-summary .ms-page { display: none !important; }
+  body.print-summary .ms-print-sheet {
+    display: block !important;
+    color: #111111; background: #ffffff; padding: 8px;
+    font-family: inherit;
+  }
+  .ms-ps-brand { font-size: 10px; font-weight: 800; letter-spacing: 0.32em; color: #555555; }
+  .ms-ps-title { font-size: 22px; font-weight: 800; color: #0b2a4f; margin: 6px 0 2px; }
+  .ms-ps-date { font-size: 11px; color: #666666; margin-bottom: 14px; }
+  .ms-ps-estate {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    border: 1px solid #0b2a4f; border-radius: 8px; padding: 10px 12px; margin-bottom: 12px;
+  }
+  .ms-ps-estate span { font-size: 12px; font-weight: 700; color: #444444; }
+  .ms-ps-estate strong { font-size: 17px; }
+  .ms-ps-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
+  .ms-ps-table th, .ms-ps-table td {
+    border: 1px solid #999999; padding: 7px 9px; font-size: 13px; text-align: start;
+  }
+  .ms-ps-table thead th { background: #eef3f9; font-weight: 800; }
+  .ms-ps-total {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 8px 2px; font-size: 14px; border-top: 2px solid #0b2a4f;
+  }
+  .ms-ps-total + .ms-ps-total { border-top: 1px solid #999999; }
+  .ms-ps-total strong { font-size: 16px; }
+  .ms-ps-noshare { font-size: 12px; color: #444444; margin-top: 10px; line-height: 1.6; }
+  .ms-ps-note { font-size: 10px; color: #777777; margin-top: 14px; line-height: 1.6; }
 }
 
 /* ════════════════ Result success header (light) — one green check seal, no amount card ════════════════ */

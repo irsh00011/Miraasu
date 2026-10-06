@@ -43,19 +43,19 @@ export function EstateStep({ estate, onChange, netEstateText, onNext, notices, t
         />
       </div>
 
-      <section className="ms-deduct-panel premium-pop mt-4" style={{ animationDelay: "70ms" }} aria-label={text.addExtras}>
-        <div className="ms-deduct-head">
+      <section className="ms-deduct-simple premium-pop mt-4" style={{ animationDelay: "70ms" }} aria-label={text.addExtras}>
+        <div className="ms-deduct-simple-head">
           <h2>{text.addExtras}</h2>
-          <span className="ms-deduct-opt">{text.optional}</span>
+          <span className="ms-deduct-simple-opt">{text.optional}</span>
         </div>
-        <div className="ms-deduct-list">
-          <div className="ms-deduction-tile">
+        <div className="ms-deduct-simple-list">
+          <div className="ms-deduct-row">
             <MoneyField label={text.costs} value={estate.funeralCosts} onValueChange={(value) => onChange("funeralCosts", value)} onKeyDown={onKeyDown} />
           </div>
-          <div className="ms-deduction-tile">
+          <div className="ms-deduct-row">
             <MoneyField label={text.debts} value={estate.debts} onValueChange={(value) => onChange("debts", value)} onKeyDown={onKeyDown} />
           </div>
-          <div className="ms-deduction-tile">
+          <div className="ms-deduct-row">
             <MoneyField label={text.bequest} help={text.bequestHelp} value={estate.bequest} onValueChange={(value) => onChange("bequest", value)} onKeyDown={onKeyDown} />
           </div>
         </div>

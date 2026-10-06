@@ -1,12 +1,24 @@
-/** Download a plain-text file in the browser (used for the result summary download button). */
-export function downloadTextFile(filename: string, text: string) {
-  const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+/**
+ * Download the result as a PDF.
+ *
+ * Opens the browser print dialog showing ONLY the clean result summary sheet,
+ * so the user picks "Save as PDF" and gets a real .pdf file.
+ *
+ * Why print instead of a PDF library: client-side PDF generators (jsPDF etc.)
+ * cannot shape Tamil, Arabic or Urdu text — letters render disconnected or as
+ * boxes. The OS print pipeline renders all four languages perfectly.
+ */
+export function printSummaryAsPdf(filename: string) {
+  const previousTitle = document.title;
+  document.title = filename;
+  document.body.classList.add("print-summary");
+  const cleanup = () => {
+    document.body.classList.remove("print-summary");
+    document.title = previousTitle;
+    window.removeEventListener("afterprint", cleanup);
+  };
+  window.addEventListener("afterprint", cleanup);
+  window.print();
+  // Fallback for browsers where afterprint is unreliable (some mobile browsers)
+  window.setTimeout(cleanup, 2000);
 }
