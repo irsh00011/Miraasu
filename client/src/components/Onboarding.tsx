@@ -138,7 +138,7 @@ export function Onboarding({ screen, onNext, onSkip }: Props) {
       </div>
 
       <div className="ent-onboard-cta ent-rise" style={{ animationDelay: "240ms" }}>
-        <button type="button" onClick={onNext} className="ent-start ent-next">
+        <button type="button" onClick={onNext} className="ent-start ent-cta-big">
           {copy.cta} <ArrowRight size={18} />
         </button>
         <button type="button" onClick={onSkip} className="ent-skip">
