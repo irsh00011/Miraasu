@@ -16,7 +16,8 @@ import { SegmentedTabs } from "@/components/calc/SegmentedTabs";
 import { ShareCard } from "@/components/calc/ShareCard";
 import { StepBar, StepNav, type Step } from "@/components/calc/StepBar";
 import { readCalculationHistory, writeCalculationHistory, type SavedCalculation } from "@/lib/localHistory";
-import { downloadTextFile } from "@/components/calc/download";
+import { printSummaryAsPdf } from "@/components/calc/download";
+import { PrintSheet, type PrintRow } from "@/components/calc/PrintSheet";
 
 type View = "calculator" | "history";
 
@@ -98,25 +99,20 @@ export default function EnglishHome() {
 
   const displayAllocations = aggregateAllocationsForDisplay(result.allocations);
   const asabahGroup = displayAllocations.filter((entry) => entry.method === "remainder");
-  const downloadSummary = () => {
-    const lines = [
-      "Miraasu — Distribution result",
-      `Total estate: ${money(result.netEstate)}`,
-      "",
-      ...displayAllocations.map((item) => {
-        const amount = result.netEstate * fractionToNumber(item.share);
-        const isAsabah = item.method === "remainder";
-        const parts = asabahPartsFor(item, asabahGroup);
-        const share = isAsabah ? `Residuary (${parts} ${parts === 1 ? "part" : "parts"})` : fractionToText(item.share);
-        return `${labels[item.key] ?? item.label}${item.count > 1 ? ` x${item.count}` : ""} — ${share} — ${money(amount)}`;
-      }),
-      "",
-      `Total distributed: ${money(distributedTotal)}`,
-    ];
-    downloadTextFile("miraasu-result.txt", lines.join("\n"));
-  };
+  const printRows: PrintRow[] = displayAllocations.map((item) => {
+    const amount = result.netEstate * fractionToNumber(item.share);
+    const isAsabah = item.method === "remainder";
+    const parts = asabahPartsFor(item, asabahGroup);
+    return {
+      name: `${labels[item.key] ?? item.label}${item.count > 1 ? ` × ${item.count}` : ""}`,
+      share: isAsabah ? `Residuary (${parts} ${parts === 1 ? "part" : "parts"})` : fractionToText(item.share),
+      amount: money(amount),
+    };
+  });
+  const noShareNames = result.exclusions.map((item) => labels[item.key as string] ?? item.label);
 
   return (
+    <>
     <div className="ms-page ms-watermark">
       <AppHeader
         title="Mīrāth Calculator"
@@ -175,8 +171,8 @@ export default function EnglishHome() {
             {step === 2 ? (
               <div className="ms-card p-4 sm:p-7">
                 <p className="ms-kicker">STEP 2 OF 3</p>
-                <h1 className="ms-h1">Which family members are alive?</h1>
-                <p className="ms-lead">Add only surviving relatives. Enter the number for each person.</p>
+                <h1 className="ms-h1">Choose your family</h1>
+                <p className="ms-lead">Select only those who are alive.</p>
                 <div className="mt-5">
                   <FamilyList heirs={heirs} onChange={updateHeir} onResetAll={() => resetHeirKeys(Object.keys(initialHeirs) as (keyof HeirInput)[])} query={familyQuery} onQueryChange={setFamilyQuery} onSearchEnter={finishCalculation} language="en" />
                 </div>
@@ -245,7 +241,7 @@ export default function EnglishHome() {
 
                 <div className="ms-actions-packet">
                   <button type="button" onClick={() => window.print()} className="ms-btn-outline"><Printer size={16} /> Print</button>
-                  <button type="button" onClick={downloadSummary} className="ms-btn-outline"><Download size={16} /> Download</button>
+                  <button type="button" onClick={() => printSummaryAsPdf("Miraasu-Result")} className="ms-btn-outline"><Download size={16} /> Download</button>
                 </div>
                 <BookSourceCard language="en" />
                 <p className="text-center text-xs leading-5 text-slate-500">Educational aid only. Confirm any real distribution with qualified Islamic and legal professionals.</p>
@@ -255,6 +251,25 @@ export default function EnglishHome() {
         ) : null}
       </main>
       {view === "calculator" ? <StepNav step={step} labels={stepLabels} ariaLabel="Move between steps" onGo={setStep} /> : null}
-    </div>
+      </div>
+      <PrintSheet
+        brand="MIRAASU"
+        title="Distribution result"
+        dateText={new Date().toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}
+        estateLabel="Total estate"
+        estate={money(result.netEstate)}
+        heirLabel="Heir"
+        shareLabel="Share"
+        amountLabel="Amount"
+        rows={printRows}
+        totalLabel="Total distributed"
+        total={money(distributedTotal)}
+        remainingLabel="Remaining amount"
+        remaining={remainingAmount > 0.005 ? money(remainingAmount) : undefined}
+        noShareLabel="No share"
+        noShareText={noShareNames.length > 0 ? noShareNames.join(", ") : undefined}
+        note="Educational aid only. Confirm any real distribution with qualified Islamic and legal professionals."
+      />
+    </>
   );
 }

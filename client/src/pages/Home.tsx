@@ -29,7 +29,8 @@ import {
   writeCalculationHistory,
   type SavedCalculation,
 } from "@/lib/localHistory";
-import { downloadTextFile } from "@/components/calc/download";
+import { printSummaryAsPdf } from "@/components/calc/download";
+import { PrintSheet, type PrintRow } from "@/components/calc/PrintSheet";
 
 type View = "calculator" | "history";
 
@@ -202,19 +203,15 @@ export default function Home() {
 
   const shareRows = resultRows.filter((row) => !row.zero);
   const zeroRows = resultRows.filter((row) => row.zero);
-  const downloadSummary = () => {
-    const lines = [
-      "மீராஸ் — பங்கீட்டு முடிவு",
-      `மொத்த சொத்து: ${money(result.netEstate)}`,
-      "",
-      ...shareRows.map((row) => `${row.label}${row.count > 1 ? ` x${row.count}` : ""} — ${row.fractionText} — ${money(row.amount)}`),
-      "",
-      `மொத்தம் பகிரப்பட்டது: ${money(distributedTotal)}`,
-    ];
-    downloadTextFile("miraasu-result.txt", lines.join("\n"));
-  };
+  const printRows: PrintRow[] = shareRows.map((row) => ({
+    name: `${row.label}${row.count > 1 ? ` × ${row.count}` : ""}`,
+    share: row.fractionText,
+    amount: money(row.amount),
+  }));
+  const noShareNames = zeroRows.map((row) => row.label);
 
   return (
+    <>
     <div className="ms-page ms-watermark">
       <AppHeader
         title="மீராஸ் கணக்கீடு"
@@ -274,8 +271,8 @@ export default function Home() {
             {step === 2 ? (
               <div className="ms-card p-4 sm:p-7">
                 <p className="ms-kicker">படி 2 / 3</p>
-                <h1 className="ms-h1">குடும்பத்தில் யார் உள்ளனர்?</h1>
-                <p className="ms-lead">உயிருடன் இருப்பவர்களை மட்டும் தட்டவும் / எண்ணிக்கை மாற்றவும்.</p>
+                <h1 className="ms-h1">குடும்பத்தைத் தேர்வு செய்க</h1>
+                <p className="ms-lead">உயிருடன் இருப்பவர்களை மட்டும் தேர்வு செய்க.</p>
                 <div className="mt-5">
                   <FamilyList
                     heirs={heirs}
@@ -347,7 +344,7 @@ export default function Home() {
 
                 <div className="ms-actions-packet">
                   <button type="button" onClick={() => window.print()} className="ms-btn-outline"><Printer size={16} /> அச்சிடுக</button>
-                  <button type="button" onClick={downloadSummary} className="ms-btn-outline"><Download size={16} /> பதிவிறக்குக</button>
+                  <button type="button" onClick={() => printSummaryAsPdf("Miraasu-Result")} className="ms-btn-outline"><Download size={16} /> பதிவிறக்குக</button>
                 </div>
                 <BookSourceCard language="ta" />
               </div>
@@ -356,6 +353,25 @@ export default function Home() {
         ) : null}
       </main>
       {view === "calculator" ? <StepNav step={step} labels={stepLabels} ariaLabel="படிகளுக்கு இடையே செல்ல" onGo={setStep} /> : null}
-    </div>
+      </div>
+      <PrintSheet
+        brand="மீராஸ்"
+        title="பங்கீட்டு முடிவு"
+        dateText={new Date().toLocaleDateString("ta-IN", { day: "numeric", month: "long", year: "numeric" })}
+        estateLabel="மொத்த சொத்து"
+        estate={money(result.netEstate)}
+        heirLabel="வாரிசு"
+        shareLabel="பங்கு"
+        amountLabel="தொகை"
+        rows={printRows}
+        totalLabel="மொத்தம் பகிரப்பட்டது"
+        total={money(distributedTotal)}
+        remainingLabel="மீதமுள்ள தொகை"
+        remaining={remainingAmount > 0.005 ? money(remainingAmount) : undefined}
+        noShareLabel="பங்கு இல்லாதவர்கள்"
+        noShareText={noShareNames.length > 0 ? noShareNames.join(", ") : undefined}
+        note="கல்வி நோக்கத்திற்காக மட்டும். உண்மையான பங்கீட்டை தகுதிவாய்ந்த இஸ்லாமிய மற்றும் சட்ட வல்லுநர்களிடம் உறுதிப்படுத்தவும்."
+      />
+    </>
   );
 }

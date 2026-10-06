@@ -16,7 +16,8 @@ import { SegmentedTabs } from "@/components/calc/SegmentedTabs";
 import { ShareCard } from "@/components/calc/ShareCard";
 import { StepBar, StepNav, type Step } from "@/components/calc/StepBar";
 import { readCalculationHistory, writeCalculationHistory, type SavedCalculation } from "@/lib/localHistory";
-import { downloadTextFile } from "@/components/calc/download";
+import { printSummaryAsPdf } from "@/components/calc/download";
+import { PrintSheet, type PrintRow } from "@/components/calc/PrintSheet";
 
 type View = "calculator" | "history";
 
@@ -65,25 +66,20 @@ export default function ArabicHome() {
 
   const displayAllocations = aggregateAllocationsForDisplay(result.allocations);
   const asabahGroup = displayAllocations.filter((entry) => entry.method === "remainder");
-  const downloadSummary = () => {
-    const lines = [
-      "ميراسو — نتيجة القسمة",
-      `إجمالي التركة: ${money(result.netEstate)}`,
-      "",
-      ...displayAllocations.map((item) => {
-        const amount = result.netEstate * fractionToNumber(item.share);
-        const isAsabah = item.method === "remainder";
-        const parts = asabahPartsFor(item, asabahGroup);
-        const share = isAsabah ? `عصبة (${parts} ${parts === 1 ? "سهم" : "أسهم"})` : fractionToText(item.share);
-        return `${arabicLabels[item.key] ?? item.label}${item.count > 1 ? ` ×${item.count}` : ""} — ${share} — ${money(amount)}`;
-      }),
-      "",
-      `إجمالي الموزع: ${money(distributedTotal)}`,
-    ];
-    downloadTextFile("miraasu-result.txt", lines.join("\n"));
-  };
+  const printRows: PrintRow[] = displayAllocations.map((item) => {
+    const amount = result.netEstate * fractionToNumber(item.share);
+    const isAsabah = item.method === "remainder";
+    const parts = asabahPartsFor(item, asabahGroup);
+    return {
+      name: `${arabicLabels[item.key] ?? item.label}${item.count > 1 ? ` ×${item.count}` : ""}`,
+      share: isAsabah ? `عصبة (${parts} ${parts === 1 ? "سهم" : "أسهم"})` : fractionToText(item.share),
+      amount: money(amount),
+    };
+  });
+  const noShareNames = result.exclusions.map((item) => arabicLabels[item.key as string] ?? item.label);
 
   return (
+    <>
     <div className="ms-page ms-watermark">
       <AppHeader
         title="حاسبة المواريث"
@@ -141,8 +137,8 @@ export default function ArabicHome() {
             {step === 2 ? (
               <div className="ms-card p-4 sm:p-7">
                 <p className="ms-kicker">الخطوة 2 من 3</p>
-                <h1 className="ms-h1">من الأقارب الأحياء؟</h1>
-                <p className="ms-lead">أضف الأقارب الأحياء فقط. أدخل عدد كل شخص مباشرة.</p>
+                <h1 className="ms-h1">اختر عائلتك</h1>
+                <p className="ms-lead">اختر الأحياء فقط.</p>
                 <div className="mt-5">
                   <FamilyList heirs={heirs} onChange={updateHeir} onResetAll={() => resetKeys(Object.keys(initialHeirs) as (keyof HeirInput)[])} query={query} onQueryChange={setQuery} onSearchEnter={finish} language="ar" />
                 </div>
@@ -210,7 +206,7 @@ export default function ArabicHome() {
 
                 <div className="ms-actions-packet">
                   <button type="button" onClick={() => window.print()} className="ms-btn-outline"><Printer size={16} /> طباعة</button>
-                  <button type="button" onClick={downloadSummary} className="ms-btn-outline"><Download size={16} /> تنزيل</button>
+                  <button type="button" onClick={() => printSummaryAsPdf("Miraasu-Result")} className="ms-btn-outline"><Download size={16} /> تنزيل</button>
                 </div>
                 <BookSourceCard language="ar" />
               </div>
@@ -219,6 +215,26 @@ export default function ArabicHome() {
         ) : null}
       </main>
       {view === "calculator" ? <StepNav step={step} labels={stepLabels} ariaLabel="التنقل بين الخطوات" onGo={setStep} /> : null}
-    </div>
+      </div>
+      <PrintSheet
+        dir="rtl"
+        brand="ميراسو"
+        title="نتيجة القسمة"
+        dateText={new Date().toLocaleDateString("ar", { day: "numeric", month: "long", year: "numeric" })}
+        estateLabel="إجمالي التركة"
+        estate={money(result.netEstate)}
+        heirLabel="الوارث"
+        shareLabel="الحصة"
+        amountLabel="المبلغ"
+        rows={printRows}
+        totalLabel="إجمالي الموزع"
+        total={money(distributedTotal)}
+        remainingLabel="المبلغ المتبقي"
+        remaining={remainingAmount > 0.005 ? money(remainingAmount) : undefined}
+        noShareLabel="لا نصيب لهم"
+        noShareText={noShareNames.length > 0 ? noShareNames.join("، ") : undefined}
+        note="لأغراض تعليمية فقط. تأكد من أي قسمة حقيقية مع مختصين شرعيين وقانونيين مؤهلين."
+      />
+    </>
   );
 }

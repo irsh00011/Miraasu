@@ -27,7 +27,8 @@ import { SegmentedTabs } from "@/components/calc/SegmentedTabs";
 import { ShareCard } from "@/components/calc/ShareCard";
 import { StepBar, StepNav, type Step } from "@/components/calc/StepBar";
 import { readCalculationHistory, writeCalculationHistory, type SavedCalculation } from "@/lib/localHistory";
-import { downloadTextFile } from "@/components/calc/download";
+import { printSummaryAsPdf } from "@/components/calc/download";
+import { PrintSheet, type PrintRow } from "@/components/calc/PrintSheet";
 
 type View = "calculator" | "history";
 
@@ -139,25 +140,20 @@ export default function UrduHome() {
 
   const displayAllocations = aggregateAllocationsForDisplay(result.allocations);
   const asabahGroup = displayAllocations.filter((entry) => entry.method === "remainder");
-  const downloadSummary = () => {
-    const lines = [
-      "میراث — تقسیم کا نتیجہ",
-      `کل جائیداد: ${money(result.netEstate)}`,
-      "",
-      ...displayAllocations.map((item) => {
-        const amount = result.netEstate * fractionToNumber(item.share);
-        const isAsabah = item.method === "remainder";
-        const parts = asabahPartsFor(item, asabahGroup);
-        const share = isAsabah ? `عصبہ (${parts} ${parts === 1 ? "حصہ" : "حصے"})` : fractionToText(item.share);
-        return `${labels[item.key] ?? item.label}${item.count > 1 ? ` ×${item.count}` : ""} — ${share} — ${money(amount)}`;
-      }),
-      "",
-      `کل تقسیم شدہ: ${money(distributedTotal)}`,
-    ];
-    downloadTextFile("miraasu-result.txt", lines.join("\n"));
-  };
+  const printRows: PrintRow[] = displayAllocations.map((item) => {
+    const amount = result.netEstate * fractionToNumber(item.share);
+    const isAsabah = item.method === "remainder";
+    const parts = asabahPartsFor(item, asabahGroup);
+    return {
+      name: `${labels[item.key] ?? item.label}${item.count > 1 ? ` ×${item.count}` : ""}`,
+      share: isAsabah ? `عصبہ (${parts} ${parts === 1 ? "حصہ" : "حصے"})` : fractionToText(item.share),
+      amount: money(amount),
+    };
+  });
+  const noShareNames = result.exclusions.map((item) => labels[item.key as string] ?? item.label);
 
   return (
+    <>
     <div className="ms-page ms-watermark">
       <AppHeader
         title="میراث کیلکولیٹر"
@@ -217,8 +213,8 @@ export default function UrduHome() {
             {step === 2 ? (
               <div className="ms-card p-4 sm:p-7">
                 <p className="ms-kicker">مرحلہ 2 از 3</p>
-                <h1 className="ms-h1">خاندان کے کون زندہ ہیں؟</h1>
-                <p className="ms-lead">صرف زندہ رشتہ داروں کو چنیں / تعداد بدلیں۔</p>
+                <h1 className="ms-h1">خاندان چنیں</h1>
+                <p className="ms-lead">صرف زندہ افراد چنیں۔</p>
                 <div className="mt-5">
                   <FamilyList heirs={heirs} onChange={updateHeir} onResetAll={() => resetKeys(Object.keys(initialHeirs) as (keyof HeirInput)[])} query={query} onQueryChange={setQuery} onSearchEnter={finishCalculation} language="ur" />
                 </div>
@@ -287,7 +283,7 @@ export default function UrduHome() {
 
                 <div className="ms-actions-packet">
                   <button type="button" onClick={() => window.print()} className="ms-btn-outline"><Printer size={16} /> پرنٹ</button>
-                  <button type="button" onClick={downloadSummary} className="ms-btn-outline"><Download size={16} /> ڈاؤن لوڈ</button>
+                  <button type="button" onClick={() => printSummaryAsPdf("Miraasu-Result")} className="ms-btn-outline"><Download size={16} /> ڈاؤن لوڈ</button>
                 </div>
                 <BookSourceCard language="ur" />
                 <p className="text-center text-xs leading-5 text-slate-500">صرف تعلیمی مدد کے لیے۔ کسی حقیقی تقسیم کی تصدیق مستند اسلامی اور قانونی ماہرین سے کرائیں۔</p>
@@ -297,6 +293,26 @@ export default function UrduHome() {
         ) : null}
       </main>
       {view === "calculator" ? <StepNav step={step} labels={stepLabels} ariaLabel="مراحل کے درمیان جائیں" onGo={setStep} /> : null}
-    </div>
+      </div>
+      <PrintSheet
+        dir="rtl"
+        brand="میراث"
+        title="تقسیم کا نتیجہ"
+        dateText={new Date().toLocaleDateString("ur", { day: "numeric", month: "long", year: "numeric" })}
+        estateLabel="کل جائیداد"
+        estate={money(result.netEstate)}
+        heirLabel="وارث"
+        shareLabel="حصہ"
+        amountLabel="رقم"
+        rows={printRows}
+        totalLabel="کل تقسیم شدہ"
+        total={money(distributedTotal)}
+        remainingLabel="باقی رقم"
+        remaining={remainingAmount > 0.005 ? money(remainingAmount) : undefined}
+        noShareLabel="جن کا حصہ نہیں"
+        noShareText={noShareNames.length > 0 ? noShareNames.join("، ") : undefined}
+        note="صرف تعلیمی مدد کے لیے۔ کسی حقیقی تقسیم کی تصدیق مستند اسلامی اور قانونی ماہرین سے کرائیں۔"
+      />
+    </>
   );
 }
