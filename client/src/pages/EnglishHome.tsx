@@ -3,7 +3,7 @@
  * UI only: state, handlers and every call into @/lib/inheritance are unchanged.
  */
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, Calculator, History, Printer, UsersRound } from "lucide-react";
+import { ArrowLeft, Calculator, Download, Printer, UsersRound } from "lucide-react";
 import { FamilyList } from "@/components/FamilyList";
 import { BookSourceCard } from "@/components/BookSourceCard";
 import { aggregateAllocationsForDisplay, asabahPartsFor, calculateInheritance, fractionToNumber, fractionToText, sourcePercentage, EXTENDED_HEIR_SECTIONS, type EstateInput, type HeirInput } from "@/lib/inheritance";
@@ -16,6 +16,7 @@ import { SegmentedTabs } from "@/components/calc/SegmentedTabs";
 import { ShareCard } from "@/components/calc/ShareCard";
 import { StepBar, StepNav, type Step } from "@/components/calc/StepBar";
 import { readCalculationHistory, writeCalculationHistory, type SavedCalculation } from "@/lib/localHistory";
+import { downloadTextFile } from "@/components/calc/download";
 
 type View = "calculator" | "history";
 
@@ -97,6 +98,23 @@ export default function EnglishHome() {
 
   const displayAllocations = aggregateAllocationsForDisplay(result.allocations);
   const asabahGroup = displayAllocations.filter((entry) => entry.method === "remainder");
+  const downloadSummary = () => {
+    const lines = [
+      "Miraasu — Distribution result",
+      `Total estate: ${money(result.netEstate)}`,
+      "",
+      ...displayAllocations.map((item) => {
+        const amount = result.netEstate * fractionToNumber(item.share);
+        const isAsabah = item.method === "remainder";
+        const parts = asabahPartsFor(item, asabahGroup);
+        const share = isAsabah ? `Residuary (${parts} ${parts === 1 ? "part" : "parts"})` : fractionToText(item.share);
+        return `${labels[item.key] ?? item.label}${item.count > 1 ? ` x${item.count}` : ""} — ${share} — ${money(amount)}`;
+      }),
+      "",
+      `Total distributed: ${money(distributedTotal)}`,
+    ];
+    downloadTextFile("miraasu-result.txt", lines.join("\n"));
+  };
 
   return (
     <div className="ms-page ms-watermark">
@@ -173,11 +191,6 @@ export default function EnglishHome() {
               <div className="space-y-4">
                 <ResultHero title="Distribution result" savedNote={justSaved ? "Saved to history" : undefined} />
 
-                <div className="ms-estate-panel premium-pop">
-                  <span className="ms-estate-label">Total estate</span>
-                  <strong className="ms-estate-amount num">{money(result.netEstate)}</strong>
-                </div>
-
                 {result.notices.length > 0 ? <div className="space-y-2">{result.notices.map((notice) => <p key={notice} className="ms-notice">{noticeInEnglish(notice)}</p>)}</div> : null}
                 {result.requiresScholarReview ? <p className="ms-notice font-extrabold!">Scholar review required — this result is not final.</p> : null}
 
@@ -187,7 +200,6 @@ export default function EnglishHome() {
                   <div className="result-card-list space-y-2.5">
                     {result.allocations.length > 0 ? (
                       <>
-                        <p className="ms-dist-label">Distribution</p>
                         {displayAllocations.map((item) => {
                           const amount = result.netEstate * fractionToNumber(item.share);
                           const isAsabah = item.method === "remainder";
@@ -206,10 +218,6 @@ export default function EnglishHome() {
                             />
                           );
                         })}
-                        <div className="ms-total-strip">
-                          <span>Total</span>
-                          <strong className="num">{money(distributedTotal)}</strong>
-                        </div>
                         {remainingAmount > 0.005 ? (
                           <div className="ms-total-strip bg-[#7c5a1c]!">
                             <span>Remaining amount</span>
@@ -235,12 +243,9 @@ export default function EnglishHome() {
                   <CalculationTrace result={result} language="en" heirLabels={labels} />
                 )}
 
-                <div className="flex flex-col gap-3 pt-1 sm:flex-row sm:items-center sm:justify-between">
-                  <button type="button" onClick={() => setStep(2)} className="ms-btn ms-btn-ghost min-h-11! justify-center text-sm!"><ArrowLeft size={17} /> Edit family</button>
-                  <div className="flex flex-wrap gap-2">
-                    <button type="button" onClick={() => window.print()} className="ms-btn ms-btn-soft min-h-11! text-sm!"><Printer size={16} /> Print</button>
-                    <button type="button" onClick={() => setView("history")} className="ms-btn ms-btn-primary min-h-11! text-sm!"><History size={16} /> History</button>
-                  </div>
+                <div className="ms-actions-packet">
+                  <button type="button" onClick={() => window.print()} className="ms-btn-outline"><Printer size={16} /> Print</button>
+                  <button type="button" onClick={downloadSummary} className="ms-btn-outline"><Download size={16} /> Download</button>
                 </div>
                 <BookSourceCard language="en" />
                 <p className="text-center text-xs leading-5 text-slate-500">Educational aid only. Confirm any real distribution with qualified Islamic and legal professionals.</p>

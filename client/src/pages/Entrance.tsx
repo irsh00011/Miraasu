@@ -8,10 +8,9 @@
 import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, ChevronRight } from "lucide-react";
 import { useLocation } from "wouter";
-import { Onboarding, type OnboardingScreen } from "@/components/Onboarding";
 
 type Lang = "ta" | "en" | "ar" | "ur";
-type Step = "welcome" | "onboard1" | "onboard2" | "onboard3" | "language" | "gender";
+type Step = "welcome" | "language" | "gender";
 type Gender = "male" | "female";
 
 const LANGUAGES: { code: Lang; href: string; native: string; label: string; mark: string }[] = [
@@ -74,18 +73,8 @@ export default function Entrance() {
   const goBack = () => {
     window.clearTimeout(timer.current);
     setPicked(null);
-    setStep(
-      step === "gender" ? "language"
-      : step === "language" ? "onboard3"
-      : step === "onboard3" ? "onboard2"
-      : step === "onboard2" ? "onboard1"
-      : "welcome"
-    );
+    setStep(step === "gender" ? "language" : "welcome");
   };
-
-  const onboardScreen: OnboardingScreen | null =
-    step === "onboard1" ? 1 : step === "onboard2" ? 2 : step === "onboard3" ? 3 : null;
-  const goNextOnboard = () => setStep(step === "onboard1" ? "onboard2" : step === "onboard2" ? "onboard3" : "language");
 
   return (
     <main className="ent-shell" dir={rtl ? "rtl" : "ltr"}>
@@ -102,36 +91,29 @@ export default function Entrance() {
 
         <div className="ent-stage">
           {step === "welcome" ? (
-            <section key="welcome" className="ent-section ent-welcome">
-              <p className="ent-brandmark ent-rise">Miraasu</p>
-              <div className="ent-welcome-illo ent-rise" style={{ animationDelay: "90ms" }}>
-                <img src="/book-cover-icon-192.png" alt="Miraasu book" />
-              </div>
-              <div className="ent-head ent-rise" style={{ animationDelay: "160ms" }}>
-                <h1 className="ent-title">Welcome to Miraasu</h1>
-                <p className="ent-sub">A simple, step-by-step guide to understanding Islamic inheritance.</p>
-              </div>
-              <article className="ent-hadith ent-rise" lang="en" style={{ animationDelay: "220ms" }}>
+            <section key="welcome" className="ent-welcome">
+              <img src="/book-cover-icon-192.png" alt="" className="ent-logo ent-rise" style={{ animationDelay: "0ms" }} />
+              <h1 className="ent-welcome-title" aria-label="Welcome">
+                <span className="sr-only">Welcome</span>
+                <span aria-hidden="true" className="ent-letter-row">
+                  {"Welcome".split("").map((letter, index) => (
+                    <span key={`${letter}-${index}`} className="ent-welcome-letter ent-rise" style={{ animationDelay: `${90 + index * 55}ms` }}>{letter}</span>
+                  ))}
+                </span>
+              </h1>
+              <span className="ent-rule ent-rise" style={{ animationDelay: "170ms" }} aria-hidden="true" />
+              <p className="ent-welcome-sub ent-rise" style={{ animationDelay: "200ms" }}>to Miraasu</p>
+              <p className="ent-brand ent-rise" style={{ animationDelay: "230ms" }}>Islamic Inheritance Calculator</p>
+              <article className="ent-hadith ent-rise" lang="en" style={{ animationDelay: "280ms" }}>
                 <p className="ent-hadith-kicker">A teaching on inheritance</p>
                 <blockquote className="ent-hadith-quote">“O Abu Hurairah. Learn about the inheritance and teach it, for it is half of knowledge, but it will be forgotten. This is the first thing that will be taken away from my nation.”</blockquote>
                 <p className="ent-hadith-source">Narrated by Abu Hurairah · <a href="https://sunnah.com/ibnmajah:2719" target="_blank" rel="noreferrer">Sunan Ibn Majah 2719</a></p>
                 <p className="ent-hadith-grade">Grade: Daʿif (weak) · Darussalam</p>
               </article>
-              <div className="ent-onboard-cta ent-rise" style={{ animationDelay: "280ms" }}>
-                <button type="button" onClick={() => setStep("onboard1")} className="ent-start ent-cta-big">
-                  Start <ArrowRight size={18} />
-                </button>
-              </div>
+              <button type="button" onClick={() => setStep("language")} className="ent-start ent-rise" style={{ animationDelay: "320ms" }}>
+                Start <ArrowRight size={18} />
+              </button>
             </section>
-          ) : null}
-
-          {onboardScreen ? (
-            <Onboarding
-              key={`onboard-${onboardScreen}`}
-              screen={onboardScreen}
-              onNext={goNextOnboard}
-              onSkip={() => setStep("language")}
-            />
           ) : null}
 
           {step === "language" ? (
@@ -162,7 +144,7 @@ export default function Entrance() {
           ) : null}
 
           {step === "gender" ? (
-            <section key="gender" className="ent-section" lang={lang}>
+            <section key={step} className="ent-section" lang={lang}>
               <div className="ent-head ent-rise">
                 <h1 className="ent-title">{copy.title}</h1>
                 <p className="ent-sub">{copy.hint}</p>
@@ -190,7 +172,7 @@ export default function Entrance() {
           ) : null}
         </div>
 
-        {step === "language" || step === "gender" ? (
+        {step !== "welcome" ? (
           <div className="ent-dots" aria-hidden="true">
             <span className={step === "language" ? "is-on" : ""} />
             <span className={step === "gender" ? "is-on" : ""} />
