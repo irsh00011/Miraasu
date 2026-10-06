@@ -349,11 +349,11 @@
 
   .ms-chip {
     position: relative; display: flex; align-items: center; gap: 0.6rem; text-align: start;
-    border: 1px solid var(--ms-line); border-radius: 1rem; background: #fff;
+    border: 1.5px solid rgba(22, 79, 134, 0.4); border-radius: 1rem; background: #fff;
     padding: 0.6rem 0.65rem; min-height: 3.4rem;
     transition: background 0.18s ease, border-color 0.18s ease;
   }
-  .ms-chip:hover { border-color: var(--ms-line-strong); }
+  .ms-chip:hover { border-color: var(--ms-royal); }
   .ms-chip-icon {
     display: grid; place-items: center; width: 2.1rem; height: 2.1rem; flex: none;
     border-radius: 0.7rem; background: linear-gradient(150deg, #eef4fb, #dde9f7);
@@ -390,7 +390,7 @@
 
   .ms-spouse-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.55rem; }
   .ms-spouse {
-    border: 1px solid var(--ms-line); border-radius: 1rem; background: #fff;
+    border: 1.5px solid rgba(22, 79, 134, 0.4); border-radius: 1rem; background: #fff;
     padding: 0.7rem 0.4rem; font-size: 0.8rem; font-weight: 800; color: var(--ms-muted);
     transition: all 0.18s ease;
   }
@@ -626,6 +626,31 @@
   }
 }
 
+/* ════════════════ Result — estate summary panel + distribution label ════════════════ */
+@layer components {
+  /* Deep-blue total-estate panel: first thing seen under the result header */
+  .ms-estate-panel {
+    display: flex; align-items: center; justify-content: space-between; gap: 0.75rem;
+    border-radius: 1.2rem; padding: 1rem 1.15rem;
+    background: linear-gradient(140deg, #1a4d84 0%, #0e3059 70%);
+    box-shadow: 0 18px 36px -20px rgba(11, 42, 79, 0.6), inset 0 0 0 1px rgba(236, 217, 166, 0.28);
+  }
+  .ms-estate-label { color: #bcd3ea; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; }
+  :lang(ta) .ms-estate-label, :lang(ar) .ms-estate-label, [dir="rtl"] .ms-estate-label { letter-spacing: 0; }
+  .ms-estate-amount { color: #ffffff; font-size: clamp(1.3rem, 5.5vw, 1.6rem); font-weight: 800; letter-spacing: -0.02em; overflow-wrap: anywhere; text-align: end; }
+  /* Small gold-ticked section label above the heir rows */
+  .ms-dist-label {
+    display: flex; align-items: center; gap: 0.55rem;
+    color: var(--ms-navy); font-size: 0.78rem; font-weight: 800;
+    letter-spacing: 0.12em; text-transform: uppercase;
+  }
+  :lang(ta) .ms-dist-label, :lang(ar) .ms-dist-label, [dir="rtl"] .ms-dist-label { letter-spacing: 0; }
+  .ms-dist-label::before {
+    content: ""; flex: none; width: 4px; height: 1.15em; border-radius: 4px;
+    background: linear-gradient(180deg, var(--ms-gold), rgba(184, 137, 45, 0.35));
+  }
+}
+
 /* ════════════════ Calculation trace — stronger typography, borders and contrast ════════════════ */
 @layer components {
   .ms-trace-head {
@@ -793,6 +818,74 @@
     .ent-lang-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
     .ent-lang-card { min-height: 13.5rem; }
   }
+
+  /* ── Educational onboarding (welcome → language) ─────────────────── */
+  .ent-onboard { display: flex; flex-direction: column; align-items: center; text-align: center; }
+  .ent-brandmark {
+    color: rgba(255, 255, 255, 0.85); font-size: 0.78rem; font-weight: 800;
+    letter-spacing: 0.42em; text-transform: uppercase; padding-inline-start: 0.42em;
+  }
+  .ent-dots-sm { display: flex; justify-content: center; gap: 0.45rem; margin-top: 1.1rem; }
+  .ent-dots-sm span { width: 0.5rem; height: 0.5rem; border-radius: 999px; background: rgba(255, 255, 255, 0.32); transition: background 0.25s ease, transform 0.25s ease; }
+  .ent-dots-sm span.is-on { background: #e8c477; transform: scale(1.25); }
+  .ent-illo {
+    width: min(100%, 22rem); margin-top: 1.6rem; border-radius: 1.4rem;
+    background: linear-gradient(180deg, #ffffff, #f2f7fd);
+    border: 1px solid rgba(232, 196, 119, 0.45);
+    box-shadow: 0 18px 36px -18px rgba(4, 20, 40, 0.5), inset 0 1px 0 #ffffff;
+    padding: 1.4rem 1.2rem;
+  }
+  /* Estate flow: Total Estate → deductions → Inheritance */
+  .ent-flow { display: flex; flex-direction: column; align-items: center; }
+  .ent-flow-row { display: flex; flex-direction: column; align-items: center; }
+  .ent-flow-pill {
+    min-width: 11rem; border-radius: 999px; padding: 0.5rem 1.1rem;
+    background: #eaf2fb; border: 1.5px solid rgba(22, 79, 134, 0.35);
+    color: #0b2a4f; font-size: 0.8rem; font-weight: 800;
+  }
+  .ent-flow-pill.is-final {
+    background: linear-gradient(150deg, #256aa8, #0e3a68); border-color: #0e3a68; color: #ffffff;
+    box-shadow: 0 8px 16px -8px rgba(14, 58, 104, 0.6), inset 0 0 0 1px rgba(232, 196, 119, 0.5);
+  }
+  .ent-flow-arrow { color: #b8892d; font-size: 1rem; font-weight: 900; line-height: 1; margin: 0.3rem 0; }
+  /* Family illustration */
+  .ent-fam { display: flex; justify-content: center; align-items: flex-end; gap: 0.9rem; flex-wrap: wrap; }
+  .ent-fam-person { display: flex; flex-direction: column; align-items: center; gap: 0.4rem; }
+  .ent-fam-label { color: #0b2a4f; font-size: 0.68rem; font-weight: 800; }
+  /* Result preview mini statement */
+  .ent-demo { text-align: start; }
+  .ent-demo-head {
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 0.75rem;
+    padding-bottom: 0.8rem; border-bottom: 2px solid rgba(22, 79, 134, 0.16);
+  }
+  .ent-demo-kicker { color: #5b7a9c; font-size: 0.66rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; }
+  .ent-demo-estate { color: #0b2a4f; font-size: 1.35rem; font-weight: 800; letter-spacing: -0.02em; margin-top: 0.15rem; }
+  .ent-demo-badge {
+    flex: none; border-radius: 0.55rem; padding: 0.25rem 0.65rem;
+    background: #f6ecd4; border: 1px solid rgba(184, 137, 45, 0.45);
+    color: #8a6414; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  .ent-demo-rows { list-style: none; margin: 0; padding: 0; }
+  .ent-demo-rows li {
+    display: flex; align-items: center; gap: 0.6rem;
+    padding: 0.55rem 0; border-bottom: 1px dashed rgba(22, 79, 134, 0.18);
+    font-size: 0.82rem;
+  }
+  .ent-demo-rows li:last-child { border-bottom: 0; }
+  .ent-demo-name { flex: 1; font-weight: 800; color: #164f86; }
+  .ent-demo-share { font-weight: 800; color: #5b7a9c; background: #eaf2fb; border-radius: 0.45rem; padding: 0.1rem 0.5rem; font-size: 0.74rem; }
+  .ent-demo-amt { font-weight: 800; color: #1c7a4b; min-width: 3.2rem; text-align: end; }
+  /* CTA + Skip */
+  .ent-onboard .ent-head { margin: 1.5rem 0 0; }
+  .ent-extra { margin-top: 0.5rem; color: rgba(255, 255, 255, 0.62); font-size: 0.8rem; }
+  .ent-onboard-cta { display: flex; flex-direction: column; align-items: center; margin-top: 1.75rem; }
+  .ent-next { margin-top: 0; }
+  .ent-skip {
+    margin-top: 1rem; min-height: 2.75rem; padding: 0 1.25rem;
+    color: rgba(255, 255, 255, 0.65); font-size: 0.9rem; font-weight: 700;
+    border-radius: 999px; transition: color 0.2s ease, background 0.2s ease;
+  }
+  .ent-skip:hover { color: #ffffff; background: rgba(255, 255, 255, 0.12); }
 }
 @keyframes ent-pop { from { opacity: 0; transform: translateY(16px) scale(0.94); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) {

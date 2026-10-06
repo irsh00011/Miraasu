@@ -51,6 +51,10 @@ export default function ArabicHome() {
   const remainingAmount = Math.max(0, result.netEstate - distributedTotal);
 
   useEffect(() => { document.documentElement.lang = "ar"; document.documentElement.dir = "rtl"; setHistory(readCalculationHistory()); return () => { document.documentElement.dir = "ltr"; }; }, []);
+  /* Result page must always open at the top: reset any scroll position kept from the Family step. */
+  useEffect(() => {
+    if (step === 3) window.scrollTo({ top: 0, left: 0, behavior: "instant" as ScrollBehavior });
+  }, [step]);
   const updateEstate = (key: keyof EstateInput, value: number) => setEstate((current) => ({ ...current, [key]: Math.max(0, value) }));
   const updateHeir = (key: keyof HeirInput, value: number) => setHeirs((current) => ({ ...current, [key]: Math.max(0, value) }));
   const resetKeys = (keys: (keyof HeirInput)[]) => setHeirs((current) => Object.fromEntries(Object.entries(current).map(([key, value]) => [key, keys.includes(key as keyof HeirInput) ? 0 : value])) as HeirInput);
@@ -134,6 +138,10 @@ export default function ArabicHome() {
             {step === 3 ? (
               <div className="space-y-4">
                 <ResultHero title="نتيجة القسمة" />
+                <div className="ms-estate-panel premium-pop">
+                  <span className="ms-estate-label">إجمالي التركة</span>
+                  <strong className="ms-estate-amount num">{money(result.netEstate)}</strong>
+                </div>
                 {result.notices.map((notice) => <div key={notice} className="ms-notice">{noticeArabic(notice)}</div>)}
                 {result.requiresScholarReview ? <p className="ms-notice font-extrabold!">يلزم تأكيد من مختص — هذه النتيجة غير نهائية.</p> : null}
 
@@ -143,6 +151,7 @@ export default function ArabicHome() {
                   <div className="result-card-list space-y-2.5">
                     {result.allocations.length > 0 ? (
                       <>
+                        <p className="ms-dist-label">التوزيع</p>
                         {displayAllocations.map((item) => {
                           const isAsabah = item.method === "remainder";
                           const parts = asabahPartsFor(item, asabahGroup);
@@ -162,7 +171,7 @@ export default function ArabicHome() {
                           );
                         })}
                         <div className="ms-total-strip">
-                          <span>إجمالي الموزع</span>
+                          <span>الإجمالي</span>
                           <strong className="num">{money(distributedTotal)}</strong>
                         </div>
                         {remainingAmount > 0.005 ? (

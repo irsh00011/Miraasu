@@ -130,6 +130,10 @@ export default function Home() {
     document.title = "மீராஸ் கணக்கீடு";
     setHistory(readCalculationHistory());
   }, []);
+  /* முடிவுப் பக்கம் எப்போதும் மேலிருந்து தொடங்க வேண்டும்: குடும்பப் படியின் scroll நிலையை நீக்கு. */
+  useEffect(() => {
+    if (step === 3) window.scrollTo({ top: 0, left: 0, behavior: "instant" as ScrollBehavior });
+  }, [step]);
 
   const updateEstate = (key: keyof EstateInput, value: number) => setEstate((current) => ({ ...current, [key]: Math.max(0, value) }));
   const updateHeir = (key: keyof HeirInput, value: number) => setHeirs((current) => ({ ...current, [key]: value }));
@@ -281,6 +285,10 @@ export default function Home() {
             {step === 3 ? (
               <div className="space-y-4">
                 <ResultHero title="பங்கீட்டு முடிவு" savedNote={justSaved ? "வரலாற்றில் சேமிக்கப்பட்டது" : undefined} />
+                <div className="ms-estate-panel premium-pop">
+                  <span className="ms-estate-label">மொத்த சொத்து</span>
+                  <strong className="ms-estate-amount num">{money(result.netEstate)}</strong>
+                </div>
                 <SegmentedTabs
                   value={resultMode}
                   onChange={setResultMode}
@@ -291,6 +299,7 @@ export default function Home() {
                   <div className="result-card-list space-y-2.5">
                     {resultRows.length > 0 ? (
                       <>
+                        <p className="ms-dist-label">பங்கீடு</p>
                         {shareRows.map((row) => (
                           <ShareCard
                             key={row.key}
@@ -305,7 +314,7 @@ export default function Home() {
                           />
                         ))}
                         <div className="ms-total-strip">
-                          <span>மொத்தம் பகிரப்பட்டது</span>
+                          <span>மொத்தம்</span>
                           <strong className="num">{money(distributedTotal)}</strong>
                         </div>
                         {remainingAmount > 0.005 ? (
