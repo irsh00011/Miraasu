@@ -8,9 +8,10 @@
 import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, ChevronRight } from "lucide-react";
 import { useLocation } from "wouter";
+import { Onboarding, type OnboardingScreen } from "@/components/Onboarding";
 
 type Lang = "ta" | "en" | "ar" | "ur";
-type Step = "welcome" | "language" | "gender";
+type Step = "welcome" | "onboard1" | "onboard2" | "onboard3" | "language" | "gender";
 type Gender = "male" | "female";
 
 const LANGUAGES: { code: Lang; href: string; native: string; label: string; mark: string }[] = [
@@ -73,8 +74,18 @@ export default function Entrance() {
   const goBack = () => {
     window.clearTimeout(timer.current);
     setPicked(null);
-    setStep(step === "gender" ? "language" : "welcome");
+    setStep(
+      step === "gender" ? "language"
+      : step === "language" ? "onboard3"
+      : step === "onboard3" ? "onboard2"
+      : step === "onboard2" ? "onboard1"
+      : "welcome"
+    );
   };
+
+  const onboardScreen: OnboardingScreen | null =
+    step === "onboard1" ? 1 : step === "onboard2" ? 2 : step === "onboard3" ? 3 : null;
+  const goNextOnboard = () => setStep(step === "onboard1" ? "onboard2" : step === "onboard2" ? "onboard3" : "language");
 
   return (
     <main className="ent-shell" dir={rtl ? "rtl" : "ltr"}>
@@ -110,10 +121,19 @@ export default function Entrance() {
                 <p className="ent-hadith-source">Narrated by Abu Hurairah · <a href="https://sunnah.com/ibnmajah:2719" target="_blank" rel="noreferrer">Sunan Ibn Majah 2719</a></p>
                 <p className="ent-hadith-grade">Grade: Daʿif (weak) · Darussalam</p>
               </article>
-              <button type="button" onClick={() => setStep("language")} className="ent-start ent-rise" style={{ animationDelay: "320ms" }}>
+              <button type="button" onClick={() => setStep("onboard1")} className="ent-start ent-rise" style={{ animationDelay: "320ms" }}>
                 Start <ArrowRight size={18} />
               </button>
             </section>
+          ) : null}
+
+          {onboardScreen ? (
+            <Onboarding
+              key={`onboard-${onboardScreen}`}
+              screen={onboardScreen}
+              onNext={goNextOnboard}
+              onSkip={() => setStep("language")}
+            />
           ) : null}
 
           {step === "language" ? (
@@ -172,7 +192,7 @@ export default function Entrance() {
           ) : null}
         </div>
 
-        {step !== "welcome" ? (
+        {step === "language" || step === "gender" ? (
           <div className="ent-dots" aria-hidden="true">
             <span className={step === "language" ? "is-on" : ""} />
             <span className={step === "gender" ? "is-on" : ""} />

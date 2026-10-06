@@ -111,6 +111,10 @@ export default function UrduHome() {
     setHistory(readCalculationHistory());
     return () => { document.documentElement.dir = "ltr"; };
   }, []);
+  /* Result page must always open at the top: reset any scroll position kept from the Family step. */
+  useEffect(() => {
+    if (step === 3) window.scrollTo({ top: 0, left: 0, behavior: "instant" as ScrollBehavior });
+  }, [step]);
 
   const updateEstate = (key: keyof EstateInput, value: number) => setEstate((current) => ({ ...current, [key]: Math.max(0, value) }));
   const updateHeir = (key: keyof HeirInput, value: number) => setHeirs((current) => ({ ...current, [key]: Math.max(0, value) }));
@@ -210,6 +214,10 @@ export default function UrduHome() {
             {step === 3 ? (
               <div className="space-y-4">
                 <ResultHero title="تقسیم کا نتیجہ" savedNote={justSaved ? "ہسٹری میں محفوظ ہو گیا" : undefined} />
+                <div className="ms-estate-panel premium-pop">
+                  <span className="ms-estate-label">کل جائیداد</span>
+                  <strong className="ms-estate-amount num">{money(result.netEstate)}</strong>
+                </div>
 
                 {result.notices.length > 0 ? <div className="space-y-2">{result.notices.map((notice) => <p key={notice} className="ms-notice">{noticeInUrdu(notice)}</p>)}</div> : null}
                 {result.requiresScholarReview ? <p className="ms-notice font-extrabold!">مستند عالم سے تصدیق ضروری ہے — یہ نتیجہ حتمی نہیں۔</p> : null}
@@ -220,7 +228,7 @@ export default function UrduHome() {
                   <div className="result-card-list space-y-2.5">
                     {result.allocations.length > 0 ? (
                       <>
-                        {displayAllocations.map((item) => {
+                        <p className="ms-dist-label">تقسیم</p>                        {displayAllocations.map((item) => {
                           const amount = result.netEstate * fractionToNumber(item.share);
                           const isAsabah = item.method === "remainder";
                           const parts = asabahPartsFor(item, asabahGroup);
@@ -239,7 +247,7 @@ export default function UrduHome() {
                           );
                         })}
                         <div className="ms-total-strip">
-                          <span>کل تقسیم شدہ</span>
+                          <span>کل</span>
                           <strong className="num">{money(distributedTotal)}</strong>
                         </div>
                         {remainingAmount > 0.005 ? (

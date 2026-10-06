@@ -76,6 +76,10 @@ export default function EnglishHome() {
     document.title = "Mīrāth Calculator | English";
     setHistory(readCalculationHistory());
   }, []);
+  /* The Result page must always open at the top: discard any scroll position kept from the Family step. */
+  useEffect(() => {
+    if (step === 3) window.scrollTo({ top: 0, left: 0, behavior: "instant" as ScrollBehavior });
+  }, [step]);
   const updateEstate = (key: keyof EstateInput, value: number) => setEstate((current) => ({ ...current, [key]: Math.max(0, value) }));
   const updateHeir = (key: keyof HeirInput, value: number) => setHeirs((current) => ({ ...current, [key]: Math.max(0, value) }));
   const resetHeirKeys = (keys: (keyof HeirInput)[]) => setHeirs((current) => Object.fromEntries(Object.entries(current).map(([key, value]) => [key, keys.includes(key as keyof HeirInput) ? 0 : value])) as HeirInput);
@@ -169,6 +173,11 @@ export default function EnglishHome() {
               <div className="space-y-4">
                 <ResultHero title="Distribution result" savedNote={justSaved ? "Saved to history" : undefined} />
 
+                <div className="ms-estate-panel premium-pop">
+                  <span className="ms-estate-label">Total estate</span>
+                  <strong className="ms-estate-amount num">{money(result.netEstate)}</strong>
+                </div>
+
                 {result.notices.length > 0 ? <div className="space-y-2">{result.notices.map((notice) => <p key={notice} className="ms-notice">{noticeInEnglish(notice)}</p>)}</div> : null}
                 {result.requiresScholarReview ? <p className="ms-notice font-extrabold!">Scholar review required — this result is not final.</p> : null}
 
@@ -178,6 +187,7 @@ export default function EnglishHome() {
                   <div className="result-card-list space-y-2.5">
                     {result.allocations.length > 0 ? (
                       <>
+                        <p className="ms-dist-label">Distribution</p>
                         {displayAllocations.map((item) => {
                           const amount = result.netEstate * fractionToNumber(item.share);
                           const isAsabah = item.method === "remainder";
@@ -197,7 +207,7 @@ export default function EnglishHome() {
                           );
                         })}
                         <div className="ms-total-strip">
-                          <span>Total distributed</span>
+                          <span>Total</span>
                           <strong className="num">{money(distributedTotal)}</strong>
                         </div>
                         {remainingAmount > 0.005 ? (
@@ -205,6 +215,12 @@ export default function EnglishHome() {
                             <span>Remaining amount</span>
                             <strong className="num">{money(remainingAmount)}</strong>
                           </div>
+                        ) : null}
+                        {result.exclusions.length > 0 ? (
+                          <details className="ms-zero-box">
+                            <summary>No share (<span className="num">{result.exclusions.length}</span>)</summary>
+                            <ul>{result.exclusions.map((item, index) => <li key={`exclusion-${item.key ?? index}`}>{labels[item.key as string] ?? item.label}<span className="ms-zero-reason"> — blocked by a nearer relative in this case.</span></li>)}</ul>
+                          </details>
                         ) : null}
                       </>
                     ) : (
