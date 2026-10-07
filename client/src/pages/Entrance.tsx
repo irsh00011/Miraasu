@@ -105,8 +105,8 @@ export default function Entrance() {
               <p className="ent-welcome-sub ent-rise" style={{ animationDelay: "200ms" }}>to Miraasu</p>
               <p className="ent-brand ent-rise" style={{ animationDelay: "230ms" }}>Islamic Inheritance Calculator</p>
               <div className="ent-logos ent-rise" style={{ animationDelay: "255ms" }}>
-                <img src="/bukhari-logo.jpg" alt="Bukhari Aalim Arabic College" className="ent-logo-badge" />
-                <img src="/crescent-logo.jpg" alt="B.S. Abdur Rahman Crescent Institute of Science and Technology" className="ent-logo-badge" />
+                <img src="/bukhari-logo.svg" alt="Bukhari Aalim Arabic College" className="ent-logo-badge" />
+                <img src="/crescent-logo.svg" alt="B.S. Abdur Rahman Crescent Institute of Science and Technology" className="ent-logo-badge" />
               </div>
               <article className="ent-hadith ent-rise" lang="en" style={{ animationDelay: "280ms" }}>
                 <p className="ent-hadith-kicker">A teaching on inheritance</p>
