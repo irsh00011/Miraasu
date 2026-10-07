@@ -22,7 +22,7 @@ type Props = {
   remaining?: string;
   noShareLabel?: string;
   noShareText?: string;
-  note: string;
+  note?: string;
   dir?: "ltr" | "rtl";
 };
 
@@ -74,7 +74,7 @@ export function PrintSheet(props: Props) {
         </p>
       ) : null}
 
-      <p className="ms-ps-note">{props.note}</p>
+      {props.note ? <p className="ms-ps-note">{props.note}</p> : null}
     </div>
   );
 }
