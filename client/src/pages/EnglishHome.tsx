@@ -12,7 +12,7 @@ import { AppHeader } from "@/components/calc/AppHeader";
 import { EstateStep } from "@/components/calc/EstateStep";
 import { HistoryView } from "@/components/calc/HistoryView";
 import { ResultHero } from "@/components/calc/ResultHero";
-import { SegmentedTabs } from "@/components/calc/SegmentedTabs";
+import { LcmMethodPanel, methodCopy } from "@/components/calc/MethodPanels";
 import { ShareCard } from "@/components/calc/ShareCard";
 import { StepBar, StepNav, type Step } from "@/components/calc/StepBar";
 import { readCalculationHistory, writeCalculationHistory, type SavedCalculation } from "@/lib/localHistory";
@@ -67,7 +67,6 @@ export default function EnglishHome() {
   const [history, setHistory] = useState<SavedCalculation[]>([]);
   const [familyQuery, setFamilyQuery] = useState("");
   const [justSaved, setJustSaved] = useState(false);
-  const [resultMode, setResultMode] = useState<"simple" | "explicit">("simple");
   const result = useMemo(() => calculateInheritance(estate, heirs), [estate, heirs]);
   const fingerprint = useMemo(() => JSON.stringify({ estate, heirs }), [estate, heirs]);
   const distributedTotal = useMemo(() => result.allocations.reduce((total, item) => total + result.netEstate * fractionToNumber(item.share), 0), [result]);
@@ -170,17 +169,15 @@ export default function EnglishHome() {
 
             {step === 2 ? (
               <div className="ms-card p-4 sm:p-7">
-                <div className="flex items-start justify-between gap-3">
-                  <p className="ms-kicker">STEP 2 OF 3</p>
-                  <button type="button" onClick={finishCalculation} className="ms-btn ms-btn-primary ms-btn-top"><Calculator size={16} /> See result</button>
-                </div>
+                <p className="ms-kicker">STEP 2 OF 3</p>
                 <h1 className="ms-h1 ms-h1-compact">Choose your family</h1>
                 <p className="ms-lead">Select only those who are alive.</p>
                 <div className="mt-4">
                   <FamilyList heirs={heirs} onChange={updateHeir} onResetAll={() => resetHeirKeys(Object.keys(initialHeirs) as (keyof HeirInput)[])} query={familyQuery} onQueryChange={setFamilyQuery} onSearchEnter={finishCalculation} language="en" />
                 </div>
-                <div className="mt-6 border-t border-[rgba(22,79,134,0.12)] pt-4">
+                <div className="mt-6 border-t border-[rgba(22,79,134,0.12)] pt-4 flex items-center justify-between gap-3">
                   <button type="button" onClick={() => setStep(1)} className="ms-btn ms-btn-ghost min-h-11! px-3! text-sm!"><ArrowLeft size={17} /> Back</button>
+                  <button type="button" onClick={finishCalculation} className="ms-btn ms-btn-primary"><Calculator size={16} /> See result</button>
                 </div>
               </div>
             ) : null}
@@ -192,13 +189,12 @@ export default function EnglishHome() {
                 {result.notices.length > 0 ? <div className="space-y-2">{result.notices.map((notice) => <p key={notice} className="ms-notice">{noticeInEnglish(notice)}</p>)}</div> : null}
                 {result.requiresScholarReview ? <p className="ms-notice font-extrabold!">Scholar review required — this result is not final.</p> : null}
 
-                <SegmentedTabs value={resultMode} onChange={setResultMode} options={[{ value: "simple", label: "Summary" }, { value: "explicit", label: "Details" }]} />
-
-                {resultMode === "simple" ? (
-                  <div className="result-card-list space-y-2.5">
-                    {result.allocations.length > 0 ? (
-                      <>
-                        {displayAllocations.map((item) => {
+                <div className="ms-method-row">
+                  <section className="ms-method-panel" aria-label={methodCopy.en.percentageTitle}>
+                    <div className="ms-method-head"><h3>{methodCopy.en.percentageTitle}</h3></div>
+                    <div className="result-card-list space-y-2.5">
+                      {result.allocations.length > 0 ? (
+                        displayAllocations.map((item) => {
                           const amount = result.netEstate * fractionToNumber(item.share);
                           const isAsabah = item.method === "remainder";
                           const parts = asabahPartsFor(item, asabahGroup);
@@ -215,31 +211,42 @@ export default function EnglishHome() {
                               perPerson={isAsabah && item.count > 1 ? money(amount / item.count) : undefined}
                             />
                           );
-                        })}
-                        {remainingAmount > 0.005 ? (
-                          <div className="ms-total-strip bg-[#7c5a1c]!">
-                            <span>Remaining amount</span>
-                            <strong className="num">{money(remainingAmount)}</strong>
-                          </div>
-                        ) : null}
-                        {result.exclusions.length > 0 ? (
-                          <details className="ms-zero-box">
-                            <summary>No share (<span className="num">{result.exclusions.length}</span>)</summary>
-                            <ul>{result.exclusions.map((item, index) => <li key={`exclusion-${item.key ?? index}`}>{labels[item.key as string] ?? item.label}<span className="ms-zero-reason"> — blocked by a nearer relative.</span></li>)}</ul>
-                          </details>
-                        ) : null}
-                      </>
-                    ) : (
-                      <div className="ms-empty">
-                        <UsersRound className="mx-auto text-slate-300" size={30} />
-                        <p className="mt-3 font-bold text-slate-700">Add family members to see a result.</p>
-                        <button type="button" onClick={() => setStep(2)} className="mt-2 text-sm font-bold text-[#164f86] hover:underline">Edit family</button>
+                        })
+                      ) : (
+                        <div className="ms-empty">
+                          <UsersRound className="mx-auto text-slate-300" size={30} />
+                          <p className="mt-3 font-bold text-slate-700">Add family members to see a result.</p>
+                          <button type="button" onClick={() => setStep(2)} className="mt-2 text-sm font-bold text-[#164f86] hover:underline">Edit family</button>
+                        </div>
+                      )}
+                    </div>
+                  </section>
+                  <section className="ms-method-panel" aria-label={methodCopy.en.lcmTitle}>
+                    <LcmMethodPanel language="en" result={result} heirLabels={labels} money={money} />
+                  </section>
+                </div>
+
+                {result.allocations.length > 0 ? (
+                  <>
+                    {remainingAmount > 0.005 ? (
+                      <div className="ms-total-strip bg-[#7c5a1c]!">
+                        <span>Remaining amount</span>
+                        <strong className="num">{money(remainingAmount)}</strong>
                       </div>
-                    )}
-                  </div>
-                ) : (
+                    ) : null}
+                    {result.exclusions.length > 0 ? (
+                      <details className="ms-zero-box">
+                        <summary>No share (<span className="num">{result.exclusions.length}</span>)</summary>
+                        <ul>{result.exclusions.map((item, index) => <li key={`exclusion-${item.key ?? index}`}>{labels[item.key as string] ?? item.label}<span className="ms-zero-reason"> — blocked by a nearer relative.</span></li>)}</ul>
+                      </details>
+                    ) : null}
+                  </>
+                ) : null}
+
+                <details className="ms-audit-details">
+                  <summary>{methodCopy.en.auditTitle}</summary>
                   <CalculationTrace result={result} language="en" heirLabels={labels} />
-                )}
+                </details>
 
                 <div className="ms-actions-packet">
                   <button type="button" onClick={() => window.print()} className="ms-btn-outline"><Printer size={16} /> Print</button>

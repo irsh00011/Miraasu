@@ -21,7 +21,7 @@ import { AppHeader } from "@/components/calc/AppHeader";
 import { EstateStep } from "@/components/calc/EstateStep";
 import { HistoryView } from "@/components/calc/HistoryView";
 import { ResultHero } from "@/components/calc/ResultHero";
-import { SegmentedTabs } from "@/components/calc/SegmentedTabs";
+import { LcmMethodPanel, methodCopy } from "@/components/calc/MethodPanels";
 import { ShareCard } from "@/components/calc/ShareCard";
 import { StepBar, StepNav, type Step } from "@/components/calc/StepBar";
 import {
@@ -85,7 +85,6 @@ export default function Home() {
   const [heirs, setHeirs] = useState<HeirInput>(initialHeirs);
   const [history, setHistory] = useState<SavedCalculation[]>([]);
   const [justSaved, setJustSaved] = useState(false);
-  const [resultMode, setResultMode] = useState<"simple" | "explicit">("simple");
   const [familyQuery, setFamilyQuery] = useState("");
 
   const result = useMemo(() => calculateInheritance(estate, heirs), [estate, heirs]);
@@ -270,10 +269,7 @@ export default function Home() {
 
             {step === 2 ? (
               <div className="ms-card p-4 sm:p-7">
-                <div className="flex items-start justify-between gap-3">
-                  <p className="ms-kicker">படி 2 / 3</p>
-                  <button type="button" onClick={finishCalculation} className="ms-btn ms-btn-primary ms-btn-top"><Calculator size={16} /> முடிவைப் பார்க்கவும்</button>
-                </div>
+                <p className="ms-kicker">படி 2 / 3</p>
                 <h1 className="ms-h1 ms-h1-compact">குடும்பத்தைத் தேர்வு செய்க</h1>
                 <p className="ms-lead">உயிருடன் இருப்பவர்களை மட்டும் தேர்வு செய்க.</p>
                 <div className="mt-4">
@@ -287,8 +283,9 @@ export default function Home() {
                     language="ta"
                   />
                 </div>
-                <div className="mt-6 border-t border-[rgba(22,79,134,0.12)] pt-4">
+                <div className="mt-6 border-t border-[rgba(22,79,134,0.12)] pt-4 flex items-center justify-between gap-3">
                   <button type="button" onClick={() => setStep(1)} className="ms-btn ms-btn-ghost min-h-11! px-3! text-sm!"><ArrowLeft size={17} /> பின்செல்</button>
+                  <button type="button" onClick={finishCalculation} className="ms-btn ms-btn-primary"><Calculator size={16} /> முடிவைப் பார்க்கவும்</button>
                 </div>
               </div>
             ) : null}
@@ -296,17 +293,12 @@ export default function Home() {
             {step === 3 ? (
               <div className="space-y-4">
                 <ResultHero title="பங்கீட்டு முடிவு" savedNote={justSaved ? "வரலாற்றில் சேமிக்கப்பட்டது" : undefined} />
-                <SegmentedTabs
-                  value={resultMode}
-                  onChange={setResultMode}
-                  options={[{ value: "simple", label: "சுருக்கம்" }, { value: "explicit", label: "விவரம்" }]}
-                />
-
-                {resultMode === "simple" ? (
-                  <div className="result-card-list space-y-2.5">
-                    {resultRows.length > 0 ? (
-                      <>
-                        {shareRows.map((row) => (
+                <div className="ms-method-row">
+                  <section className="ms-method-panel" aria-label={methodCopy.ta.percentageTitle}>
+                    <div className="ms-method-head"><h3>{methodCopy.ta.percentageTitle}</h3></div>
+                    <div className="result-card-list space-y-2.5">
+                      {resultRows.length > 0 ? (
+                        shareRows.map((row) => (
                           <ShareCard
                             key={row.key}
                             name={row.label}
@@ -318,31 +310,42 @@ export default function Home() {
                             perPersonLabel="ஒருவருக்கு"
                             perPerson={row.isAsabah && row.perPerson !== null ? money(row.perPerson) : undefined}
                           />
-                        ))}
-                        {remainingAmount > 0.005 ? (
-                          <div className="ms-total-strip bg-[#7c5a1c]!">
-                            <span>மீதமுள்ள தொகை</span>
-                            <strong className="num">{money(remainingAmount)}</strong>
-                          </div>
-                        ) : null}
-                        {zeroRows.length > 0 ? (
-                          <details className="ms-zero-box">
-                            <summary>பங்கு இல்லாதவர்கள் (<span className="num">{zeroRows.length}</span>)</summary>
-                            <ul>{zeroRows.map((row) => <li key={`zero-${row.key}`}>{row.label}<span className="ms-zero-reason"> — {row.reason}</span></li>)}</ul>
-                          </details>
-                        ) : null}
-                      </>
-                    ) : (
-                      <div className="ms-empty">
-                        <UsersRound className="mx-auto text-slate-300" size={30} />
-                        <p className="mt-3 font-bold text-slate-700">வாரிசுகளைச் சேர்க்கவும்.</p>
-                        <button type="button" onClick={() => setStep(2)} className="mt-2 text-sm font-bold text-[#164f86] hover:underline">உறவுகளை மாற்றுக</button>
+                        ))
+                      ) : (
+                        <div className="ms-empty">
+                          <UsersRound className="mx-auto text-slate-300" size={30} />
+                          <p className="mt-3 font-bold text-slate-700">வாரிசுகளைச் சேர்க்கவும்.</p>
+                          <button type="button" onClick={() => setStep(2)} className="mt-2 text-sm font-bold text-[#164f86] hover:underline">உறவுகளை மாற்றுக</button>
+                        </div>
+                      )}
+                    </div>
+                  </section>
+                  <section className="ms-method-panel" aria-label={methodCopy.ta.lcmTitle}>
+                    <LcmMethodPanel language="ta" result={result} heirLabels={Object.fromEntries(resultRows.map((row) => [row.key, row.label]))} money={money} />
+                  </section>
+                </div>
+
+                {resultRows.length > 0 ? (
+                  <>
+                    {remainingAmount > 0.005 ? (
+                      <div className="ms-total-strip bg-[#7c5a1c]!">
+                        <span>மீதமுள்ள தொகை</span>
+                        <strong className="num">{money(remainingAmount)}</strong>
                       </div>
-                    )}
-                  </div>
-                ) : (
+                    ) : null}
+                    {zeroRows.length > 0 ? (
+                      <details className="ms-zero-box">
+                        <summary>பங்கு இல்லாதவர்கள் (<span className="num">{zeroRows.length}</span>)</summary>
+                        <ul>{zeroRows.map((row) => <li key={`zero-${row.key}`}>{row.label}<span className="ms-zero-reason"> — {row.reason}</span></li>)}</ul>
+                      </details>
+                    ) : null}
+                  </>
+                ) : null}
+
+                <details className="ms-audit-details">
+                  <summary>{methodCopy.ta.auditTitle}</summary>
                   <CalculationTrace result={result} language="ta" />
-                )}
+                </details>
 
                 <div className="ms-actions-packet">
                   <button type="button" onClick={() => window.print()} className="ms-btn-outline"><Printer size={16} /> அச்சிடுக</button>
