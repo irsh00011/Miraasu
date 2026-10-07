@@ -82,7 +82,7 @@ export default function ArabicHome() {
     <>
     <div className="ms-page ms-watermark">
       <AppHeader
-        title="حاسبة المواريث"
+        title="Islamic Inheritance Calculator"
         subtitle="سجل يوضح سبب كل نصيب"
         homeLabel="الرئيسية"
         historyLabel="السجل"

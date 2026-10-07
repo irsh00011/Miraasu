@@ -115,7 +115,7 @@ export default function EnglishHome() {
     <>
     <div className="ms-page ms-watermark">
       <AppHeader
-        title="Mīrāth Calculator"
+        title="Islamic Inheritance Calculator"
         subtitle="Reason-led inheritance worksheet"
         homeLabel="Home"
         historyLabel="History"

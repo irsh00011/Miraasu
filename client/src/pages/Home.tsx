@@ -214,7 +214,7 @@ export default function Home() {
     <>
     <div className="ms-page ms-watermark">
       <AppHeader
-        title="மீராஸ் கணக்கீடு"
+        title="Islamic Inheritance Calculator"
         subtitle="பங்கு காரணம் அறியும் பதிவு"
         homeLabel="முகப்பு"
         historyLabel="வரலாறு"

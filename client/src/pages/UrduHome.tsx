@@ -156,7 +156,7 @@ export default function UrduHome() {
     <>
     <div className="ms-page ms-watermark">
       <AppHeader
-        title="میراث کیلکولیٹر"
+        title="Islamic Inheritance Calculator"
         subtitle="حصوں کی وجہ جاننے کا رجسٹر"
         homeLabel="ہوم"
         historyLabel="ہسٹری"
