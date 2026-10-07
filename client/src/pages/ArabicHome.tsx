@@ -12,7 +12,7 @@ import { AppHeader } from "@/components/calc/AppHeader";
 import { EstateStep } from "@/components/calc/EstateStep";
 import { HistoryView } from "@/components/calc/HistoryView";
 import { ResultHero } from "@/components/calc/ResultHero";
-import { SegmentedTabs } from "@/components/calc/SegmentedTabs";
+import { LcmMethodPanel, methodCopy } from "@/components/calc/MethodPanels";
 import { ShareCard } from "@/components/calc/ShareCard";
 import { StepBar, StepNav, type Step } from "@/components/calc/StepBar";
 import { readCalculationHistory, writeCalculationHistory, type SavedCalculation } from "@/lib/localHistory";
@@ -46,7 +46,6 @@ export default function ArabicHome() {
   const [heirs, setHeirs] = useState<HeirInput>(initialHeirs);
   const [history, setHistory] = useState<SavedCalculation[]>([]);
   const [query, setQuery] = useState("");
-  const [resultMode, setResultMode] = useState<"simple" | "explicit">("simple");
   const result = useMemo(() => { const raw = calculateInheritance(estate, heirs); return { ...raw, exclusions: raw.exclusions.map((item) => ({ ...item, label: arabicExclusionLabels[item.label] ?? item.label })) }; }, [estate, heirs]);
   const fingerprint = useMemo(() => JSON.stringify({ estate, heirs }), [estate, heirs]);
   const distributedTotal = useMemo(() => result.allocations.reduce((total, item) => total + result.netEstate * fractionToNumber(item.share), 0), [result]);
@@ -136,17 +135,15 @@ export default function ArabicHome() {
 
             {step === 2 ? (
               <div className="ms-card p-4 sm:p-7">
-                <div className="flex items-start justify-between gap-3">
-                  <p className="ms-kicker">الخطوة 2 من 3</p>
-                  <button type="button" onClick={finish} className="ms-btn ms-btn-primary ms-btn-top"><Calculator size={16} />عرض النتيجة</button>
-                </div>
+                <p className="ms-kicker">الخطوة 2 من 3</p>
                 <h1 className="ms-h1 ms-h1-compact">اختر عائلتك</h1>
                 <p className="ms-lead">اختر الأحياء فقط.</p>
                 <div className="mt-4">
                   <FamilyList heirs={heirs} onChange={updateHeir} onResetAll={() => resetKeys(Object.keys(initialHeirs) as (keyof HeirInput)[])} query={query} onQueryChange={setQuery} onSearchEnter={finish} language="ar" />
                 </div>
-                <div className="mt-6 border-t border-[rgba(22,79,134,0.12)] pt-4">
+                <div className="mt-6 border-t border-[rgba(22,79,134,0.12)] pt-4 flex items-center justify-between gap-3">
                   <button type="button" onClick={() => setStep(1)} className="ms-btn ms-btn-ghost min-h-11! px-3! text-sm!"><ArrowRight size={17} />السابق</button>
+                  <button type="button" onClick={finish} className="ms-btn ms-btn-primary"><Calculator size={16} />عرض النتيجة</button>
                 </div>
               </div>
             ) : null}
@@ -157,13 +154,12 @@ export default function ArabicHome() {
                 {result.notices.map((notice) => <div key={notice} className="ms-notice">{noticeArabic(notice)}</div>)}
                 {result.requiresScholarReview ? <p className="ms-notice font-extrabold!">يلزم تأكيد من مختص — هذه النتيجة غير نهائية.</p> : null}
 
-                <SegmentedTabs value={resultMode} onChange={setResultMode} options={[{ value: "simple", label: "ملخص" }, { value: "explicit", label: "تفاصيل" }]} />
-
-                {resultMode === "simple" ? (
-                  <div className="result-card-list space-y-2.5">
-                    {result.allocations.length > 0 ? (
-                      <>
-                        {displayAllocations.map((item) => {
+                <div className="ms-method-row">
+                  <section className="ms-method-panel" aria-label={methodCopy.ar.percentageTitle}>
+                    <div className="ms-method-head"><h3>{methodCopy.ar.percentageTitle}</h3></div>
+                    <div className="result-card-list space-y-2.5">
+                      {result.allocations.length > 0 ? (
+                        displayAllocations.map((item) => {
                           const isAsabah = item.method === "remainder";
                           const parts = asabahPartsFor(item, asabahGroup);
                           const amount = result.netEstate * fractionToNumber(item.share);
@@ -180,31 +176,42 @@ export default function ArabicHome() {
                               perPerson={isAsabah && item.count > 1 ? money(amount / item.count) : undefined}
                             />
                           );
-                        })}
-                        {remainingAmount > 0.005 ? (
-                          <div className="ms-total-strip bg-[#7c5a1c]!">
-                            <span>المبلغ المتبقي</span>
-                            <strong className="num">{money(remainingAmount)}</strong>
-                          </div>
-                        ) : null}
-                        {result.exclusions.length > 0 ? (
-                          <details className="ms-zero-box">
-                            <summary className="cursor-pointer text-sm font-extrabold text-rose-800">قرابات لا ترث في هذه الحالة (<span className="num">{result.exclusions.length}</span>)</summary>
-                            <div className="mt-2 space-y-1.5 text-sm text-rose-700">{result.exclusions.map((item) => <p key={`${item.key}-${item.label}`}><strong>{arabicLabels[item.key as string] ?? item.label}:</strong> محجوب بقريب أقرب.</p>)}</div>
-                          </details>
-                        ) : null}
-                      </>
-                    ) : (
-                      <div className="ms-empty">
-                        <UsersRound className="mx-auto text-slate-300" size={30} />
-                        <p className="mt-3 font-bold text-slate-700">أضف الورثة لعرض النتيجة.</p>
-                        <button type="button" onClick={() => setStep(2)} className="mt-2 text-sm font-bold text-[#164f86] hover:underline">تعديل العائلة</button>
+                        })
+                      ) : (
+                        <div className="ms-empty">
+                          <UsersRound className="mx-auto text-slate-300" size={30} />
+                          <p className="mt-3 font-bold text-slate-700">أضف الورثة لعرض النتيجة.</p>
+                          <button type="button" onClick={() => setStep(2)} className="mt-2 text-sm font-bold text-[#164f86] hover:underline">تعديل العائلة</button>
+                        </div>
+                      )}
+                    </div>
+                  </section>
+                  <section className="ms-method-panel" aria-label={methodCopy.ar.lcmTitle}>
+                    <LcmMethodPanel language="ar" result={result} heirLabels={arabicLabels} money={money} />
+                  </section>
+                </div>
+
+                {result.allocations.length > 0 ? (
+                  <>
+                    {remainingAmount > 0.005 ? (
+                      <div className="ms-total-strip bg-[#7c5a1c]!">
+                        <span>المبلغ المتبقي</span>
+                        <strong className="num">{money(remainingAmount)}</strong>
                       </div>
-                    )}
-                  </div>
-                ) : (
+                    ) : null}
+                    {result.exclusions.length > 0 ? (
+                      <details className="ms-zero-box">
+                        <summary className="cursor-pointer text-sm font-extrabold text-rose-800">قرابات لا ترث في هذه الحالة (<span className="num">{result.exclusions.length}</span>)</summary>
+                        <div className="mt-2 space-y-1.5 text-sm text-rose-700">{result.exclusions.map((item) => <p key={`${item.key}-${item.label}`}><strong>{arabicLabels[item.key as string] ?? item.label}:</strong> محجوب بقريب أقرب.</p>)}</div>
+                      </details>
+                    ) : null}
+                  </>
+                ) : null}
+
+                <details className="ms-audit-details">
+                  <summary>{methodCopy.ar.auditTitle}</summary>
                   <CalculationTrace result={result} language="ar" heirLabels={arabicLabels} />
-                )}
+                </details>
 
                 <div className="ms-actions-packet">
                   <button type="button" onClick={() => window.print()} className="ms-btn-outline"><Printer size={16} /> طباعة</button>

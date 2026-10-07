@@ -23,7 +23,7 @@ import { AppHeader } from "@/components/calc/AppHeader";
 import { EstateStep } from "@/components/calc/EstateStep";
 import { HistoryView } from "@/components/calc/HistoryView";
 import { ResultHero } from "@/components/calc/ResultHero";
-import { SegmentedTabs } from "@/components/calc/SegmentedTabs";
+import { LcmMethodPanel, methodCopy } from "@/components/calc/MethodPanels";
 import { ShareCard } from "@/components/calc/ShareCard";
 import { StepBar, StepNav, type Step } from "@/components/calc/StepBar";
 import { readCalculationHistory, writeCalculationHistory, type SavedCalculation } from "@/lib/localHistory";
@@ -96,7 +96,6 @@ export default function UrduHome() {
   const [history, setHistory] = useState<SavedCalculation[]>([]);
   const [query, setQuery] = useState("");
   const [justSaved, setJustSaved] = useState(false);
-  const [resultMode, setResultMode] = useState<"simple" | "explicit">("simple");
 
   const result = useMemo(() => {
     const raw = calculateInheritance(estate, heirs);
@@ -212,17 +211,15 @@ export default function UrduHome() {
 
             {step === 2 ? (
               <div className="ms-card p-4 sm:p-7">
-                <div className="flex items-start justify-between gap-3">
-                  <p className="ms-kicker">مرحلہ 2 از 3</p>
-                  <button type="button" onClick={finishCalculation} className="ms-btn ms-btn-primary ms-btn-top"><Calculator size={16} /> نتیجہ دیکھیں</button>
-                </div>
+                <p className="ms-kicker">مرحلہ 2 از 3</p>
                 <h1 className="ms-h1 ms-h1-compact">خاندان چنیں</h1>
                 <p className="ms-lead">صرف زندہ افراد چنیں۔</p>
                 <div className="mt-4">
                   <FamilyList heirs={heirs} onChange={updateHeir} onResetAll={() => resetKeys(Object.keys(initialHeirs) as (keyof HeirInput)[])} query={query} onQueryChange={setQuery} onSearchEnter={finishCalculation} language="ur" />
                 </div>
-                <div className="mt-6 border-t border-[rgba(22,79,134,0.12)] pt-4">
+                <div className="mt-6 border-t border-[rgba(22,79,134,0.12)] pt-4 flex items-center justify-between gap-3">
                   <button type="button" onClick={() => setStep(1)} className="ms-btn ms-btn-ghost min-h-11! px-3! text-sm!"><ArrowLeft size={17} className="rtl:rotate-180" /> پیچھے</button>
+                  <button type="button" onClick={finishCalculation} className="ms-btn ms-btn-primary"><Calculator size={16} /> نتیجہ دیکھیں</button>
                 </div>
               </div>
             ) : null}
@@ -234,13 +231,12 @@ export default function UrduHome() {
                 {result.notices.length > 0 ? <div className="space-y-2">{result.notices.map((notice) => <p key={notice} className="ms-notice">{noticeInUrdu(notice)}</p>)}</div> : null}
                 {result.requiresScholarReview ? <p className="ms-notice font-extrabold!">مستند عالم سے تصدیق ضروری ہے — یہ نتیجہ حتمی نہیں۔</p> : null}
 
-                <SegmentedTabs value={resultMode} onChange={setResultMode} options={[{ value: "simple", label: "خلاصہ" }, { value: "explicit", label: "تفصیل" }]} />
-
-                {resultMode === "simple" ? (
-                  <div className="result-card-list space-y-2.5">
-                    {result.allocations.length > 0 ? (
-                      <>
-                        {displayAllocations.map((item) => {
+                <div className="ms-method-row">
+                  <section className="ms-method-panel" aria-label={methodCopy.ur.percentageTitle}>
+                    <div className="ms-method-head"><h3>{methodCopy.ur.percentageTitle}</h3></div>
+                    <div className="result-card-list space-y-2.5">
+                      {result.allocations.length > 0 ? (
+                        displayAllocations.map((item) => {
                           const amount = result.netEstate * fractionToNumber(item.share);
                           const isAsabah = item.method === "remainder";
                           const parts = asabahPartsFor(item, asabahGroup);
@@ -257,31 +253,42 @@ export default function UrduHome() {
                               perPerson={isAsabah && item.count > 1 ? money(amount / item.count) : undefined}
                             />
                           );
-                        })}
-                        {remainingAmount > 0.005 ? (
-                          <div className="ms-total-strip bg-[#7c5a1c]!">
-                            <span>باقی رقم</span>
-                            <strong className="num">{money(remainingAmount)}</strong>
-                          </div>
-                        ) : null}
-                        {result.exclusions.length > 0 ? (
-                          <details className="ms-zero-box">
-                            <summary className="cursor-pointer text-sm font-extrabold text-rose-800">اس صورت میں بے حصہ رشتہ دار (<span className="num">{result.exclusions.length}</span>)</summary>
-                            <div className="mt-2 space-y-1.5 text-sm text-rose-700">{result.exclusions.map((item) => <p key={`${item.key}-${item.label}`}><strong>{labels[item.key as string] ?? item.label}:</strong> قرابت کی ترتیب سے محجوب۔</p>)}</div>
-                          </details>
-                        ) : null}
-                      </>
-                    ) : (
-                      <div className="ms-empty">
-                        <UsersRound className="mx-auto text-slate-300" size={30} />
-                        <p className="mt-3 font-bold text-slate-700">نتیجہ دیکھنے کے لیے خاندان شامل کریں۔</p>
-                        <button type="button" onClick={() => setStep(2)} className="mt-2 text-sm font-bold text-[#164f86] hover:underline">خاندان بدلیں</button>
+                        })
+                      ) : (
+                        <div className="ms-empty">
+                          <UsersRound className="mx-auto text-slate-300" size={30} />
+                          <p className="mt-3 font-bold text-slate-700">نتیجہ دیکھنے کے لیے خاندان شامل کریں۔</p>
+                          <button type="button" onClick={() => setStep(2)} className="mt-2 text-sm font-bold text-[#164f86] hover:underline">خاندان بدلیں</button>
+                        </div>
+                      )}
+                    </div>
+                  </section>
+                  <section className="ms-method-panel" aria-label={methodCopy.ur.lcmTitle}>
+                    <LcmMethodPanel language="ur" result={result} heirLabels={labels} money={money} />
+                  </section>
+                </div>
+
+                {result.allocations.length > 0 ? (
+                  <>
+                    {remainingAmount > 0.005 ? (
+                      <div className="ms-total-strip bg-[#7c5a1c]!">
+                        <span>باقی رقم</span>
+                        <strong className="num">{money(remainingAmount)}</strong>
                       </div>
-                    )}
-                  </div>
-                ) : (
+                    ) : null}
+                    {result.exclusions.length > 0 ? (
+                      <details className="ms-zero-box">
+                        <summary className="cursor-pointer text-sm font-extrabold text-rose-800">اس صورت میں بے حصہ رشتہ دار (<span className="num">{result.exclusions.length}</span>)</summary>
+                        <div className="mt-2 space-y-1.5 text-sm text-rose-700">{result.exclusions.map((item) => <p key={`${item.key}-${item.label}`}><strong>{labels[item.key as string] ?? item.label}:</strong> قرابت کی ترتیب سے محجوب۔</p>)}</div>
+                      </details>
+                    ) : null}
+                  </>
+                ) : null}
+
+                <details className="ms-audit-details">
+                  <summary>{methodCopy.ur.auditTitle}</summary>
                   <CalculationTrace result={result} language="ur" heirLabels={labels} />
-                )}
+                </details>
 
                 <div className="ms-actions-packet">
                   <button type="button" onClick={() => window.print()} className="ms-btn-outline"><Printer size={16} /> پرنٹ</button>
