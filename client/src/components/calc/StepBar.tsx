@@ -1,5 +1,5 @@
 /** Design: Miraasu Scholarly Ledger — numbered step rail with gold-current states + thumb-reachable mobile nav. */
-import { Calculator, RotateCcw, UsersRound, WalletCards } from "lucide-react";
+import { Calculator, Check, RotateCcw, UsersRound, WalletCards } from "lucide-react";
 
 export type Step = 1 | 2 | 3;
 type Labels = readonly [string, string, string];
@@ -16,20 +16,22 @@ export function StepBar({ step, labels, ariaLabel, resetLabel, onGo, onReset }: 
             const done = id < step;
             const current = id === step;
             return (
-              <li key={label}>
+              <li key={label} className={`ms-step ${current ? "is-current" : ""} ${done ? "is-done" : ""}`}>
                 <button
                   type="button"
                   disabled={!done}
                   onClick={() => onGo(id)}
                   aria-current={current ? "step" : undefined}
-                  className={`ms-step ${current ? "is-current" : ""} ${done ? "is-done" : ""}`}
+                  className="ms-step-btn"
                 >
-                  <span className="ms-step-bar" />
-                  <span className="ms-step-label">
-                    <span className="ms-step-num num">{id}</span>
-                    {label}
+                  <span className="ms-step-dot" aria-hidden="true">
+                    {done ? <Check size={15} strokeWidth={3.5} /> : <span className="num">{id}</span>}
                   </span>
+                  <span className="ms-step-name">{label}</span>
                 </button>
+                {index < labels.length - 1 ? (
+                  <span aria-hidden="true" className={`ms-step-link ${id < step ? "is-fill" : ""}`} />
+                ) : null}
               </li>
             );
           })}

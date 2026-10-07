@@ -179,24 +179,60 @@
   .ms-icon-btn:active { transform: scale(0.94); }
 }
 
-/* ════════════════ Step indicator ════════════════ */
+/* ════════════════ Step indicator — numbered circles, animated connectors ════════════════ */
 @layer components {
-  .ms-steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; }
-  .ms-step { display: block; width: 100%; padding-block: 0.35rem; text-align: start; }
-  .ms-step:disabled { cursor: default; }
-  .ms-step-bar { display: block; height: 0.3rem; border-radius: 999px; background: #dbe7f3; transition: background 0.25s ease; overflow: hidden; position: relative; }
-  .ms-step.is-current .ms-step-bar { background: var(--ms-royal); }
-  .ms-step.is-done .ms-step-bar { background: rgba(22, 79, 134, 0.45); }
-  .ms-step-label { display: none; align-items: center; gap: 0.4rem; margin-top: 0.45rem; font-size: 0.74rem; font-weight: 700; color: var(--ms-faint); }
-  @media (min-width: 640px) { .ms-step-label { display: inline-flex; } }
-  .ms-step.is-current .ms-step-label { color: var(--ms-navy); }
-  .ms-step.is-done .ms-step-label { color: var(--ms-royal); }
-  .ms-step-num {
-    display: inline-grid; place-items: center; width: 1.15rem; height: 1.15rem; border-radius: 999px;
-    background: #e3edf7; color: var(--ms-muted); font-size: 0.66rem;
+  .ms-steps { display: flex; align-items: flex-start; list-style: none; margin: 0; padding: 0; }
+  .ms-step { display: flex; align-items: flex-start; flex: 1 1 0; min-width: 0; }
+  .ms-step:last-child { flex: none; }
+  .ms-step-btn {
+    display: flex; flex-direction: column; align-items: center; gap: 0.35rem; flex: none;
+    padding-block: 0.15rem; border-radius: 0.75rem;
   }
-  .ms-step.is-current .ms-step-num { background: var(--ms-navy); color: #fff; }
-  .ms-step.is-done .ms-step-num { background: var(--ms-royal); color: #fff; }
+  .ms-step-btn:disabled { cursor: default; }
+  .ms-step-dot {
+    width: 2.1rem; height: 2.1rem; border-radius: 999px;
+    display: grid; place-items: center;
+    font-size: 0.88rem; font-weight: 800;
+    background: #ffffff; border: 2px solid #b9cfe4; color: var(--ms-muted);
+    transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+  }
+  .ms-step.is-current .ms-step-dot {
+    background: var(--ms-royal); border-color: var(--ms-royal); color: #ffffff;
+    box-shadow: 0 0 0 6px rgba(22, 79, 134, 0.14);
+  }
+  .ms-step.is-done .ms-step-dot {
+    background: var(--ms-royal); border-color: var(--ms-royal); color: #ffffff;
+    animation: ms-step-pop 0.45s ease;
+  }
+  @keyframes ms-step-pop {
+    0% { transform: scale(0.55); }
+    55% { transform: scale(1.28); }
+    100% { transform: scale(1); }
+  }
+  .ms-step-name {
+    font-size: 0.7rem; font-weight: 700; color: var(--ms-faint);
+    white-space: nowrap; line-height: 1.25;
+  }
+  .ms-step.is-current .ms-step-name { color: var(--ms-navy); }
+  .ms-step.is-done .ms-step-name { color: var(--ms-royal); }
+  /* Connector line between circles; fills with a slide animation on completion */
+  .ms-step-link {
+    flex: 1 1 0; min-width: 0.75rem; height: 2px; border-radius: 2px;
+    background: #dbe7f3; margin: 1.05rem 0.3rem 0;
+    position: relative; overflow: hidden;
+  }
+  .ms-step-link::after {
+    content: ""; position: absolute; inset: 0; border-radius: 2px;
+    background: var(--ms-royal);
+    transform: scaleX(0); transform-origin: left center;
+    transition: transform 0.6s ease;
+  }
+  [dir="rtl"] .ms-step-link::after { transform-origin: right center; }
+  .ms-step-link.is-fill::after { transform: scaleX(1); }
+  @media (prefers-reduced-motion: reduce) {
+    .ms-step-link::after { transition: none; }
+    .ms-step.is-done .ms-step-dot { animation: none; }
+  }
 }
 
 /* ════════════════ Buttons ════════════════ */
@@ -229,7 +265,7 @@
     border: 1px solid #0d2c4f; border-radius: 1.3rem;
     background: linear-gradient(145deg, #1c5386 0%, #123c68 55%, #0b2a4f 100%);
     box-shadow: 0 22px 40px -22px rgba(11, 42, 79, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.18), inset 0 0 0 1px rgba(236, 217, 166, 0.14);
-    padding: 1.5rem 1.35rem;
+    padding: 1.9rem 1.4rem;
   }
   .ms-amount-hero::before {
     content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
@@ -262,7 +298,7 @@
   }
   .ms-input::placeholder { color: #b9c9da; font-weight: 600; }
   .ms-input:focus { border-color: var(--ms-royal); box-shadow: 0 0 0 4px rgba(22, 79, 134, 0.12); }
-  .ms-input-xl { font-size: clamp(2.1rem, 8.5vw, 2.9rem); padding-block: 1.1rem; letter-spacing: -0.03em; }
+  .ms-input-xl { font-size: clamp(2.4rem, 9.5vw, 3.2rem); padding-block: 1.1rem; letter-spacing: -0.03em; }
   .ms-help { margin-top: 0.4rem; color: var(--ms-muted); font-size: 0.74rem; line-height: 1.55; }
   /* ── Deductions: simple light section, no nested dark panel ── */
   .ms-deduct-simple {
@@ -281,11 +317,13 @@
   .ms-deduct-simple-list { display: grid; gap: 0.7rem; }
   @media (min-width: 640px) { .ms-deduct-simple-list { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
   .ms-deduct-row {
-    background: #ffffff; border: 1px solid var(--ms-line); border-radius: 1rem;
-    padding: 0.85rem 0.95rem;
+    background: #ffffff; border: 1.5px solid rgba(22, 79, 134, 0.4); border-radius: 1rem;
+    padding: 0.6rem 0.85rem; min-height: 4.2rem;
+    display: flex; flex-direction: column; justify-content: center;
   }
-  .ms-deduct-row .ms-label { color: var(--ms-muted); font-size: 0.76rem; margin-bottom: 0.35rem; }
-  .ms-deduct-row .ms-input { font-size: 1.05rem; font-weight: 800; color: var(--ms-navy); }
+  .ms-deduct-row .ms-label { color: var(--ms-muted); font-size: 0.72rem; margin-bottom: 0.2rem; }
+  .ms-deduct-row .ms-input { font-size: 0.95rem; font-weight: 800; color: var(--ms-navy); padding: 0.45rem 0.6rem; padding-inline-start: 1.9rem; }
+  .ms-deduct-row .ms-help { font-size: 0.66rem; margin-top: 0.25rem; }
 
   /* Blue signal as soon as an amount is entered */
   .ms-input:not(:placeholder-shown) {
