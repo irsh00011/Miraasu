@@ -374,7 +374,8 @@
   .ms-section-title p { color: var(--ms-faint); font-size: 0.72rem; line-height: 1.5; text-align: end; max-width: 60%; }
 
   .ms-chips { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; }
-  @media (min-width: 640px) { .ms-chips { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  /* Two columns max on all screens: heir labels (Tamil/Arabic/Urdu) need the full
+     card width to render as whole readable words instead of breaking mid-word. */
 
   .ms-chip {
     position: relative; display: flex; align-items: center; gap: 0.5rem; text-align: start;
