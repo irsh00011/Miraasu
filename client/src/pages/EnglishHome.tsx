@@ -170,15 +170,17 @@ export default function EnglishHome() {
 
             {step === 2 ? (
               <div className="ms-card p-4 sm:p-7">
-                <p className="ms-kicker">STEP 2 OF 3</p>
-                <h1 className="ms-h1">Choose your family</h1>
+                <div className="flex items-start justify-between gap-3">
+                  <p className="ms-kicker">STEP 2 OF 3</p>
+                  <button type="button" onClick={finishCalculation} className="ms-btn ms-btn-primary ms-btn-top"><Calculator size={16} /> See result</button>
+                </div>
+                <h1 className="ms-h1 ms-h1-compact">Choose your family</h1>
                 <p className="ms-lead">Select only those who are alive.</p>
-                <div className="mt-5">
+                <div className="mt-4">
                   <FamilyList heirs={heirs} onChange={updateHeir} onResetAll={() => resetHeirKeys(Object.keys(initialHeirs) as (keyof HeirInput)[])} query={familyQuery} onQueryChange={setFamilyQuery} onSearchEnter={finishCalculation} language="en" />
                 </div>
-                <div className="mt-7 flex items-center justify-between border-t border-[rgba(22,79,134,0.12)] pt-5">
+                <div className="mt-6 border-t border-[rgba(22,79,134,0.12)] pt-4">
                   <button type="button" onClick={() => setStep(1)} className="ms-btn ms-btn-ghost min-h-11! px-3! text-sm!"><ArrowLeft size={17} /> Back</button>
-                  <button type="button" onClick={finishCalculation} className="ms-btn ms-btn-primary"><Calculator size={18} /> See result</button>
                 </div>
               </div>
             ) : null}
@@ -223,7 +225,7 @@ export default function EnglishHome() {
                         {result.exclusions.length > 0 ? (
                           <details className="ms-zero-box">
                             <summary>No share (<span className="num">{result.exclusions.length}</span>)</summary>
-                            <ul>{result.exclusions.map((item, index) => <li key={`exclusion-${item.key ?? index}`}>{labels[item.key as string] ?? item.label}<span className="ms-zero-reason"> — blocked by a nearer relative in this case.</span></li>)}</ul>
+                            <ul>{result.exclusions.map((item, index) => <li key={`exclusion-${item.key ?? index}`}>{labels[item.key as string] ?? item.label}<span className="ms-zero-reason"> — blocked by a nearer relative.</span></li>)}</ul>
                           </details>
                         ) : null}
                       </>
@@ -244,7 +246,6 @@ export default function EnglishHome() {
                   <button type="button" onClick={() => printSummaryAsPdf("Miraasu-Result")} className="ms-btn-outline"><Download size={16} /> Download</button>
                 </div>
                 <BookSourceCard language="en" />
-                <p className="text-center text-xs leading-5 text-slate-500">Educational aid only. Confirm any real distribution with qualified Islamic and legal professionals.</p>
               </div>
             ) : null}
           </section>
@@ -268,7 +269,6 @@ export default function EnglishHome() {
         remaining={remainingAmount > 0.005 ? money(remainingAmount) : undefined}
         noShareLabel="No share"
         noShareText={noShareNames.length > 0 ? noShareNames.join(", ") : undefined}
-        note="Educational aid only. Confirm any real distribution with qualified Islamic and legal professionals."
       />
     </>
   );

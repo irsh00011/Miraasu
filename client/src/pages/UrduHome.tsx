@@ -212,15 +212,17 @@ export default function UrduHome() {
 
             {step === 2 ? (
               <div className="ms-card p-4 sm:p-7">
-                <p className="ms-kicker">مرحلہ 2 از 3</p>
-                <h1 className="ms-h1">خاندان چنیں</h1>
+                <div className="flex items-start justify-between gap-3">
+                  <p className="ms-kicker">مرحلہ 2 از 3</p>
+                  <button type="button" onClick={finishCalculation} className="ms-btn ms-btn-primary ms-btn-top"><Calculator size={16} /> نتیجہ دیکھیں</button>
+                </div>
+                <h1 className="ms-h1 ms-h1-compact">خاندان چنیں</h1>
                 <p className="ms-lead">صرف زندہ افراد چنیں۔</p>
-                <div className="mt-5">
+                <div className="mt-4">
                   <FamilyList heirs={heirs} onChange={updateHeir} onResetAll={() => resetKeys(Object.keys(initialHeirs) as (keyof HeirInput)[])} query={query} onQueryChange={setQuery} onSearchEnter={finishCalculation} language="ur" />
                 </div>
-                <div className="mt-7 flex items-center justify-between border-t border-[rgba(22,79,134,0.12)] pt-5">
+                <div className="mt-6 border-t border-[rgba(22,79,134,0.12)] pt-4">
                   <button type="button" onClick={() => setStep(1)} className="ms-btn ms-btn-ghost min-h-11! px-3! text-sm!"><ArrowLeft size={17} className="rtl:rotate-180" /> پیچھے</button>
-                  <button type="button" onClick={finishCalculation} className="ms-btn ms-btn-primary"><Calculator size={18} /> نتیجہ دیکھیں</button>
                 </div>
               </div>
             ) : null}
@@ -265,7 +267,7 @@ export default function UrduHome() {
                         {result.exclusions.length > 0 ? (
                           <details className="ms-zero-box">
                             <summary className="cursor-pointer text-sm font-extrabold text-rose-800">اس صورت میں بے حصہ رشتہ دار (<span className="num">{result.exclusions.length}</span>)</summary>
-                            <div className="mt-2 space-y-1.5 text-sm text-rose-700">{result.exclusions.map((item) => <p key={`${item.key}-${item.label}`}><strong>{labels[item.key as string] ?? item.label}:</strong> اس صورت میں قرابت کی ترتیب کے مطابق محجوب۔</p>)}</div>
+                            <div className="mt-2 space-y-1.5 text-sm text-rose-700">{result.exclusions.map((item) => <p key={`${item.key}-${item.label}`}><strong>{labels[item.key as string] ?? item.label}:</strong> قرابت کی ترتیب سے محجوب۔</p>)}</div>
                           </details>
                         ) : null}
                       </>
@@ -286,7 +288,6 @@ export default function UrduHome() {
                   <button type="button" onClick={() => printSummaryAsPdf("Miraasu-Result")} className="ms-btn-outline"><Download size={16} /> ڈاؤن لوڈ</button>
                 </div>
                 <BookSourceCard language="ur" />
-                <p className="text-center text-xs leading-5 text-slate-500">صرف تعلیمی مدد کے لیے۔ کسی حقیقی تقسیم کی تصدیق مستند اسلامی اور قانونی ماہرین سے کرائیں۔</p>
               </div>
             ) : null}
           </section>
@@ -311,7 +312,6 @@ export default function UrduHome() {
         remaining={remainingAmount > 0.005 ? money(remainingAmount) : undefined}
         noShareLabel="جن کا حصہ نہیں"
         noShareText={noShareNames.length > 0 ? noShareNames.join("، ") : undefined}
-        note="صرف تعلیمی مدد کے لیے۔ کسی حقیقی تقسیم کی تصدیق مستند اسلامی اور قانونی ماہرین سے کرائیں۔"
       />
     </>
   );

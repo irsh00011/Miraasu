@@ -136,15 +136,17 @@ export default function ArabicHome() {
 
             {step === 2 ? (
               <div className="ms-card p-4 sm:p-7">
-                <p className="ms-kicker">الخطوة 2 من 3</p>
-                <h1 className="ms-h1">اختر عائلتك</h1>
+                <div className="flex items-start justify-between gap-3">
+                  <p className="ms-kicker">الخطوة 2 من 3</p>
+                  <button type="button" onClick={finish} className="ms-btn ms-btn-primary ms-btn-top"><Calculator size={16} />عرض النتيجة</button>
+                </div>
+                <h1 className="ms-h1 ms-h1-compact">اختر عائلتك</h1>
                 <p className="ms-lead">اختر الأحياء فقط.</p>
-                <div className="mt-5">
+                <div className="mt-4">
                   <FamilyList heirs={heirs} onChange={updateHeir} onResetAll={() => resetKeys(Object.keys(initialHeirs) as (keyof HeirInput)[])} query={query} onQueryChange={setQuery} onSearchEnter={finish} language="ar" />
                 </div>
-                <div className="mt-7 flex items-center justify-between border-t border-[rgba(22,79,134,0.12)] pt-5">
+                <div className="mt-6 border-t border-[rgba(22,79,134,0.12)] pt-4">
                   <button type="button" onClick={() => setStep(1)} className="ms-btn ms-btn-ghost min-h-11! px-3! text-sm!"><ArrowRight size={17} />السابق</button>
-                  <button type="button" onClick={finish} className="ms-btn ms-btn-primary"><Calculator size={18} />عرض النتيجة</button>
                 </div>
               </div>
             ) : null}
@@ -188,7 +190,7 @@ export default function ArabicHome() {
                         {result.exclusions.length > 0 ? (
                           <details className="ms-zero-box">
                             <summary className="cursor-pointer text-sm font-extrabold text-rose-800">قرابات لا ترث في هذه الحالة (<span className="num">{result.exclusions.length}</span>)</summary>
-                            <div className="mt-2 space-y-1.5 text-sm text-rose-700">{result.exclusions.map((item) => <p key={`${item.key}-${item.label}`}><strong>{arabicLabels[item.key as string] ?? item.label}:</strong> محجوب بحسب ترتيب القرابة في هذه الحالة.</p>)}</div>
+                            <div className="mt-2 space-y-1.5 text-sm text-rose-700">{result.exclusions.map((item) => <p key={`${item.key}-${item.label}`}><strong>{arabicLabels[item.key as string] ?? item.label}:</strong> محجوب بقريب أقرب.</p>)}</div>
                           </details>
                         ) : null}
                       </>
@@ -233,7 +235,6 @@ export default function ArabicHome() {
         remaining={remainingAmount > 0.005 ? money(remainingAmount) : undefined}
         noShareLabel="لا نصيب لهم"
         noShareText={noShareNames.length > 0 ? noShareNames.join("، ") : undefined}
-        note="لأغراض تعليمية فقط. تأكد من أي قسمة حقيقية مع مختصين شرعيين وقانونيين مؤهلين."
       />
     </>
   );

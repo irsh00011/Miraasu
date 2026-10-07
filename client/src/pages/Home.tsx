@@ -270,10 +270,13 @@ export default function Home() {
 
             {step === 2 ? (
               <div className="ms-card p-4 sm:p-7">
-                <p className="ms-kicker">படி 2 / 3</p>
-                <h1 className="ms-h1">குடும்பத்தைத் தேர்வு செய்க</h1>
+                <div className="flex items-start justify-between gap-3">
+                  <p className="ms-kicker">படி 2 / 3</p>
+                  <button type="button" onClick={finishCalculation} className="ms-btn ms-btn-primary ms-btn-top"><Calculator size={16} /> முடிவைப் பார்க்கவும்</button>
+                </div>
+                <h1 className="ms-h1 ms-h1-compact">குடும்பத்தைத் தேர்வு செய்க</h1>
                 <p className="ms-lead">உயிருடன் இருப்பவர்களை மட்டும் தேர்வு செய்க.</p>
-                <div className="mt-5">
+                <div className="mt-4">
                   <FamilyList
                     heirs={heirs}
                     onChange={updateHeir}
@@ -284,9 +287,8 @@ export default function Home() {
                     language="ta"
                   />
                 </div>
-                <div className="mt-7 flex items-center justify-between border-t border-[rgba(22,79,134,0.12)] pt-5">
+                <div className="mt-6 border-t border-[rgba(22,79,134,0.12)] pt-4">
                   <button type="button" onClick={() => setStep(1)} className="ms-btn ms-btn-ghost min-h-11! px-3! text-sm!"><ArrowLeft size={17} /> பின்செல்</button>
-                  <button type="button" onClick={finishCalculation} className="ms-btn ms-btn-primary"><Calculator size={18} /> முடிவைப் பார்க்கவும்</button>
                 </div>
               </div>
             ) : null}
@@ -370,7 +372,6 @@ export default function Home() {
         remaining={remainingAmount > 0.005 ? money(remainingAmount) : undefined}
         noShareLabel="பங்கு இல்லாதவர்கள்"
         noShareText={noShareNames.length > 0 ? noShareNames.join(", ") : undefined}
-        note="கல்வி நோக்கத்திற்காக மட்டும். உண்மையான பங்கீட்டை தகுதிவாய்ந்த இஸ்லாமிய மற்றும் சட்ட வல்லுநர்களிடம் உறுதிப்படுத்தவும்."
       />
     </>
   );
