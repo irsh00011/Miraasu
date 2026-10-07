@@ -246,6 +246,8 @@
   .ms-btn:active { transform: scale(0.98); }
   /* Compact top-placed primary button (estate + family steps) */
   .ms-btn-top { min-height: 2.6rem; padding-inline: 1rem; font-size: 0.85rem; border-radius: 0.85rem; flex: none; }
+  .ms-btn-block { width: 100%; }
+  .ms-next-row { margin-top: 1.1rem; }
   /* Compact section heading for the family step header */
   .ms-h1-compact { font-size: 1.32rem; margin-top: 0.3rem; }
   .ms-btn-primary {
@@ -433,6 +435,42 @@
   }
   .ms-summary-bar strong { color: #fff; }
   .ms-summary-bar .ms-gold-dot { width: 0.45rem; height: 0.45rem; border-radius: 999px; background: var(--ms-gold); flex: none; }
+}
+
+/* ════════════════ Results — method panels (percentage | LCM) ════════════════ */
+@layer components {
+  .ms-method-row { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; align-items: start; }
+  @media (min-width: 640px) { .ms-method-row { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .ms-method-panel {
+    border: 1px solid var(--ms-line); border-radius: 1.25rem; background: #fff;
+    padding: 1rem; box-shadow: 0 14px 28px -20px rgba(11, 42, 79, 0.35);
+  }
+  @media (min-width: 640px) { .ms-method-panel { padding: 1.15rem; } }
+  .ms-method-head { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; margin-bottom: 0.85rem; }
+  .ms-method-head h3 { font-size: 0.95rem; font-weight: 800; color: var(--ms-navy); }
+  .ms-lcm-badge {
+    flex: none; border-radius: 0.7rem; background: var(--ms-tint); border: 1px solid var(--ms-line);
+    color: var(--ms-royal); font-size: 0.75rem; font-weight: 800; padding: 0.3rem 0.65rem;
+  }
+  .ms-lcm-row {
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 0.75rem;
+    border: 1px solid var(--ms-line); border-radius: 0.9rem; background: linear-gradient(180deg, #ffffff 0%, #f8fbfe 100%);
+    padding: 0.65rem 0.8rem;
+  }
+  .ms-lcm-name { font-size: 0.82rem; font-weight: 800; color: var(--ms-ink); line-height: 1.4; overflow-wrap: break-word; }
+  .ms-lcm-basis { margin-top: 0.15rem; font-size: 0.72rem; font-weight: 700; color: var(--ms-royal); }
+  .ms-lcm-amount { flex: none; text-align: end; }
+  .ms-lcm-fraction { font-size: 0.8rem; font-weight: 800; color: var(--ms-royal); }
+  .ms-lcm-amount .num:last-child { font-size: 0.82rem; font-weight: 800; color: var(--ms-ink); }
+  .ms-audit-details { border: 1px solid var(--ms-line); border-radius: 1.1rem; background: #fff; }
+  .ms-audit-details summary {
+    cursor: pointer; padding: 0.9rem 1.1rem; font-size: 0.85rem; font-weight: 800; color: var(--ms-royal);
+    list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;
+  }
+  .ms-audit-details summary::-webkit-details-marker { display: none; }
+  .ms-audit-details summary::after { content: "+"; font-size: 1.1rem; font-weight: 800; color: var(--ms-faint); }
+  .ms-audit-details[open] summary::after { content: "–"; }
+  .ms-audit-details .ms-trace { padding: 0 0.75rem 0.75rem; }
 }
 
 /* ════════════════ Results ════════════════ */
@@ -796,6 +834,12 @@
   .ent-hadith-grade { margin-top: 0.35rem; color: #8a4b13; font-size: 0.68rem; font-weight: 800; line-height: 1.45; }
   .ent-rule { display: block; width: 3.5rem; height: 2px; margin: 1.5rem 0 1rem; background: linear-gradient(90deg, transparent, #e8c477, transparent); }
   .ent-brand { padding-inline-start: 0.42em; color: rgba(255, 255, 255, 0.78); font-size: 0.85rem; font-weight: 800; letter-spacing: 0.42em; text-transform: uppercase; }
+  .ent-logos { display: flex; align-items: center; justify-content: center; gap: 0.9rem; margin-top: 1.5rem; }
+  .ent-logo-badge {
+    height: 4.25rem; width: auto; max-width: 10.5rem; object-fit: contain;
+    background: #ffffff; border-radius: 1rem; padding: 0.45rem 0.75rem;
+    box-shadow: 0 14px 28px -14px rgba(4, 20, 40, 0.55), 0 0 0 1px rgba(232, 196, 119, 0.45);
+  }
   .ent-start {
     display: inline-flex; align-items: center; gap: 0.6rem; min-height: 3.5rem; margin-top: 2.5rem; padding: 0 2.1rem;
     border-radius: 999px; color: #0e4179; font-size: 1.05rem; font-weight: 800;

@@ -30,12 +30,7 @@ export function EstateStep({ estate, onChange, netEstateText, onNext, notices, t
 
   return (
     <div className="ms-card p-4 sm:p-7" data-step-fields>
-      <div className="flex items-start justify-between gap-3">
-        <p className="ms-kicker">{text.kicker}</p>
-        <button type="button" onClick={onNext} aria-keyshortcuts="Enter" className="ms-btn ms-btn-primary ms-btn-top">
-          {text.next}<ArrowRight size={16} className="rtl:rotate-180" />
-        </button>
-      </div>
+      <p className="ms-kicker">{text.kicker}</p>
       <h1 className="ms-h1">{text.title}</h1>
 
       <div className="ms-amount-hero premium-pop mt-5">
@@ -74,6 +69,12 @@ export function EstateStep({ estate, onChange, netEstateText, onNext, notices, t
           <p className="ms-total-value num">{netEstateText}</p>
         </div>
       </footer>
+
+      <div className="ms-next-row">
+        <button type="button" onClick={onNext} aria-keyshortcuts="Enter" className="ms-btn ms-btn-primary ms-btn-block">
+          {text.next}<ArrowRight size={16} className="rtl:rotate-180" />
+        </button>
+      </div>
     </div>
   );
 }
