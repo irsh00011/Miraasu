@@ -12,9 +12,36 @@
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="icon" href="/book-cover-icon-192.png" type="image/png" />
     <link rel="apple-touch-icon" href="/book-cover-apple-touch-icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=Noto+Naskh+Arabic:wght@500;600;700&family=Noto+Sans+Tamil:wght@400;500;600;700;800&family=Noto+Serif+Tamil:wght@600;700;800&family=Source+Sans+3:wght@400;600;700;800&family=Playfair+Display:wght@600;700;800&family=Source+Serif+4:wght@600;700;800&display=swap"
+      rel="stylesheet" />
+    <style>
+      /* Instant splash: paints before the JS bundle loads so the app never shows a blank page. */
+      #app-splash {
+        position: fixed; inset: 0; z-index: 9999;
+        display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+        background: linear-gradient(160deg, #1557b0 0%, #0d3a7d 100%);
+        color: #fff; font-family: system-ui, sans-serif;
+      }
+      #app-splash .splash-name { font-size: 34px; font-weight: 800; letter-spacing: 0.04em; }
+      #app-splash .splash-sub { font-size: 12px; letter-spacing: 0.28em; opacity: 0.85; }
+      #app-splash .splash-ring {
+        width: 34px; height: 34px; border-radius: 50%;
+        border: 3px solid rgba(255, 255, 255, 0.25); border-top-color: #fff;
+        animation: splash-spin 0.9s linear infinite;
+      }
+      @keyframes splash-spin { to { transform: rotate(360deg); } }
+    </style>
   </head>
 
   <body>
+    <div id="app-splash" aria-hidden="true">
+      <div class="splash-name">Miraasu</div>
+      <div class="splash-sub">ISLAMIC INHERITANCE CALCULATOR</div>
+      <div class="splash-ring"></div>
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
     <script
