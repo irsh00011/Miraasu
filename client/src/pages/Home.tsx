@@ -21,8 +21,10 @@ import { AppHeader } from "@/components/calc/AppHeader";
 import { EstateStep } from "@/components/calc/EstateStep";
 import { HistoryView } from "@/components/calc/HistoryView";
 import { ResultHero } from "@/components/calc/ResultHero";
-import { LcmMethodPanel, methodCopy } from "@/components/calc/MethodPanels";
-import { ShareCard } from "@/components/calc/ShareCard";
+import { methodCopy } from "@/components/calc/MethodPanels";
+import { ShareTable, buildShareTableRows } from "@/components/calc/ShareTable";
+
+import { AnimatedMoney } from "@/components/calc/AnimatedMoney";
 import { StepBar, StepNav, type Step } from "@/components/calc/StepBar";
 import {
   readCalculationHistory,
@@ -201,6 +203,15 @@ export default function Home() {
   };
 
   const shareRows = resultRows.filter((row) => !row.zero);
+  const tamilNameFor = useMemo(() => {
+    const byKey: Record<string, string> = {};
+    for (const row of shareRows) byKey[row.key.replace(/-[^-]+$/, "")] = row.label;
+    return (key: string, fallback: string) => byKey[key] ?? fallback;
+  }, [shareRows]);
+  const tableRows = useMemo(
+    () => buildShareTableRows(result, tamilNameFor, (n) => (n === 1 ? "பங்கு" : "பங்குகள்")),
+    [result, tamilNameFor],
+  );
   const zeroRows = resultRows.filter((row) => row.zero);
   const printRows: PrintRow[] = shareRows.map((row) => ({
     name: `${row.label}${row.count > 1 ? ` × ${row.count}` : ""}`,
@@ -293,44 +304,25 @@ export default function Home() {
             {step === 3 ? (
               <div className="space-y-4">
                 <ResultHero title="பங்கீட்டு முடிவு" savedNote={justSaved ? "வரலாற்றில் சேமிக்கப்பட்டது" : undefined} />
-                <div className="ms-method-row">
-                  <section className="ms-method-panel" aria-label={methodCopy.ta.percentageTitle}>
-                    <div className="ms-method-head"><h3>{methodCopy.ta.percentageTitle}</h3></div>
-                    <div className="result-card-list space-y-2.5">
-                      {resultRows.length > 0 ? (
-                        shareRows.map((row) => (
-                          <ShareCard
-                            key={row.key}
-                            name={row.label}
-                            count={row.count}
-                            tag={row.isAsabah ? "அஸபா" : undefined}
-                            fraction={row.fractionText}
-                            percent={row.percentText}
-                            amount={money(row.amount)}
-                            perPersonLabel="ஒருவருக்கு"
-                            perPerson={row.isAsabah && row.perPerson !== null ? money(row.perPerson) : undefined}
-                          />
-                        ))
-                      ) : (
-                        <div className="ms-empty">
-                          <UsersRound className="mx-auto text-slate-300" size={30} />
-                          <p className="mt-3 font-bold text-slate-700">வாரிசுகளைச் சேர்க்கவும்.</p>
-                          <button type="button" onClick={() => setStep(2)} className="mt-2 text-sm font-bold text-[#164f86] hover:underline">உறவுகளை மாற்றுக</button>
-                        </div>
-                      )}
+                <ShareTable
+                  language="ta"
+                  rows={tableRows}
+                  money={money}
+                  empty={(
+                    <div className="ms-empty">
+                      <UsersRound className="mx-auto text-slate-300" size={30} />
+                      <p className="mt-3 font-bold text-slate-700">வாரிசுகளைச் சேர்க்கவும்.</p>
+                      <button type="button" onClick={() => setStep(2)} className="mt-2 text-sm font-bold text-[#164f86] hover:underline">உறவுகளை மாற்றுக</button>
                     </div>
-                  </section>
-                  <section className="ms-method-panel" aria-label={methodCopy.ta.lcmTitle}>
-                    <LcmMethodPanel language="ta" result={result} heirLabels={Object.fromEntries(resultRows.map((row) => [row.key, row.label]))} money={money} />
-                  </section>
-                </div>
+                  )}
+                />
 
                 {resultRows.length > 0 ? (
                   <>
                     {remainingAmount > 0.005 ? (
                       <div className="ms-total-strip bg-[#7c5a1c]!">
                         <span>மீதமுள்ள தொகை</span>
-                        <strong className="num">{money(remainingAmount)}</strong>
+                        <strong className="num"><AnimatedMoney value={remainingAmount} money={money} delay={250 + shareRows.length * 70} /></strong>
                       </div>
                     ) : null}
                     {zeroRows.length > 0 ? (

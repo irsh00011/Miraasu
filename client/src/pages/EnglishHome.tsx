@@ -6,14 +6,16 @@ import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, Calculator, Download, Printer, UsersRound } from "lucide-react";
 import { FamilyList } from "@/components/FamilyList";
 import { BookSourceCard } from "@/components/BookSourceCard";
-import { aggregateAllocationsForDisplay, asabahPartsFor, calculateInheritance, fractionToNumber, fractionToText, sourcePercentage, EXTENDED_HEIR_SECTIONS, type EstateInput, type HeirInput } from "@/lib/inheritance";
+import { aggregateAllocationsForDisplay, asabahPartsFor, calculateInheritance, fractionToNumber, fractionToText, EXTENDED_HEIR_SECTIONS, type EstateInput, type HeirInput } from "@/lib/inheritance";
 import { CalculationTrace } from "@/components/CalculationTrace";
 import { AppHeader } from "@/components/calc/AppHeader";
 import { EstateStep } from "@/components/calc/EstateStep";
 import { HistoryView } from "@/components/calc/HistoryView";
 import { ResultHero } from "@/components/calc/ResultHero";
-import { LcmMethodPanel, methodCopy } from "@/components/calc/MethodPanels";
-import { ShareCard } from "@/components/calc/ShareCard";
+import { methodCopy } from "@/components/calc/MethodPanels";
+import { ShareTable, buildShareTableRows } from "@/components/calc/ShareTable";
+
+import { AnimatedMoney } from "@/components/calc/AnimatedMoney";
 import { StepBar, StepNav, type Step } from "@/components/calc/StepBar";
 import { readCalculationHistory, writeCalculationHistory, type SavedCalculation } from "@/lib/localHistory";
 import { printSummaryAsPdf } from "@/components/calc/download";
@@ -97,6 +99,10 @@ export default function EnglishHome() {
   const deleteRecord = (id: string) => setHistory((current) => { const next = current.filter((item) => item.id !== id); writeCalculationHistory(next); return next; });
 
   const displayAllocations = aggregateAllocationsForDisplay(result.allocations);
+  const tableRows = useMemo(
+    () => buildShareTableRows(result, (key, fallback) => labels[key] ?? fallback, (n) => (n === 1 ? "part" : "parts")),
+    [result],
+  );
   const asabahGroup = displayAllocations.filter((entry) => entry.method === "remainder");
   const printRows: PrintRow[] = displayAllocations.map((item) => {
     const amount = result.netEstate * fractionToNumber(item.share);
@@ -189,49 +195,25 @@ export default function EnglishHome() {
                 {result.notices.length > 0 ? <div className="space-y-2">{result.notices.map((notice) => <p key={notice} className="ms-notice">{noticeInEnglish(notice)}</p>)}</div> : null}
                 {result.requiresScholarReview ? <p className="ms-notice font-extrabold!">Scholar review required — this result is not final.</p> : null}
 
-                <div className="ms-method-row">
-                  <section className="ms-method-panel" aria-label={methodCopy.en.percentageTitle}>
-                    <div className="ms-method-head"><h3>{methodCopy.en.percentageTitle}</h3></div>
-                    <div className="result-card-list space-y-2.5">
-                      {result.allocations.length > 0 ? (
-                        displayAllocations.map((item) => {
-                          const amount = result.netEstate * fractionToNumber(item.share);
-                          const isAsabah = item.method === "remainder";
-                          const parts = asabahPartsFor(item, asabahGroup);
-                          return (
-                            <ShareCard
-                              key={`${item.key}-${item.method}`}
-                              name={labels[item.key] ?? item.label}
-                              count={item.count}
-                              tag={isAsabah ? "Taʿṣīb" : undefined}
-                              fraction={isAsabah ? `${parts} ${parts === 1 ? "part" : "parts"}` : fractionToText(item.share)}
-                              percent={isAsabah ? undefined : sourcePercentage(item.share)}
-                              amount={money(amount)}
-                              perPersonLabel="Per person"
-                              perPerson={isAsabah && item.count > 1 ? money(amount / item.count) : undefined}
-                            />
-                          );
-                        })
-                      ) : (
-                        <div className="ms-empty">
-                          <UsersRound className="mx-auto text-slate-300" size={30} />
-                          <p className="mt-3 font-bold text-slate-700">Add family members to see a result.</p>
-                          <button type="button" onClick={() => setStep(2)} className="mt-2 text-sm font-bold text-[#164f86] hover:underline">Edit family</button>
-                        </div>
-                      )}
+                <ShareTable
+                  language="en"
+                  rows={tableRows}
+                  money={money}
+                  empty={(
+                    <div className="ms-empty">
+                      <UsersRound className="mx-auto text-slate-300" size={30} />
+                      <p className="mt-3 font-bold text-slate-700">Add family members to see a result.</p>
+                      <button type="button" onClick={() => setStep(2)} className="mt-2 text-sm font-bold text-[#164f86] hover:underline">Edit family</button>
                     </div>
-                  </section>
-                  <section className="ms-method-panel" aria-label={methodCopy.en.lcmTitle}>
-                    <LcmMethodPanel language="en" result={result} heirLabels={labels} money={money} />
-                  </section>
-                </div>
+                  )}
+                />
 
                 {result.allocations.length > 0 ? (
                   <>
                     {remainingAmount > 0.005 ? (
                       <div className="ms-total-strip bg-[#7c5a1c]!">
                         <span>Remaining amount</span>
-                        <strong className="num">{money(remainingAmount)}</strong>
+                        <strong className="num"><AnimatedMoney value={remainingAmount} money={money} delay={250 + displayAllocations.length * 70} /></strong>
                       </div>
                     ) : null}
                     {result.exclusions.length > 0 ? (

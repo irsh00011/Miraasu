@@ -6,14 +6,16 @@ import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, ArrowRight, Calculator, Download, Printer, UsersRound } from "lucide-react";
 import { FamilyList } from "@/components/FamilyList";
 import { BookSourceCard } from "@/components/BookSourceCard";
-import { ARABIC_EXTENDED_COPY, aggregateAllocationsForDisplay, asabahPartsFor, calculateInheritance, fractionToNumber, fractionToText, sourcePercentage, type EstateInput, type HeirInput } from "@/lib/inheritance";
+import { ARABIC_EXTENDED_COPY, aggregateAllocationsForDisplay, asabahPartsFor, calculateInheritance, fractionToNumber, fractionToText, type EstateInput, type HeirInput } from "@/lib/inheritance";
 import { CalculationTrace } from "@/components/CalculationTrace";
 import { AppHeader } from "@/components/calc/AppHeader";
 import { EstateStep } from "@/components/calc/EstateStep";
 import { HistoryView } from "@/components/calc/HistoryView";
 import { ResultHero } from "@/components/calc/ResultHero";
-import { LcmMethodPanel, methodCopy } from "@/components/calc/MethodPanels";
-import { ShareCard } from "@/components/calc/ShareCard";
+import { methodCopy } from "@/components/calc/MethodPanels";
+import { ShareTable, buildShareTableRows } from "@/components/calc/ShareTable";
+
+import { AnimatedMoney } from "@/components/calc/AnimatedMoney";
 import { StepBar, StepNav, type Step } from "@/components/calc/StepBar";
 import { readCalculationHistory, writeCalculationHistory, type SavedCalculation } from "@/lib/localHistory";
 import { printSummaryAsPdf } from "@/components/calc/download";
@@ -64,6 +66,10 @@ export default function ArabicHome() {
   const finish = () => { setStep(3); if (result.netEstate <= 0 || result.allocations.length === 0) return; const record: SavedCalculation = { id: crypto.randomUUID(), fingerprint, createdAt: new Date().toISOString(), estate, heirs, netEstate: result.netEstate, totalHeirs: heirCount(heirs) }; setHistory((current) => { const next = [record, ...current.filter((item) => item.fingerprint !== record.fingerprint)].slice(0, 12); writeCalculationHistory(next); return next; }); };
 
   const displayAllocations = aggregateAllocationsForDisplay(result.allocations);
+  const tableRows = useMemo(
+    () => buildShareTableRows(result, (key, fallback) => arabicLabels[key] ?? fallback, (n) => (n === 1 ? "سهم" : "أسهم")),
+    [result],
+  );
   const asabahGroup = displayAllocations.filter((entry) => entry.method === "remainder");
   const printRows: PrintRow[] = displayAllocations.map((item) => {
     const amount = result.netEstate * fractionToNumber(item.share);
@@ -154,49 +160,25 @@ export default function ArabicHome() {
                 {result.notices.map((notice) => <div key={notice} className="ms-notice">{noticeArabic(notice)}</div>)}
                 {result.requiresScholarReview ? <p className="ms-notice font-extrabold!">يلزم تأكيد من مختص — هذه النتيجة غير نهائية.</p> : null}
 
-                <div className="ms-method-row">
-                  <section className="ms-method-panel" aria-label={methodCopy.ar.percentageTitle}>
-                    <div className="ms-method-head"><h3>{methodCopy.ar.percentageTitle}</h3></div>
-                    <div className="result-card-list space-y-2.5">
-                      {result.allocations.length > 0 ? (
-                        displayAllocations.map((item) => {
-                          const isAsabah = item.method === "remainder";
-                          const parts = asabahPartsFor(item, asabahGroup);
-                          const amount = result.netEstate * fractionToNumber(item.share);
-                          return (
-                            <ShareCard
-                              key={`${item.key}-${item.method}`}
-                              name={arabicLabels[item.key] ?? item.label}
-                              count={item.count}
-                              tag={isAsabah ? "عصبة" : undefined}
-                              fraction={isAsabah ? `${parts} ${parts === 1 ? "سهم" : "أسهم"}` : fractionToText(item.share)}
-                              percent={isAsabah ? undefined : sourcePercentage(item.share)}
-                              amount={money(amount)}
-                              perPersonLabel="لكل شخص"
-                              perPerson={isAsabah && item.count > 1 ? money(amount / item.count) : undefined}
-                            />
-                          );
-                        })
-                      ) : (
-                        <div className="ms-empty">
-                          <UsersRound className="mx-auto text-slate-300" size={30} />
-                          <p className="mt-3 font-bold text-slate-700">أضف الورثة لعرض النتيجة.</p>
-                          <button type="button" onClick={() => setStep(2)} className="mt-2 text-sm font-bold text-[#164f86] hover:underline">تعديل العائلة</button>
-                        </div>
-                      )}
+                <ShareTable
+                  language="ar"
+                  rows={tableRows}
+                  money={money}
+                  empty={(
+                    <div className="ms-empty">
+                      <UsersRound className="mx-auto text-slate-300" size={30} />
+                      <p className="mt-3 font-bold text-slate-700">أضف الورثة لعرض النتيجة.</p>
+                      <button type="button" onClick={() => setStep(2)} className="mt-2 text-sm font-bold text-[#164f86] hover:underline">تعديل العائلة</button>
                     </div>
-                  </section>
-                  <section className="ms-method-panel" aria-label={methodCopy.ar.lcmTitle}>
-                    <LcmMethodPanel language="ar" result={result} heirLabels={arabicLabels} money={money} />
-                  </section>
-                </div>
+                  )}
+                />
 
                 {result.allocations.length > 0 ? (
                   <>
                     {remainingAmount > 0.005 ? (
                       <div className="ms-total-strip bg-[#7c5a1c]!">
                         <span>المبلغ المتبقي</span>
-                        <strong className="num">{money(remainingAmount)}</strong>
+                        <strong className="num"><AnimatedMoney value={remainingAmount} money={money} delay={250 + displayAllocations.length * 70} /></strong>
                       </div>
                     ) : null}
                     {result.exclusions.length > 0 ? (
