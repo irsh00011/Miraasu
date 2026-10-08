@@ -24,6 +24,15 @@ export type ShareTableRow = {
   amount: number;
 };
 
+/** Display-only: trims runaway decimals (e.g. 14.583333333333334%) to 2 places. Values unchanged. */
+const formatPercent = (text: string): string => {
+  const match = text.match(/^([\d.]+)%$/);
+  if (!match) return text;
+  const value = parseFloat(match[1]);
+  if (!Number.isFinite(value)) return text;
+  return `${parseFloat(value.toFixed(2))}%`;
+};
+
 /** Builds one table row per heir: name, percent share, LCM units and amount. */
 export function buildShareTableRows(
   result: CalculationResult,
@@ -46,7 +55,7 @@ export function buildShareTableRows(
       key: `${item.key}-${item.method}`,
       name: nameFor(item.key, item.label),
       count: item.count,
-      percent: sourcePercentage(item.share),
+      percent: formatPercent(sourcePercentage(item.share)),
       lcm,
       amount: result.netEstate * fractionToNumber(item.share),
     };
@@ -55,12 +64,12 @@ export function buildShareTableRows(
 
 const headerCopy: Record<
   ShareTableLang,
-  { heir: string; percent: string; lcm: string; amount: string; tableLabel: string }
+  { heir: string; share: string; amount: string; tableLabel: string }
 > = {
-  en: { heir: "Heir", percent: "Percent", lcm: "LCM", amount: "Amount", tableLabel: "Share distribution" },
-  ta: { heir: "வாரிசு", percent: "சதவீதம்", lcm: "LCM", amount: "தொகை", tableLabel: "பங்கு விநியோகம்" },
-  ar: { heir: "الوارث", percent: "النسبة", lcm: "LCM", amount: "المبلغ", tableLabel: "توزيع الحصص" },
-  ur: { heir: "وارث", percent: "فیصد", lcm: "LCM", amount: "رقم", tableLabel: "حصوں کی تقسیم" },
+  en: { heir: "Heir", share: "Share", amount: "Amount", tableLabel: "Share distribution" },
+  ta: { heir: "வாரிசு", share: "பங்கு", amount: "தொகை", tableLabel: "பங்கு விநியோகம்" },
+  ar: { heir: "الوارث", share: "الحصة", amount: "المبلغ", tableLabel: "توزيع الحصص" },
+  ur: { heir: "وارث", share: "حصہ", amount: "رقم", tableLabel: "حصوں کی تقسیم" },
 };
 
 type Props = {
@@ -81,8 +90,7 @@ export function ShareTable({ language, rows, money, empty }: Props) {
     >
       <div className="ms-share-thead">
         <span>{t.heir}</span>
-        <span className="ms-share-thnum">{t.percent}</span>
-        <span className="ms-share-thnum">{t.lcm}</span>
+        <span>{t.share}</span>
         <span className="ms-share-thnum">{t.amount}</span>
       </div>
       <ul className="ms-share-tbody">
@@ -92,13 +100,11 @@ export function ShareTable({ language, rows, money, empty }: Props) {
               {row.name}
               {row.count > 1 ? <span className="ms-tag ms-tag-count num">×{row.count}</span> : null}
             </span>
-            <span className="ms-share-cnum num" data-label={t.percent}>
-              {row.percent}
+            <span className="ms-share-cchips">
+              <span className="ms-mini-chip num">{row.percent}</span>
+              <span className="ms-mini-chip num">{row.lcm}</span>
             </span>
-            <span className="ms-share-cnum num" data-label={t.lcm}>
-              {row.lcm}
-            </span>
-            <span className="ms-share-camount num" data-label={t.amount}>
+            <span className="ms-share-camount num">
               <AnimatedMoney value={row.amount} money={money} delay={index * 70} />
             </span>
           </li>

@@ -68,7 +68,8 @@ const labels: Record<string, string> = {
   ...urLabels,
   ...Object.fromEntries(EXTENDED_HEIR_SECTIONS.flatMap((section) => section.items).map((item) => [item.key, urExtendedLabels[item.key] ?? item.labelEn])),
 };
-const money = (value: number) => new Intl.NumberFormat("ur", { style: "currency", currency: "INR", maximumFractionDigits: 2 }).format(Number.isFinite(value) ? value : 0);
+const inrFormatter = new Intl.NumberFormat("ur", { style: "currency", currency: "INR", maximumFractionDigits: 2 });
+const money = (value: number) => inrFormatter.format(Number.isFinite(value) ? value : 0);
 const heirCount = (heirs: HeirInput) => Object.values(heirs).reduce((total, item) => total + item, 0);
 const formatDate = (value: string) => new Intl.DateTimeFormat("ur", { day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(value));
 

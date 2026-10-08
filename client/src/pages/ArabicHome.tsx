@@ -36,7 +36,8 @@ const arabicLabels: Record<string, string> = {
   ...Object.fromEntries(Object.entries(ARABIC_EXTENDED_COPY).map(([key, value]) => [key, value.label])),
 };
 const arabicExclusionLabels: Record<string, string> = { "தந்தையின் தந்தை": "جد الأب", "தந்தை வழி பாட்டி": "جدة الأب", "தாய் வழி பாட்டி": "جدة الأم", "மகனின் மகள்": "بنت الابن", "தாய் வழி சகோதரர் / சகோதரி": "الإخوة لأم", "உடன் பிறந்த சகோதரர் / சகோதரி": "الإخوة الأشقاء", "தந்தை வழி சகோதரி": "الأخوات لأب" };
-const money = (value: number) => new Intl.NumberFormat("ar", { style: "currency", currency: "INR", maximumFractionDigits: 2 }).format(Number.isFinite(value) ? value : 0);
+const inrFormatter = new Intl.NumberFormat("ar", { style: "currency", currency: "INR", maximumFractionDigits: 2 });
+const money = (value: number) => inrFormatter.format(Number.isFinite(value) ? value : 0);
 const heirCount = (heirs: HeirInput) => Object.values(heirs).reduce((total, item) => total + item, 0);
 const date = (value: string) => new Intl.DateTimeFormat("ar", { day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(value));
 const noticeArabic = (notice: string) => notice.includes("சொத்து மதிப்பை") ? "أدخل قيمة التركة أولاً." : notice.includes("பகிரக்கூடிய சொத்து இல்லை") ? "لا توجد تركة قابلة للقسمة بعد التكاليف والديون." : notice.includes("வஸிய்யத்") ? "استُخدم الحد المسموح للوصية في هذا الحساب." : notice.includes("வாரிசுகள் தேர்வு") ? "لم تُضف علاقة مدعومة بعد." : notice.includes("தூரத்து") || notice.includes("புத்தக") ? "هناك قرابة مختارة تحتاج إلى مراجعة مختص مؤهل قبل القسمة الفعلية." : notice.includes("மீதமான") ? "لا يوجد وارث تلقائي للباقي في هذا المسار المبسط؛ يلزم مراجعة مختص." : "هذه الحالة تحتاج مراجعة مختص مؤهل قبل القسمة الفعلية.";

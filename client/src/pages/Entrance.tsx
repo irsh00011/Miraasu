@@ -6,7 +6,7 @@
  * Frontend only: no calculation or routing logic is changed. Language cards still open /ta, /en, /ar, /ur.
  */
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, ChevronRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, ChevronRight, Download } from "lucide-react";
 import { useLocation } from "wouter";
 
 type Lang = "ta" | "en" | "ar" | "ur";
@@ -48,6 +48,25 @@ function GenderSymbol({ kind }: { kind: Gender }) {
 
 export default function Entrance() {
   const [, navigate] = useLocation();
+  const [installEvent, setInstallEvent] = useState<Event | null>(null);
+
+  // PWA: capture the install prompt so we can offer an in-app Install button.
+  useEffect(() => {
+    const handler = (event: Event) => {
+      event.preventDefault();
+      setInstallEvent(event);
+    };
+    window.addEventListener("beforeinstallprompt", handler);
+    return () => window.removeEventListener("beforeinstallprompt", handler);
+  }, []);
+
+  const installApp = async () => {
+    const promptEvent = installEvent as (Event & { prompt: () => Promise<void>; userChoice: Promise<{ outcome: string }> }) | null;
+    if (!promptEvent) return;
+    await promptEvent.prompt();
+    await promptEvent.userChoice;
+    setInstallEvent(null);
+  };
   const [step, setStep] = useState<Step>("welcome");
   const [lang, setLang] = useState<Lang>("en");
   const [picked, setPicked] = useState<Gender | null>(null);
@@ -92,6 +111,16 @@ export default function Entrance() {
         <div className="ent-stage">
           {step === "welcome" ? (
             <section key="welcome" className="ent-welcome">
+              <div className="ent-corner-logos ent-rise" style={{ animationDelay: "0ms" }}>
+                <figure className="ent-corner-logo">
+                  <img src="/bukhari-logo.svg" alt="Bukhari Aalim Arabic College" />
+                  <figcaption>Bukhari Aalim<br />Arabic College</figcaption>
+                </figure>
+                <figure className="ent-corner-logo">
+                  <img src="/crescent-logo.svg" alt="B.S. Abdur Rahman Crescent Institute of Science and Technology" />
+                  <figcaption>Crescent<br />Institute</figcaption>
+                </figure>
+              </div>
               <img src="/book-cover-icon-192.png" alt="" className="ent-logo ent-rise" style={{ animationDelay: "0ms" }} />
               <h1 className="ent-welcome-title" aria-label="Welcome">
                 <span className="sr-only">Welcome</span>
@@ -104,10 +133,6 @@ export default function Entrance() {
               <span className="ent-rule ent-rise" style={{ animationDelay: "170ms" }} aria-hidden="true" />
               <p className="ent-welcome-sub ent-rise" style={{ animationDelay: "200ms" }}>to Miraasu</p>
               <p className="ent-brand ent-rise" style={{ animationDelay: "230ms" }}>Islamic Inheritance Calculator</p>
-              <div className="ent-logos ent-rise" style={{ animationDelay: "255ms" }}>
-                <img src="/bukhari-logo.svg" alt="Bukhari Aalim Arabic College" className="ent-logo-badge" />
-                <img src="/crescent-logo.svg" alt="B.S. Abdur Rahman Crescent Institute of Science and Technology" className="ent-logo-badge" />
-              </div>
               <article className="ent-hadith ent-rise" lang="en" style={{ animationDelay: "280ms" }}>
                 <p className="ent-hadith-kicker">A teaching on inheritance</p>
                 <blockquote className="ent-hadith-quote">“O Abu Hurairah. Learn about the inheritance and teach it, for it is half of knowledge, but it will be forgotten. This is the first thing that will be taken away from my nation.”</blockquote>
@@ -117,6 +142,11 @@ export default function Entrance() {
               <button type="button" onClick={() => setStep("language")} className="ent-start ent-rise" style={{ animationDelay: "320ms" }}>
                 Start <ArrowRight size={18} />
               </button>
+              {installEvent ? (
+                <button type="button" onClick={installApp} className="ent-install ent-rise" style={{ animationDelay: "360ms" }}>
+                  <Download size={15} /> Install app
+                </button>
+              ) : null}
             </section>
           ) : null}
 
