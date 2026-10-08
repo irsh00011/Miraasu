@@ -3,7 +3,6 @@
    Deep navy + royal blue + white + pale blue, gold used sparingly.
    Languages: Tamil / English / Arabic (RTL) / Urdu (RTL). Mobile-first.
    ═══════════════════════════════════════════════════════════════════ */
-@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=Noto+Naskh+Arabic:wght@500;600;700&family=Noto+Sans+Tamil:wght@400;500;600;700;800&family=Noto+Serif+Tamil:wght@600;700;800&family=Source+Sans+3:wght@400;600;700;800&family=Playfair+Display:wght@600;700;800&family=Source+Serif+4:wght@600;700;800&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -437,7 +436,7 @@
   .ms-summary-bar .ms-gold-dot { width: 0.45rem; height: 0.45rem; border-radius: 999px; background: var(--ms-gold); flex: none; }
 }
 
-/* ════════════════ Results — unified share table (heir | percent | LCM | amount) ════════════════ */
+/* ════════════════ Results — unified share table (heir | share chips | amount) ════════════════ */
 @layer components {
   .ms-share-table {
     border: 1px solid var(--ms-line); border-radius: 1.25rem; background: #fff; overflow: hidden;
@@ -445,29 +444,40 @@
   }
   .ms-share-thead,
   .ms-share-trow {
-    display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 0.75fr) minmax(0, 0.75fr) minmax(0, 1fr);
-    gap: 0.5rem; align-items: center; padding: 0.8rem 1.1rem;
+    display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr);
+    gap: 0.6rem; align-items: center; padding: 0.9rem 1.15rem;
   }
   .ms-share-thead {
     background: rgba(22, 79, 134, 0.06);
-    font-size: 0.72rem; font-weight: 800; color: #47617e;
+    font-size: 0.78rem; font-weight: 800; color: #47617e;
   }
   .ms-share-thnum { text-align: end; }
   .ms-share-tbody { list-style: none; margin: 0; padding: 0; }
   .ms-share-trow + .ms-share-trow { border-top: 1px solid rgba(22, 79, 134, 0.08); }
-  .ms-share-cname { font-weight: 700; color: #1f2d3d; display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap; min-width: 0; }
-  .ms-share-cnum { text-align: end; color: #47617e; font-weight: 600; }
-  .ms-share-camount { text-align: end; font-weight: 800; color: #164f86; font-size: 1.02rem; }
+  .ms-share-cname {
+    font-weight: 800; font-size: 1.12rem; color: #1f2d3d;
+    display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap; min-width: 0;
+  }
+  .ms-share-cchips { display: flex; flex-wrap: wrap; gap: 0.35rem; min-width: 0; }
+  .ms-mini-chip {
+    display: inline-block; font-size: 0.72rem; font-weight: 700; line-height: 1;
+    padding: 0.32rem 0.55rem; border-radius: 999px; white-space: nowrap;
+    background: #eaf2fb; color: #164f86; border: 1px solid rgba(22, 79, 134, 0.14);
+  }
+  .ms-share-camount {
+    text-align: end; font-weight: 800; font-size: 1.32rem; color: #15803d; min-width: 0;
+  }
 
   @media (max-width: 639px) {
     .ms-share-thead { display: none; }
-    .ms-share-trow { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 0.55rem; padding: 0.95rem 1.1rem; }
-    .ms-share-cname { grid-column: 1 / -1; }
-    .ms-share-cnum, .ms-share-camount { text-align: start; display: flex; flex-direction: column; gap: 0.1rem; min-width: 0; }
-    .ms-share-cnum::before, .ms-share-camount::before {
-      content: attr(data-label); font-size: 0.66rem; font-weight: 800; color: #8aa0b8;
+    .ms-share-trow {
+      grid-template-columns: minmax(0, 1fr) auto;
+      grid-template-areas: "name amount" "chips chips";
+      row-gap: 0.5rem; padding: 0.95rem 1.1rem;
     }
-    .ms-share-camount { font-size: 0.95rem; }
+    .ms-share-cname { grid-area: name; font-size: 1.02rem; }
+    .ms-share-cchips { grid-area: chips; }
+    .ms-share-camount { grid-area: amount; font-size: 1.14rem; }
   }
 }
 
@@ -869,6 +879,18 @@
   .ent-rule { display: block; width: 3.5rem; height: 2px; margin: 1.5rem 0 1rem; background: linear-gradient(90deg, transparent, #e8c477, transparent); }
   .ent-brand { padding-inline-start: 0.42em; color: rgba(255, 255, 255, 0.78); font-size: 0.85rem; font-weight: 800; letter-spacing: 0.42em; text-transform: uppercase; }
   .ent-logos { display: flex; align-items: center; justify-content: center; gap: 0.9rem; margin-top: 1.5rem; }
+  .ent-corner-logos { align-self: stretch; display: flex; justify-content: space-between; align-items: flex-start; width: 100%; margin-bottom: 0.9rem; }
+  .ent-corner-logo { display: flex; flex-direction: column; align-items: center; gap: 0.3rem; margin: 0; }
+  .ent-corner-logo img {
+    width: 3.75rem; height: 3.75rem; border-radius: 50%; background: #ffffff; object-fit: cover;
+    box-shadow: 0 10px 24px -10px rgba(4, 20, 40, 0.55), 0 0 0 2px rgba(232, 196, 119, 0.5);
+  }
+  .ent-corner-logo figcaption { font-size: 0.6rem; font-weight: 700; line-height: 1.3; color: rgba(255, 255, 255, 0.85); text-align: center; }
+  .ent-install {
+    display: inline-flex; align-items: center; gap: 0.5rem; min-height: 2.75rem; margin-top: 0.9rem; padding: 0 1.4rem;
+    border-radius: 999px; border: 1px solid rgba(255, 255, 255, 0.45); background: rgba(255, 255, 255, 0.12);
+    color: #ffffff; font-size: 0.85rem; font-weight: 700;
+  }
   .ent-logo-badge {
     height: 4.25rem; width: auto; max-width: 10.5rem; object-fit: contain;
     background: #ffffff; border-radius: 1rem; padding: 0.45rem 0.75rem;
