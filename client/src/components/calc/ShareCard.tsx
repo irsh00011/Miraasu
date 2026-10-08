@@ -1,4 +1,6 @@
 /** Design: Miraasu Scholarly Ledger — one heir per row: name + share tags, amount in premium numerals. */
+import { AnimatedMoney } from "@/components/calc/AnimatedMoney";
+
 type Props = {
   name: string;
   count?: number;
@@ -6,11 +8,16 @@ type Props = {
   fraction?: string;
   percent?: string;
   amount: string;
+  /** When provided with `money`, the amount counts up on appear instead of rendering statically. */
+  amountValue?: number;
+  money?: (value: number) => string;
+  /** Milliseconds to wait before the count-up begins — heir rows cascade with a stagger. */
+  delayMs?: number;
   perPersonLabel?: string;
   perPerson?: string;
 };
 
-export function ShareCard({ name, count = 1, tag, fraction, percent, amount, perPersonLabel, perPerson }: Props) {
+export function ShareCard({ name, count = 1, tag, fraction, percent, amount, amountValue, money, delayMs, perPersonLabel, perPerson }: Props) {
   return (
     <article className="ms-share premium-pop">
       <div className="min-w-0">
@@ -25,7 +32,13 @@ export function ShareCard({ name, count = 1, tag, fraction, percent, amount, per
         </div>
         {perPerson ? <p className="ms-share-each">{perPersonLabel}: <span className="num">{perPerson}</span></p> : null}
       </div>
-      <p className="ms-share-amount num">{amount}</p>
+      <p className="ms-share-amount num">
+        {amountValue !== undefined && money ? (
+          <AnimatedMoney value={amountValue} money={money} delay={delayMs} />
+        ) : (
+          amount
+        )}
+      </p>
     </article>
   );
 }

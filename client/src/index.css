@@ -437,6 +437,40 @@
   .ms-summary-bar .ms-gold-dot { width: 0.45rem; height: 0.45rem; border-radius: 999px; background: var(--ms-gold); flex: none; }
 }
 
+/* ════════════════ Results — unified share table (heir | percent | LCM | amount) ════════════════ */
+@layer components {
+  .ms-share-table {
+    border: 1px solid var(--ms-line); border-radius: 1.25rem; background: #fff; overflow: hidden;
+    box-shadow: 0 14px 28px -20px rgba(11, 42, 79, 0.35);
+  }
+  .ms-share-thead,
+  .ms-share-trow {
+    display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 0.75fr) minmax(0, 0.75fr) minmax(0, 1fr);
+    gap: 0.5rem; align-items: center; padding: 0.8rem 1.1rem;
+  }
+  .ms-share-thead {
+    background: rgba(22, 79, 134, 0.06);
+    font-size: 0.72rem; font-weight: 800; color: #47617e;
+  }
+  .ms-share-thnum { text-align: end; }
+  .ms-share-tbody { list-style: none; margin: 0; padding: 0; }
+  .ms-share-trow + .ms-share-trow { border-top: 1px solid rgba(22, 79, 134, 0.08); }
+  .ms-share-cname { font-weight: 700; color: #1f2d3d; display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap; min-width: 0; }
+  .ms-share-cnum { text-align: end; color: #47617e; font-weight: 600; }
+  .ms-share-camount { text-align: end; font-weight: 800; color: #164f86; font-size: 1.02rem; }
+
+  @media (max-width: 639px) {
+    .ms-share-thead { display: none; }
+    .ms-share-trow { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 0.55rem; padding: 0.95rem 1.1rem; }
+    .ms-share-cname { grid-column: 1 / -1; }
+    .ms-share-cnum, .ms-share-camount { text-align: start; display: flex; flex-direction: column; gap: 0.1rem; min-width: 0; }
+    .ms-share-cnum::before, .ms-share-camount::before {
+      content: attr(data-label); font-size: 0.66rem; font-weight: 800; color: #8aa0b8;
+    }
+    .ms-share-camount { font-size: 0.95rem; }
+  }
+}
+
 /* ════════════════ Results — method panels (percentage | LCM) ════════════════ */
 @layer components {
   .ms-method-row { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; align-items: start; }

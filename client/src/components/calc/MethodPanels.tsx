@@ -5,6 +5,7 @@
  * Frontend only: reads the already-computed result, never recalculates.
  */
 import { fractionToText, type CalculationResult } from "@/lib/inheritance";
+import { AnimatedMoney } from "@/components/calc/AnimatedMoney";
 
 export type MethodLang = "ta" | "en" | "ar" | "ur";
 
@@ -72,7 +73,7 @@ export function LcmMethodPanel({ language, result, heirLabels, money }: LcmPanel
       </div>
       {rows.length > 0 ? (
         <ul className="space-y-2">
-          {rows.map((row) => {
+          {rows.map((row, index) => {
             const name = heirLabels?.[row.key] ?? row.label;
             const basis =
               row.method === "remainder"
@@ -89,7 +90,7 @@ export function LcmMethodPanel({ language, result, heirLabels, money }: LcmPanel
                 </div>
                 <div className="ms-lcm-amount">
                   <p className="ms-lcm-fraction num">{fractionToText(row.fraction)}</p>
-                  <p className="num">{money(row.amount)}</p>
+                  <p className="num"><AnimatedMoney value={row.amount} money={money} delay={200 + index * 70} /></p>
                 </div>
               </li>
             );
