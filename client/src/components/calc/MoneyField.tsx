@@ -1,4 +1,4 @@
-/** Design: Miraasu Scholarly Ledger — confident money fields, tabular numerals, RTL-safe currency. */
+/** Premium redesign: confident money fields, tabular numerals, RTL-safe currency. Props unchanged. */
 import type { KeyboardEvent } from "react";
 
 type Props = {
@@ -28,10 +28,10 @@ export function advanceOnEnter(event: KeyboardEvent<HTMLInputElement>, onLast: (
 export function MoneyField({ label, help, value, onValueChange, onKeyDown, size = "md" }: Props) {
   const xl = size === "xl";
   return (
-    <label className="ms-field block">
-      <span className={`ms-label ${xl ? "text-sm sm:text-base" : ""}`}>{label}</span>
-      <span className="ms-money">
-        <span aria-hidden="true" className="ms-money-currency num text-xl">₹</span>
+    <label className="pb-field block">
+      <span className="pb-label">{label}</span>
+      <span className="pb-money">
+        <span aria-hidden="true" className="pb-money-currency num">₹</span>
         <input
           type="number"
           inputMode="decimal"
@@ -41,10 +41,10 @@ export function MoneyField({ label, help, value, onValueChange, onKeyDown, size 
           onChange={(event) => onValueChange(Number(event.target.value))}
           onKeyDown={onKeyDown}
           placeholder="0"
-          className={`ms-input num no-spin ${xl ? "ms-input-xl" : "text-xl font-bold"}`}
+          className={`pb-input num no-spin ${xl ? "pb-input-xl" : ""}`}
         />
       </span>
-      {help ? <span className="ms-help">{help}</span> : null}
+      {help ? <span className="pb-help">{help}</span> : null}
     </label>
   );
 }

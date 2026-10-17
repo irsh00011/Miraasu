@@ -11,7 +11,7 @@ export type MethodLang = "ta" | "en" | "ar" | "ur";
 
 export const methodCopy: Record<
   MethodLang,
-  { percentageTitle: string; lcmTitle: string; rootLcm: string; units: string; parts: string; noRows: string; auditTitle: string }
+  { percentageTitle: string; lcmTitle: string; rootLcm: string; units: string; parts: string; noRows: string; auditTitle: string; perPerson: string }
 > = {
   en: {
     percentageTitle: "Percentage method",
@@ -21,6 +21,7 @@ export const methodCopy: Record<
     parts: "parts",
     noRows: "No allocated heirs in this case.",
     auditTitle: "Full calculation audit",
+    perPerson: "Per person",
   },
   ta: {
     percentageTitle: "சதவீத முறை",
@@ -30,6 +31,7 @@ export const methodCopy: Record<
     parts: "பங்குகள்",
     noRows: "பங்கு பெறும் வாரிசுகள் இல்லை.",
     auditTitle: "முழு கணக்குத் தணிக்கை",
+    perPerson: "ஒருவருக்கு",
   },
   ar: {
     percentageTitle: "طريقة النسبة المئوية",
@@ -39,6 +41,7 @@ export const methodCopy: Record<
     parts: "أسهم",
     noRows: "لا يوجد ورثة مستحقون في هذه الحالة.",
     auditTitle: "التدقيق الكامل للحساب",
+    perPerson: "لكل شخص",
   },
   ur: {
     percentageTitle: "فیصدی طریقہ",
@@ -48,6 +51,7 @@ export const methodCopy: Record<
     parts: "حصے",
     noRows: "اس صورت میں کوئی حقدار وارث نہیں۔",
     auditTitle: "مکمل حساب کی تدقیق",
+    perPerson: "فی فرد",
   },
 };
 
@@ -58,7 +62,9 @@ type LcmPanelProps = {
   money: (value: number) => string;
 };
 
-/** Compact LCM view: each heir's integer units against the root LCM, with fraction and amount. */
+/** Compact LCM view: each heir's integer units against the root LCM, with amount.
+ *  Taʿṣīb (remainder) rows show their parts only — never a generated per-heir
+ *  fraction presented as the original combined remainder. */
 export function LcmMethodPanel({ language, result, heirLabels, money }: LcmPanelProps) {
   const t = methodCopy[language];
   const rows = result.trace.rows;
@@ -75,10 +81,10 @@ export function LcmMethodPanel({ language, result, heirLabels, money }: LcmPanel
         <ul className="space-y-2">
           {rows.map((row, index) => {
             const name = heirLabels?.[row.key] ?? row.label;
-            const basis =
-              row.method === "remainder"
-                ? `${row.integerShares} ${t.parts}`
-                : `${row.integerShares} / ${baseLcm} ${t.units}`;
+            const isRemainder = row.method === "remainder";
+            const basis = isRemainder
+              ? `${row.integerShares} ${t.parts}`
+              : `${row.integerShares} / ${baseLcm} ${t.units}`;
             return (
               <li key={`${row.key}-${row.method}`} className="ms-lcm-row">
                 <div className="min-w-0">
@@ -89,8 +95,49 @@ export function LcmMethodPanel({ language, result, heirLabels, money }: LcmPanel
                   <p className="ms-lcm-basis num">{basis}</p>
                 </div>
                 <div className="ms-lcm-amount">
-                  <p className="ms-lcm-fraction num">{fractionToText(row.fraction)}</p>
+                  {isRemainder ? null : (
+                    <p className="ms-lcm-fraction num">{fractionToText(row.fraction)}</p>
+                  )}
                   <p className="num"><AnimatedMoney value={row.amount} money={money} delay={200 + index * 70} /></p>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      ) : (
+        <p className="rounded-xl border border-dashed border-slate-200 p-4 text-sm text-slate-500">{t.noRows}</p>
+      )}
+    </>
+  );
+}
+
+/** Compact percentage view: each heir's estate percentage with amount and per-person figure. */
+export function PercentageMethodPanel({ language, result, heirLabels, money }: LcmPanelProps) {
+  const t = methodCopy[language];
+  const rows = result.trace.rows;
+  return (
+    <>
+      <div className="ms-method-head">
+        <h3>{t.percentageTitle}</h3>
+      </div>
+      {rows.length > 0 ? (
+        <ul className="space-y-2">
+          {rows.map((row, index) => {
+            const name = heirLabels?.[row.key] ?? row.label;
+            return (
+              <li key={`${row.key}-${row.method}`} className="ms-lcm-row">
+                <div className="min-w-0">
+                  <p className="ms-lcm-name">
+                    {name}
+                    {row.count > 1 ? <span className="num"> ×{row.count}</span> : null}
+                  </p>
+                  <p className="ms-lcm-basis num">{row.percentage.toFixed(2)}%</p>
+                </div>
+                <div className="ms-lcm-amount">
+                  <p className="num"><AnimatedMoney value={row.amount} money={money} delay={200 + index * 70} /></p>
+                  {row.count > 1 ? (
+                    <p className="ms-audit-each">{t.perPerson} <span className="num">{money(row.amount / Math.max(1, row.count))}</span></p>
+                  ) : null}
                 </div>
               </li>
             );

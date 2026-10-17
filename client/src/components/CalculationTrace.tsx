@@ -1,5 +1,8 @@
 /** Design: Miraasu Scholarly Ledger — teacher-review audit: metric strip, schedule, fixed/remainder work, reconciliation, notes, trace. */
+import { useState } from "react";
 import { fractionToNumber, fractionToText, type AppLanguage, type CalculationResult } from "@/lib/inheritance";
+import { LcmMethodPanel, PercentageMethodPanel } from "@/components/calc/MethodPanels";
+import { premiumCopy } from "@/premium/copy";
 
 type Props = { result: CalculationResult; language?: AppLanguage | "ur"; heirLabels?: Record<string, string> };
 
@@ -199,6 +202,8 @@ const nameFor = (key: string, fallback: string, labels?: Record<string, string>)
 export function CalculationTrace({ result, language = "en", heirLabels }: Props) {
   const t = copy[language];
   const { trace } = result;
+  const [scheduleMode, setScheduleMode] = useState<"lcm" | "percentage">("lcm");
+  const panelMoney = (value: number) => money(value);
   const fixedRows = trace.rows.filter((row) => row.method === "fixed");
   const remainderRows = trace.rows.filter((row) => row.method === "remainder");
   const redistributionRows = trace.rows.filter((row) => row.method === "redistribution");
@@ -233,24 +238,34 @@ export function CalculationTrace({ result, language = "en", heirLabels }: Props)
           <h3 id="audit-schedule-heading">{t.schedule}</h3>
         </div>
         <div className="ms-trace-body">
-          <div className="grid gap-2 pt-2 sm:grid-cols-2" role="list">
-            {trace.rows.length ? trace.rows.map((row) => (
-              <article key={`${row.key}-${row.method}`} role="listitem" className="ms-audit-row premium-pop">
-                <div className="min-w-0">
-                  <h4 className="ms-audit-name break-words">{nameFor(row.key, row.label, heirLabels)}</h4>
-                  <p className="ms-audit-share">
-                    <span className="ms-hl-yellow num">{fractionToText(row.fraction)}</span>
-                    <span className="ms-hl-yellow num">{row.percentage.toFixed(2)}%</span>
-                    <span className="num">×{row.count}</span>
-                  </p>
-                </div>
-                <div className="ms-audit-amount">
-                  <p className="ms-hl-green num">{money(row.amount)}</p>
-                  <p className="ms-audit-each">{t.perPerson} <span className="num">{money(row.amount / Math.max(1, row.count))}</span></p>
-                </div>
-              </article>
-            )) : <p className="rounded-xl border border-dashed border-slate-200 p-4 text-sm text-slate-500">{t.noRows}</p>}
+          <div className="pb-seg ms-method-tabs" role="tablist" aria-label={t.schedule}>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={scheduleMode === "lcm"}
+              className={scheduleMode === "lcm" ? "is-on" : ""}
+              onClick={() => setScheduleMode("lcm")}
+            >
+              {premiumCopy[language].tabLcm}
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={scheduleMode === "percentage"}
+              className={scheduleMode === "percentage" ? "is-on" : ""}
+              onClick={() => setScheduleMode("percentage")}
+            >
+              {premiumCopy[language].tabPercentage}
+            </button>
           </div>
+          <div className="pt-3">
+            {scheduleMode === "lcm" ? (
+              <LcmMethodPanel language={language} result={result} heirLabels={heirLabels} money={panelMoney} />
+            ) : (
+              <PercentageMethodPanel language={language} result={result} heirLabels={heirLabels} money={panelMoney} />
+            )}
+          </div>
+          <p className="mt-3 text-xs leading-5 text-slate-500">{t.scheduleNote}</p>
         </div>
       </section>
 
@@ -274,6 +289,7 @@ export function CalculationTrace({ result, language = "en", heirLabels }: Props)
             {remainderRows.length ? (
               <div className="mt-3 space-y-2">
                 <p className="text-xs font-extrabold text-[#7c5a1c]">{t.rule}: {totalRemainderParts} {t.parts}</p>
+                <p className="text-xs text-[#7c5a1c]">{t.asabahRule}</p>
                 {remainderRows.map((row) => (
                   <p key={`remainder-${row.key}`} className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 border-t border-[rgba(184,137,45,0.3)] pt-2 text-xs text-[#7c5a1c]">
                     <span className="font-bold">{nameFor(row.key, row.label, heirLabels)} × {row.count} · {row.integerShares} {t.parts}</span>

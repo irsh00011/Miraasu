@@ -11,12 +11,12 @@ const copy = {
 export function BookSourceCard({ language = "ta" }: BookSourceCardProps) {
   const text = copy[language];
   return (
-    <figure className="mt-6 flex items-center gap-4 border-t border-[rgba(22,79,134,0.14)] pt-5">
-      <div className="h-28 w-24 shrink-0 overflow-hidden rounded-xl border border-[rgba(22,79,134,0.2)] bg-white shadow-md shadow-blue-100">
-        <img src="/book-cover-icon-512.png" alt={text.alt} className="size-full object-cover object-right" loading="lazy" />
+    <figure className="pb-card mt-6 flex items-center gap-4 p-4">
+      <div className="h-28 w-24 shrink-0 overflow-hidden rounded-xl border border-[#d8e6f7] bg-white shadow-md shadow-blue-100">
+        <img src="/book-cover.jpg" alt={text.alt} className="size-full object-cover" loading="lazy" />
       </div>
       <figcaption>
-        <p className="text-xs font-extrabold tracking-wide text-[#164f86]">{text.title}</p>
+        <p className="text-xs font-extrabold tracking-wide text-[#1559a6]">{text.title}</p>
         <p className="mt-1.5 text-xs leading-5 text-slate-500">{text.detail}</p>
       </figcaption>
     </figure>

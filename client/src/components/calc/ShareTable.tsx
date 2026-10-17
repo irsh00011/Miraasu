@@ -1,7 +1,8 @@
 /**
- * Unified result table — one row per shareholder: name, percent, LCM and amount.
- * Replaces the separate percentage / LCM panels with a single responsive table:
- * a real column grid on PC, compact stacked cards on mobile.
+ * Simple result — one bordered heir card per shareholder.
+ * Fixed-share heirs show name, share chips (percent + LCM units) and amount.
+ * Taʿṣīb (remainder) heirs show name and amount only — no parts, units or
+ * generated fractions in the simple result (those live in the detailed view).
  * Frontend only: reads the already-computed result, never recalculates.
  */
 import {
@@ -22,6 +23,8 @@ export type ShareTableRow = {
   percent: string;
   lcm: string;
   amount: number;
+  /** True for Taʿṣīb (remainder-method) heirs — simple result shows name + amount only. */
+  isAsabah: boolean;
 };
 
 /** Display-only: trims runaway decimals (e.g. 14.583333333333334%) to 2 places. Values unchanged. */
@@ -58,18 +61,16 @@ export function buildShareTableRows(
       percent: formatPercent(sourcePercentage(item.share)),
       lcm,
       amount: result.netEstate * fractionToNumber(item.share),
+      isAsabah: item.method === "remainder",
     };
   });
 }
 
-const headerCopy: Record<
-  ShareTableLang,
-  { heir: string; share: string; amount: string; tableLabel: string }
-> = {
-  en: { heir: "Heir", share: "Share", amount: "Amount", tableLabel: "Share distribution" },
-  ta: { heir: "வாரிசு", share: "பங்கு", amount: "தொகை", tableLabel: "பங்கு விநியோகம்" },
-  ar: { heir: "الوارث", share: "الحصة", amount: "المبلغ", tableLabel: "توزيع الحصص" },
-  ur: { heir: "وارث", share: "حصہ", amount: "رقم", tableLabel: "حصوں کی تقسیم" },
+const listLabel: Record<ShareTableLang, string> = {
+  en: "Share distribution",
+  ta: "பங்கு விநியோகம்",
+  ar: "توزيع الحصص",
+  ur: "حصوں کی تقسیم",
 };
 
 type Props = {
@@ -80,33 +81,27 @@ type Props = {
 };
 
 export function ShareTable({ language, rows, money, empty }: Props) {
-  const t = headerCopy[language];
   if (rows.length === 0) return <>{empty ?? null}</>;
   return (
-    <section
-      className="ms-share-table"
-      dir={language === "ar" || language === "ur" ? "rtl" : "ltr"}
-      aria-label={t.tableLabel}
-    >
-      <div className="ms-share-thead">
-        <span>{t.heir}</span>
-        <span>{t.share}</span>
-        <span className="ms-share-thnum">{t.amount}</span>
-      </div>
-      <ul className="ms-share-tbody">
+    <section dir={language === "ar" || language === "ur" ? "rtl" : "ltr"} aria-label={listLabel[language]}>
+      <ul className="pb-heir-list">
         {rows.map((row, index) => (
-          <li key={row.key} className="ms-share-trow">
-            <span className="ms-share-cname">
-              {row.name}
-              {row.count > 1 ? <span className="ms-tag ms-tag-count num">×{row.count}</span> : null}
-            </span>
-            <span className="ms-share-cchips">
-              <span className="ms-mini-chip num">{row.percent}</span>
-              <span className="ms-mini-chip num">{row.lcm}</span>
-            </span>
-            <span className="ms-share-camount num">
+          <li key={row.key} className="pb-heir-card">
+            <div className="pb-heir-main">
+              <p className="pb-heir-name">
+                {row.name}
+                {row.count > 1 ? <span className="pb-count-chip num">×{row.count}</span> : null}
+              </p>
+              {row.isAsabah ? null : (
+                <p className="pb-heir-share">
+                  <span className="pb-mini-chip num">{row.percent}</span>
+                  <span className="pb-mini-chip num">{row.lcm}</span>
+                </p>
+              )}
+            </div>
+            <p className="pb-heir-amount num">
               <AnimatedMoney value={row.amount} money={money} delay={index * 70} />
-            </span>
+            </p>
           </li>
         ))}
       </ul>
