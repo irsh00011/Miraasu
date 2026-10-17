@@ -1,7 +1,374 @@
-/** Tamil calculator — thin wrapper over the shared premium Calculator. */
-import { Calculator } from "@/premium/Calculator";
-import { calcCopies } from "@/premium/copies";
+/**
+ * Design: Miraasu Scholarly Ledger — Amount → Family → Result, one focus per screen.
+ * UI only: state, handlers and every call into @/lib/inheritance are unchanged.
+ */
+import { useEffect, useMemo, useState } from "react";
+import { ArrowLeft, Calculator, Download, Printer, UsersRound } from "lucide-react";
+import { FamilyList } from "@/components/FamilyList";
+import { BookSourceCard } from "@/components/BookSourceCard";
+import {
+  asabahPartsFor,
+  aggregateAllocationsForDisplay,
+  calculateInheritance,
+  fractionToNumber,
+  fractionToText,
+  sourcePercentage,
+  type EstateInput,
+  type HeirInput,
+} from "@/lib/inheritance";
+import { CalculationTrace } from "@/components/CalculationTrace";
+import { AppHeader } from "@/components/calc/AppHeader";
+import { EstateStep } from "@/components/calc/EstateStep";
+import { HistoryView } from "@/components/calc/HistoryView";
+import { ResultHero } from "@/components/calc/ResultHero";
+import { methodCopy } from "@/components/calc/MethodPanels";
+import { ShareTable, buildShareTableRows } from "@/components/calc/ShareTable";
+
+import { AnimatedMoney } from "@/components/calc/AnimatedMoney";
+import { StepBar, StepNav, type Step } from "@/components/calc/StepBar";
+import {
+  readCalculationHistory,
+  writeCalculationHistory,
+  type SavedCalculation,
+} from "@/lib/localHistory";
+import { printSummaryAsPdf } from "@/components/calc/download";
+import { PrintSheet, type PrintRow } from "@/components/calc/PrintSheet";
+
+type View = "calculator" | "history";
+
+const initialEstate: EstateInput = { grossEstate: 0, funeralCosts: 0, debts: 0, bequest: 0 };
+const initialHeirs: HeirInput = {
+  husband: 0,
+  wives: 0,
+  father: 0,
+  mother: 0,
+  paternalGrandfather: 0,
+  sons: 0,
+  daughters: 0,
+  fullBrothers: 0,
+  fullSisters: 0,
+  maternalBrothers: 0,
+  maternalSisters: 0,
+  sonsSons: 0,
+  sonsDaughters: 0,
+  furtherSonsLineDescendants: 0,
+  maternalGrandfather: 0,
+  paternalGrandmothers: 0,
+  maternalGrandmothers: 0,
+  furtherPaternalAncestors: 0,
+  paternalBrothers: 0,
+  paternalSisters: 0,
+  fullBrothersSons: 0,
+  paternalBrothersSons: 0,
+  paternalUncles: 0,
+  paternalUnclesSons: 0,
+  consanguinePaternalUncles: 0,
+  consanguinePaternalUnclesSons: 0,
+  daughtersChildren: 0,
+  sonsDaughtersChildren: 0,
+  fullBrothersDaughters: 0,
+  fullSistersChildren: 0,
+  maternalBrothersChildren: 0,
+  fathersMaternalBrothers: 0,
+  fathersMaternalBrothersDescendants: 0,
+  mothersSiblings: 0,
+  mothersSiblingsDescendants: 0,
+};
+
+const stepLabels = ["தொகை", "உறவுகள்", "முடிவு"] as const;
+const inrFormatter = new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 2 });
+const money = (value: number) => inrFormatter.format(Number.isFinite(value) ? value : 0);
+const heirCount = (heirs: HeirInput) => Object.values(heirs).reduce((total, item) => total + item, 0);
+const formatDate = (value: string) => new Intl.DateTimeFormat("ta-IN", { day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(value));
 
 export default function Home() {
-  return <Calculator copy={calcCopies.ta} />;
+  const [view, setView] = useState<View>("calculator");
+  const [step, setStep] = useState<Step>(1);
+  const [estate, setEstate] = useState<EstateInput>(initialEstate);
+  const [heirs, setHeirs] = useState<HeirInput>(initialHeirs);
+  const [history, setHistory] = useState<SavedCalculation[]>([]);
+  const [justSaved, setJustSaved] = useState(false);
+  const [familyQuery, setFamilyQuery] = useState("");
+
+  const result = useMemo(() => calculateInheritance(estate, heirs), [estate, heirs]);
+  const distributedTotal = useMemo(() => result.allocations.reduce((total, item) => total + result.netEstate * fractionToNumber(item.share), 0), [result]);
+  const remainingAmount = Math.max(0, result.netEstate - distributedTotal);
+  const historyFingerprint = useMemo(() => JSON.stringify({ estate, heirs }), [estate, heirs]);
+  const resultRows = useMemo(() => {
+    const displayAllocations = aggregateAllocationsForDisplay(result.allocations);
+    const asabahGroup = displayAllocations.filter((item) => item.method === "remainder");
+    const allocationRows = displayAllocations.map((item) => {
+      const amount = result.netEstate * fractionToNumber(item.share);
+      const isAsabah = item.method === "remainder";
+      const parts = asabahPartsFor(item, asabahGroup);
+      return {
+        key: `${item.key}-${item.method}`,
+        label: item.label,
+        count: item.count,
+        isAsabah,
+        fractionText: isAsabah ? `${parts} ${parts === 1 ? "பங்கு" : "பங்குகள்"}` : fractionToText(item.share),
+        percentText: isAsabah ? "" : sourcePercentage(item.share),
+        amount,
+        perPerson: item.count > 1 ? amount / item.count : null,
+        reason: item.reason,
+        zero: false,
+      };
+    });
+    const exclusionRows = result.exclusions.map((item, index) => ({
+      key: (item.key as string | undefined) ?? `exclusion-${index}`,
+      label: item.label,
+      count: 1,
+      isAsabah: false,
+      fractionText: "0",
+      percentText: "0%",
+      amount: 0,
+      perPerson: null as number | null,
+      reason: item.reason,
+      zero: true,
+    }));
+    return [...allocationRows, ...exclusionRows];
+  }, [result]);
+
+  useEffect(() => {
+    document.documentElement.lang = "ta";
+    document.title = "மீராஸ் கணக்கீடு";
+    setHistory(readCalculationHistory());
+  }, []);
+  /* முடிவுப் பக்கம் எப்போதும் மேலிருந்து தொடங்க வேண்டும்: குடும்பப் படியின் scroll நிலையை நீக்கு. */
+  useEffect(() => {
+    if (step === 3) window.scrollTo({ top: 0, left: 0, behavior: "instant" as ScrollBehavior });
+  }, [step]);
+
+  const updateEstate = (key: keyof EstateInput, value: number) => setEstate((current) => ({ ...current, [key]: Math.max(0, value) }));
+  const updateHeir = (key: keyof HeirInput, value: number) => setHeirs((current) => ({ ...current, [key]: value }));
+  const resetHeirKeys = (keys: (keyof HeirInput)[]) => setHeirs((current) => Object.fromEntries(Object.entries(current).map(([key, value]) => [key, keys.includes(key as keyof HeirInput) ? 0 : value])) as HeirInput);
+
+  const saveCalculation = () => {
+    if (result.netEstate <= 0 || result.allocations.length === 0) return;
+    const record: SavedCalculation = {
+      id: crypto.randomUUID(),
+      fingerprint: historyFingerprint,
+      createdAt: new Date().toISOString(),
+      estate,
+      heirs,
+      netEstate: result.netEstate,
+      totalHeirs: heirCount(heirs),
+    };
+    setHistory((current) => {
+      const next = [record, ...current.filter((item) => item.fingerprint !== record.fingerprint)].slice(0, 12);
+      writeCalculationHistory(next);
+      return next;
+    });
+    setJustSaved(true);
+  };
+
+  const openCalculator = () => {
+    setJustSaved(false);
+    setView("calculator");
+    setStep(1);
+  };
+
+  const finishCalculation = () => {
+    setJustSaved(false);
+    setStep(3);
+    saveCalculation();
+  };
+
+  const startNewCalculation = () => {
+    setEstate(initialEstate);
+    setHeirs(initialHeirs);
+    setFamilyQuery("");
+    openCalculator();
+  };
+
+  const reopenCalculation = (record: SavedCalculation) => {
+    setEstate(record.estate);
+    setHeirs(record.heirs);
+    setJustSaved(false);
+    setView("calculator");
+    setStep(3);
+  };
+
+  const deleteHistoryItem = (id: string) => {
+    setHistory((current) => {
+      const next = current.filter((item) => item.id !== id);
+      writeCalculationHistory(next);
+      return next;
+    });
+  };
+
+  const clearHistory = () => {
+    if (!window.confirm("சேமித்த கணக்குகள் அனைத்தையும் அழிக்கவா?")) return;
+    setHistory([]);
+    writeCalculationHistory([]);
+  };
+
+  const shareRows = resultRows.filter((row) => !row.zero);
+  const tamilNameFor = useMemo(() => {
+    const byKey: Record<string, string> = {};
+    for (const row of shareRows) byKey[row.key.replace(/-[^-]+$/, "")] = row.label;
+    return (key: string, fallback: string) => byKey[key] ?? fallback;
+  }, [shareRows]);
+  const tableRows = useMemo(
+    () => buildShareTableRows(result, tamilNameFor, (n) => (n === 1 ? "பங்கு" : "பங்குகள்")),
+    [result, tamilNameFor],
+  );
+  const zeroRows = resultRows.filter((row) => row.zero);
+  const printRows: PrintRow[] = shareRows.map((row) => ({
+    name: `${row.label}${row.count > 1 ? ` × ${row.count}` : ""}`,
+    share: row.fractionText,
+    amount: money(row.amount),
+  }));
+  const noShareNames = zeroRows.map((row) => row.label);
+
+  return (
+    <>
+    <div className="ms-page ms-watermark">
+      <AppHeader
+        title="Islamic Inheritance Calculator"
+        subtitle="பங்கு காரணம் அறியும் பதிவு"
+        homeLabel="முகப்பு"
+        historyLabel="வரலாறு"
+        calculatorLabel="கணக்கீடு"
+        historyActive={view === "history"}
+        onToggleHistory={() => setView(view === "history" ? "calculator" : "history")}
+      />
+
+      <main className="ms-container pb-28 pt-6 sm:pb-14 sm:pt-9">
+        {view === "history" ? (
+          <HistoryView
+            kicker="இந்தச் சாதனத்தில் மட்டும்"
+            title="சேமித்த கணக்குகள்"
+            records={history}
+            formatMoney={money}
+            formatDate={formatDate}
+            countText={(count) => `${count} உறவுகள்`}
+            onOpen={reopenCalculation}
+            onDelete={deleteHistoryItem}
+            onClear={clearHistory}
+            onNew={startNewCalculation}
+            text={{ clear: "அனைத்தையும் அழி", deleteLabel: "கணக்கை அழிக்க", emptyTitle: "இன்னும் சேமித்த கணக்கு இல்லை", emptyBody: "ஒரு கணக்கை முடித்ததும் அது இங்கே தானாக சேமிக்கப்படும்.", newLabel: "புதிய கணக்கு" }}
+          />
+        ) : null}
+
+        {view === "calculator" ? (
+          <section className="page-enter">
+            <StepBar step={step} labels={stepLabels} ariaLabel="படிகள்" resetLabel="புதிய கணக்கு" onGo={setStep} onReset={startNewCalculation} />
+
+            {step === 1 ? (
+              <EstateStep
+                estate={estate}
+                onChange={updateEstate}
+                netEstateText={money(result.netEstate)}
+                onNext={() => setStep(2)}
+                notices={result.notices
+                  .filter((notice) => notice.includes("வஸிய்யத்") || notice.includes("பகிரக்கூடிய"))
+                  .map((notice) => <p key={notice} className="ms-notice">{notice}</p>)}
+                text={{
+                  kicker: "படி 1 / 3",
+                  title: "மொத்த சொத்து",
+                  gross: "சொத்தின் மதிப்பு",
+                  optional: "விருப்பம்",
+                  addExtras: "கழிவுகள்",
+                  costs: "அடக்கச் செலவு",
+                  debts: "கடன்",
+                  bequest: "வஸிய்யத்",
+                  distributable: "பகிரக்கூடிய தொகை",
+                  next: "தொடர்க",
+                }}
+              />
+            ) : null}
+
+            {step === 2 ? (
+              <div className="ms-card p-4 sm:p-7">
+                <p className="ms-kicker">படி 2 / 3</p>
+                <h1 className="ms-h1 ms-h1-compact">குடும்பத்தைத் தேர்வு செய்க</h1>
+                <p className="ms-lead">உயிருடன் இருப்பவர்களை மட்டும் தேர்வு செய்க.</p>
+                <div className="mt-4">
+                  <FamilyList
+                    heirs={heirs}
+                    onChange={updateHeir}
+                    onResetAll={() => resetHeirKeys(Object.keys(initialHeirs) as (keyof HeirInput)[])}
+                    query={familyQuery}
+                    onQueryChange={setFamilyQuery}
+                    onSearchEnter={finishCalculation}
+                    language="ta"
+                  />
+                </div>
+                <div className="mt-6 border-t border-[rgba(22,79,134,0.12)] pt-4 flex items-center justify-between gap-3">
+                  <button type="button" onClick={() => setStep(1)} className="ms-btn ms-btn-ghost min-h-11! px-3! text-sm!"><ArrowLeft size={17} /> பின்செல்</button>
+                  <button type="button" onClick={finishCalculation} className="ms-btn ms-btn-primary"><Calculator size={16} /> முடிவைப் பார்க்கவும்</button>
+                </div>
+              </div>
+            ) : null}
+
+            {step === 3 ? (
+              <div className="space-y-4">
+                <ResultHero title="பங்கீட்டு முடிவு" savedNote={justSaved ? "வரலாற்றில் சேமிக்கப்பட்டது" : undefined} />
+                <ShareTable
+                  language="ta"
+                  rows={tableRows}
+                  money={money}
+                  empty={(
+                    <div className="ms-empty">
+                      <UsersRound className="mx-auto text-slate-300" size={30} />
+                      <p className="mt-3 font-bold text-slate-700">வாரிசுகளைச் சேர்க்கவும்.</p>
+                      <button type="button" onClick={() => setStep(2)} className="mt-2 text-sm font-bold text-[#164f86] hover:underline">உறவுகளை மாற்றுக</button>
+                    </div>
+                  )}
+                />
+
+                {resultRows.length > 0 ? (
+                  <>
+                    {remainingAmount > 0.005 ? (
+                      <div className="ms-total-strip bg-[#7c5a1c]!">
+                        <span>மீதமுள்ள தொகை</span>
+                        <strong className="num"><AnimatedMoney value={remainingAmount} money={money} delay={250 + shareRows.length * 70} /></strong>
+                      </div>
+                    ) : null}
+                    {zeroRows.length > 0 ? (
+                      <details className="ms-zero-box">
+                        <summary>பங்கு இல்லாதவர்கள் (<span className="num">{zeroRows.length}</span>)</summary>
+                        <ul>{zeroRows.map((row) => <li key={`zero-${row.key}`}>{row.label}<span className="ms-zero-reason"> — {row.reason}</span></li>)}</ul>
+                      </details>
+                    ) : null}
+                  </>
+                ) : null}
+
+                <details className="ms-audit-details">
+                  <summary>{methodCopy.ta.auditTitle}</summary>
+                  <CalculationTrace result={result} language="ta" />
+                </details>
+
+                <div className="ms-actions-packet">
+                  <button type="button" onClick={() => window.print()} className="ms-btn-outline"><Printer size={16} /> அச்சிடுக</button>
+                  <button type="button" onClick={() => printSummaryAsPdf("Miraasu-Result")} className="ms-btn-outline"><Download size={16} /> பதிவிறக்குக</button>
+                </div>
+                <BookSourceCard language="ta" />
+              </div>
+            ) : null}
+          </section>
+        ) : null}
+      </main>
+      {view === "calculator" ? <StepNav step={step} labels={stepLabels} ariaLabel="படிகளுக்கு இடையே செல்ல" onGo={setStep} /> : null}
+      </div>
+      <PrintSheet
+        brand="மீராஸ்"
+        title="பங்கீட்டு முடிவு"
+        dateText={new Date().toLocaleDateString("ta-IN", { day: "numeric", month: "long", year: "numeric" })}
+        estateLabel="மொத்த சொத்து"
+        estate={money(result.netEstate)}
+        heirLabel="வாரிசு"
+        shareLabel="பங்கு"
+        amountLabel="தொகை"
+        rows={printRows}
+        totalLabel="மொத்தம் பகிரப்பட்டது"
+        total={money(distributedTotal)}
+        remainingLabel="மீதமுள்ள தொகை"
+        remaining={remainingAmount > 0.005 ? money(remainingAmount) : undefined}
+        noShareLabel="பங்கு இல்லாதவர்கள்"
+        noShareText={noShareNames.length > 0 ? noShareNames.join(", ") : undefined}
+      />
+    </>
+  );
 }

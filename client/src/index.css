@@ -9,7 +9,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-sans: "Inter", "Noto Sans Tamil", "Noto Sans Arabic", "Noto Nastaliq Urdu", "Noto Naskh Arabic", "Source Sans 3", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Noto Sans Tamil", "Noto Naskh Arabic", "Source Sans 3", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Playfair Display", "Noto Serif Tamil", "Noto Naskh Arabic", "Source Serif 4", ui-serif, Georgia, serif;
   --font-serif: "Noto Serif Tamil", "Noto Naskh Arabic", "Source Serif 4", ui-serif, Georgia, serif;
   --radius-sm: calc(var(--radius) - 4px);

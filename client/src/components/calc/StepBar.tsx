@@ -1,4 +1,4 @@
-/** Premium redesign: numbered step rail with animated progress + mobile thumb nav. Props unchanged. */
+/** Design: Miraasu Scholarly Ledger — numbered step rail with gold-current states + thumb-reachable mobile nav. */
 import { Calculator, Check, RotateCcw, UsersRound, WalletCards } from "lucide-react";
 
 export type Step = 1 | 2 | 3;
@@ -8,36 +8,36 @@ const icons = [WalletCards, UsersRound, Calculator] as const;
 
 export function StepBar({ step, labels, ariaLabel, resetLabel, onGo, onReset }: { step: Step; labels: Labels; ariaLabel: string; resetLabel: string; onGo: (step: Step) => void; onReset: () => void }) {
   return (
-    <div className="mb-5 flex items-center gap-3">
+    <div className="mb-6 flex items-center gap-3">
       <nav aria-label={ariaLabel} className="min-w-0 flex-1">
-        <ol className="pb-steps">
+        <ol className="ms-steps">
           {labels.map((label, index) => {
             const id = (index + 1) as Step;
             const done = id < step;
             const current = id === step;
             return (
-              <li key={label} className={`pb-step ${current ? "is-current" : ""} ${done ? "is-done" : ""}`}>
+              <li key={label} className={`ms-step ${current ? "is-current" : ""} ${done ? "is-done" : ""}`}>
                 <button
                   type="button"
                   disabled={!done}
                   onClick={() => onGo(id)}
                   aria-current={current ? "step" : undefined}
-                  className="pb-step-btn"
+                  className="ms-step-btn"
                 >
-                  <span className="pb-step-dot" aria-hidden="true">
+                  <span className="ms-step-dot" aria-hidden="true">
                     {done ? <Check size={15} strokeWidth={3.5} /> : <span className="num">{id}</span>}
                   </span>
-                  <span className="pb-step-name">{label}</span>
+                  <span className="ms-step-name">{label}</span>
                 </button>
                 {index < labels.length - 1 ? (
-                  <span aria-hidden="true" className={`pb-step-link ${id < step ? "is-fill" : ""}`} />
+                  <span aria-hidden="true" className={`ms-step-link ${id < step ? "is-fill" : ""}`} />
                 ) : null}
               </li>
             );
           })}
         </ol>
       </nav>
-      <button type="button" onClick={onReset} aria-label={resetLabel} title={resetLabel} className="pb-icon-btn">
+      <button type="button" onClick={onReset} aria-label={resetLabel} title={resetLabel} className="ms-icon-btn rounded-full">
         <RotateCcw size={16} />
       </button>
     </div>
@@ -46,8 +46,8 @@ export function StepBar({ step, labels, ariaLabel, resetLabel, onGo, onReset }: 
 
 export function StepNav({ step, labels, ariaLabel, onGo }: { step: Step; labels: Labels; ariaLabel: string; onGo: (step: Step) => void }) {
   return (
-    <nav className="pb-bottomnav sm:hidden" aria-label={ariaLabel}>
-      <div className="pb-bottomnav-inner">
+    <nav className="ms-bottomnav sm:hidden" aria-label={ariaLabel}>
+      <div className="ms-bottomnav-inner">
         {labels.map((label, index) => {
           const id = (index + 1) as Step;
           const Icon = icons[index];

@@ -1,29 +1,17 @@
 /**
- * Premium entrance flow:
- *   1. Splash        → الميراث reveal on deep navy.
- *   2. Welcome       → logo-free animated welcome page (skipped for returning users).
- *   3. Collaboration → About Our Collaboration, both institution logos (skipped for returning users).
- *   4. Language      → four premium cards (Tamil · English · Arabic · Urdu).
- *   5. Gender        → two premium cards, shown in the chosen language.
+ * Design: Entrance flow — three quiet screens.
+ *   1. Welcome  → only "Welcome" and one Start button.
+ *   2. Language → four premium cards (Tamil · English · Arabic · Urdu).
+ *   3. Gender   → two premium cards with a single symbol each, shown in the chosen language.
  * Frontend only: no calculation or routing logic is changed. Language cards still open /ta, /en, /ar, /ur.
  */
-import { Suspense, lazy, useEffect, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, Check, ChevronRight, Download } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ArrowLeft, ArrowRight, ChevronRight, Download } from "lucide-react";
 import { useLocation } from "wouter";
-import { Splash } from "@/premium/Splash";
-import { Welcome } from "@/premium/Welcome";
-
-/** Lazy: carries the embedded logo data URIs (~590KB) — loaded on demand,
- *  not in the initial bundle. */
-const Collaboration = lazy(() =>
-  import("@/premium/Collaboration").then((mod) => ({ default: mod.Collaboration })),
-);
 
 type Lang = "ta" | "en" | "ar" | "ur";
-type Phase = "splash" | "welcome" | "collaboration" | "language" | "gender";
+type Step = "welcome" | "language" | "gender";
 type Gender = "male" | "female";
-
-const ONBOARDED_KEY = "miraasu-onboarded";
 
 const LANGUAGES: { code: Lang; href: string; native: string; label: string; mark: string }[] = [
   { code: "ta", href: "/ta", native: "தமிழ்", label: "Tamil", mark: "த" },
@@ -32,20 +20,28 @@ const LANGUAGES: { code: Lang; href: string; native: string; label: string; mark
   { code: "ur", href: "/ur", native: "اردو", label: "Urdu", mark: "ا" },
 ];
 
-const COPY: Record<Lang, { back: string; title: string; hint: string; male: string; maleDesc: string; female: string; femaleDesc: string; continue: string }> = {
-  ta: { back: "பின்செல்", title: "யார் காலமானார்?", hint: "கணக்கீட்டைத் தொடங்க காலமானவரைத் தேர்ந்தெடுக்கவும்", male: "ஓர் ஆண்", maleDesc: "காலமானவர் ஆண்", female: "ஒரு பெண்", femaleDesc: "காலமானவர் பெண்", continue: "தொடர்க" },
-  en: { back: "Back", title: "Who has passed away?", hint: "Select the deceased person to begin calculation", male: "A Man", maleDesc: "The deceased person is male", female: "A Woman", femaleDesc: "The deceased person is female", continue: "Continue" },
-  ar: { back: "رجوع", title: "من المتوفى؟", hint: "اختر المتوفى لبدء الحساب", male: "رجل", maleDesc: "المتوفى ذكر", female: "امرأة", femaleDesc: "المتوفاة أنثى", continue: "التالي" },
-  ur: { back: "واپس", title: "متوفی کون ہے؟", hint: "حساب شروع کرنے کے لیے متوفی کو منتخب کریں", male: "ایک مرد", maleDesc: "متوفی مرد ہے", female: "ایک عورت", femaleDesc: "متوفیہ عورت ہے", continue: "جاری رکھیں" },
+const COPY: Record<Lang, { back: string; title: string; hint: string; male: string; female: string }> = {
+  ta: { back: "பின்செல்", title: "யார் காலமானார்?", hint: "தொடர ஒன்றைத் தேர்ந்தெடுக்கவும்", male: "ஆண்", female: "பெண்" },
+  en: { back: "Back", title: "Who has passed away?", hint: "Choose one to continue", male: "Male", female: "Female" },
+  ar: { back: "رجوع", title: "من المتوفى؟", hint: "اختر للمتابعة", male: "رجل", female: "امرأة" },
+  ur: { back: "واپس", title: "متوفی کون ہے؟", hint: "جاری رکھنے کے لیے منتخب کریں", male: "مرد", female: "عورت" },
 };
 
 /** Simple line symbols (♂ / ♀), drawn locally so they stay crisp at any size. */
-/** Simple blue-and-white person icon, drawn locally so it stays crisp at any size. */
-function PersonIcon() {
+function GenderSymbol({ kind }: { kind: Gender }) {
   return (
-    <svg viewBox="0 0 24 24" width="34" height="34" fill="currentColor" aria-hidden="true">
-      <circle cx="12" cy="8" r="4.2" />
-      <path d="M3.5 20.5c.8-4.3 4.2-6.8 8.5-6.8s7.7 2.5 8.5 6.8c.1.8-.5 1.5-1.3 1.5H4.8c-.8 0-1.4-.7-1.3-1.5Z" />
+    <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      {kind === "male" ? (
+        <>
+          <circle cx="10" cy="14" r="5.5" />
+          <path d="M14 10 20 4M15 4h5v5" />
+        </>
+      ) : (
+        <>
+          <circle cx="12" cy="9" r="5.5" />
+          <path d="M12 14.5V21M9 18h6" />
+        </>
+      )}
     </svg>
   );
 }
@@ -53,10 +49,6 @@ function PersonIcon() {
 export default function Entrance() {
   const [, navigate] = useLocation();
   const [installEvent, setInstallEvent] = useState<Event | null>(null);
-  const [phase, setPhase] = useState<Phase>("splash");
-  const [lang, setLang] = useState<Lang>("en");
-  const [picked, setPicked] = useState<Gender | null>(null);
-  const timer = useRef<number | undefined>(undefined);
 
   // PWA: capture the install prompt so we can offer an in-app Install button.
   useEffect(() => {
@@ -68,8 +60,6 @@ export default function Entrance() {
     return () => window.removeEventListener("beforeinstallprompt", handler);
   }, []);
 
-  useEffect(() => () => window.clearTimeout(timer.current), []);
-
   const installApp = async () => {
     const promptEvent = installEvent as (Event & { prompt: () => Promise<void>; userChoice: Promise<{ outcome: string }> }) | null;
     if (!promptEvent) return;
@@ -77,39 +67,24 @@ export default function Entrance() {
     await promptEvent.userChoice;
     setInstallEvent(null);
   };
+  const [step, setStep] = useState<Step>("welcome");
+  const [lang, setLang] = useState<Lang>("en");
+  const [picked, setPicked] = useState<Gender | null>(null);
+  const timer = useRef<number | undefined>(undefined);
 
-  const afterSplash = () => {
-    try {
-      if (localStorage.getItem(ONBOARDED_KEY) === "1") setPhase("language");
-      else setPhase("welcome");
-    } catch {
-      setPhase("welcome");
-    }
-  };
-
-  const markOnboarded = () => {
-    try { localStorage.setItem(ONBOARDED_KEY, "1"); } catch { /* private mode */ }
-  };
-
-  const afterCollaboration = () => {
-    markOnboarded();
-    setPhase("language");
-  };
+  useEffect(() => () => window.clearTimeout(timer.current), []);
 
   const copy = COPY[lang];
-  const rtl = phase === "gender" && (lang === "ar" || lang === "ur");
+  const rtl = step === "gender" && (lang === "ar" || lang === "ur");
 
-  const selectLanguage = (code: Lang) => setLang(code);
-
-  const confirmLanguage = () => {
+  const chooseLanguage = (code: Lang) => {
+    setLang(code);
     setPicked(null);
-    setPhase("gender");
+    setStep("gender");
   };
 
-  const selectGender = (gender: Gender) => setPicked(gender);
-
-  const confirmGender = () => {
-    if (!picked) return;
+  const chooseGender = (gender: Gender) => {
+    setPicked(gender);
     const target = LANGUAGES.find((item) => item.code === lang)?.href ?? "/en";
     timer.current = window.setTimeout(() => navigate(target), 220);
   };
@@ -117,140 +92,126 @@ export default function Entrance() {
   const goBack = () => {
     window.clearTimeout(timer.current);
     setPicked(null);
-    setPhase("language");
+    setStep(step === "gender" ? "language" : "welcome");
   };
 
-  if (phase === "splash") return <Splash onDone={afterSplash} />;
-  if (phase === "welcome") return <Welcome onStart={() => setPhase("collaboration")} />;
-  if (phase === "collaboration") return (
-    <Suspense
-      fallback={
-        <div className="pb-welcome-page" aria-label="Loading">
-          <p className="pb-lead">Loading…</p>
-        </div>
-      }
-    >
-      <Collaboration onBack={() => setPhase("welcome")} onContinue={afterCollaboration} />
-    </Suspense>
-  );
-
   return (
-    <main className="pb-entrance" dir={rtl ? "rtl" : "ltr"}>
-      <div className="pb-entrance-top">
-        <div className="pb-brand-row">
-          <img src="/book-cover-icon-192.png" alt="" />
-          <div className="text-start">
-            <p className="text-lg font-extrabold leading-tight">Miraasu</p>
-            <p className="text-[11px] uppercase tracking-[0.22em] opacity-80">Islamic Inheritance Calculator</p>
-          </div>
-        </div>
-      </div>
+    <main className="ent-shell" dir={rtl ? "rtl" : "ltr"}>
+      <div className="ent-frame">
+        {step !== "welcome" ? (
+          <header className="ent-top">
+            <button type="button" onClick={goBack} className="ent-back">
+              <ArrowLeft size={18} className="rtl:rotate-180" />
+              <span>{step === "gender" ? copy.back : "Back"}</span>
+            </button>
+            <img src="/book-cover-icon-192.png" alt="Miraasu" className="ent-top-logo" />
+          </header>
+        ) : null}
 
-      <div className="pb-entrance-sheet">
-        <div className="mx-auto max-w-xl">
-          <div className="mb-5 flex items-center justify-between">
-            {phase === "gender" ? (
-              <button type="button" onClick={goBack} className="pb-btn pb-btn-ghost px-2 text-sm">
-                <ArrowLeft size={17} className="rtl:rotate-180" /> {copy.back}
+        <div className="ent-stage">
+          {step === "welcome" ? (
+            <section key="welcome" className="ent-welcome">
+              <div className="ent-corner-logos ent-rise" style={{ animationDelay: "0ms" }}>
+                <figure className="ent-corner-logo">
+                  <img src="/bukhari-logo.svg" alt="Bukhari Aalim Arabic College" />
+                  <figcaption>Bukhari Aalim<br />Arabic College</figcaption>
+                </figure>
+                <figure className="ent-corner-logo">
+                  <img src="/crescent-logo.svg" alt="B.S. Abdur Rahman Crescent Institute of Science and Technology" />
+                  <figcaption>Crescent<br />Institute</figcaption>
+                </figure>
+              </div>
+              <img src="/book-cover-icon-192.png" alt="" className="ent-logo ent-rise" style={{ animationDelay: "0ms" }} />
+              <h1 className="ent-welcome-title" aria-label="Welcome">
+                <span className="sr-only">Welcome</span>
+                <span aria-hidden="true" className="ent-letter-row">
+                  {"Welcome".split("").map((letter, index) => (
+                    <span key={`${letter}-${index}`} className="ent-welcome-letter ent-rise" style={{ animationDelay: `${90 + index * 55}ms` }}>{letter}</span>
+                  ))}
+                </span>
+              </h1>
+              <span className="ent-rule ent-rise" style={{ animationDelay: "170ms" }} aria-hidden="true" />
+              <p className="ent-welcome-sub ent-rise" style={{ animationDelay: "200ms" }}>to Miraasu</p>
+              <p className="ent-brand ent-rise" style={{ animationDelay: "230ms" }}>Islamic Inheritance Calculator</p>
+              <article className="ent-hadith ent-rise" lang="en" style={{ animationDelay: "280ms" }}>
+                <p className="ent-hadith-kicker">A teaching on inheritance</p>
+                <blockquote className="ent-hadith-quote">“O Abu Hurairah. Learn about the inheritance and teach it, for it is half of knowledge, but it will be forgotten. This is the first thing that will be taken away from my nation.”</blockquote>
+                <p className="ent-hadith-source">Narrated by Abu Hurairah · <a href="https://sunnah.com/ibnmajah:2719" target="_blank" rel="noreferrer">Sunan Ibn Majah 2719</a></p>
+                <p className="ent-hadith-grade">Grade: Daʿif (weak) · Darussalam</p>
+              </article>
+              <button type="button" onClick={() => setStep("language")} className="ent-start ent-rise" style={{ animationDelay: "320ms" }}>
+                Start <ArrowRight size={18} />
               </button>
-            ) : <span />}
-            <div className="pb-dots" aria-hidden="true">
-              <span className={phase === "language" ? "is-on" : ""} />
-              <span className={phase === "gender" ? "is-on" : ""} />
-            </div>
-          </div>
-
-          {phase === "language" ? (
-            <section className="pb-rise">
-              <p className="pb-kicker">Miraasu</p>
-              <h1 className="pb-h1 mt-1">Choose Your Language</h1>
-              <p className="pb-lead mt-2">Select your preferred language to continue</p>
-              <div className="pb-lang-grid mt-5">
-                {LANGUAGES.map((item) => {
-                  const selected = lang === item.code;
-                  return (
-                    <button
-                      key={item.code}
-                      type="button"
-                      lang={item.code}
-                      aria-pressed={selected}
-                      onClick={() => selectLanguage(item.code)}
-                      className={`pb-lang-card${selected ? " is-selected" : ""}`}
-                    >
-                      <span className="pb-lang-mark" aria-hidden="true">{item.mark}</span>
-                      <span className="min-w-0 flex-1">
-                        <span className="block text-[15px] font-extrabold text-[#0b2a4f]" lang={item.code}>{item.native}</span>
-                        <span className="block text-xs font-medium text-slate-500">{item.label}</span>
-                      </span>
-                      {selected ? (
-                        <span className="pb-lang-check" aria-hidden="true"><Check size={17} strokeWidth={3} /></span>
-                      ) : (
-                        <ChevronRight size={18} className="flex-none text-[#1559a6] rtl:rotate-180" />
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-              <div className="mt-6 flex items-center justify-between gap-3">
-                <button type="button" onClick={() => setPhase("collaboration")} className="pb-btn pb-btn-ghost px-3 text-sm">
-                  <ArrowLeft size={17} /> Back
-                </button>
-                <button type="button" onClick={confirmLanguage} className="pb-btn pb-btn-primary flex-1">
-                  Continue <ArrowRight size={17} />
-                </button>
-              </div>
               {installEvent ? (
-                <button type="button" onClick={installApp} className="pb-btn pb-btn-outline mt-6 block w-full text-sm">
+                <button type="button" onClick={installApp} className="ent-install ent-rise" style={{ animationDelay: "360ms" }}>
                   <Download size={15} /> Install app
                 </button>
               ) : null}
             </section>
           ) : null}
 
-          {phase === "gender" ? (
-            <section className="pb-rise" lang={lang}>
-              <p className="pb-kicker">Miraasu</p>
-              <h1 className="pb-h1 mt-1">{copy.title}</h1>
-              <p className="pb-lead mt-2">{copy.hint}</p>
-              <div className="pb-gender-grid mt-6">
-                {([
-                  { id: "male" as const, label: copy.male, desc: copy.maleDesc },
-                  { id: "female" as const, label: copy.female, desc: copy.femaleDesc },
-                ]).map(({ id, label, desc }) => {
-                  const selected = picked === id;
-                  return (
-                    <button
-                      key={id}
-                      type="button"
-                      aria-pressed={selected}
-                      onClick={() => selectGender(id)}
-                      className={`pb-gender-card${selected ? " is-on" : ""}`}
-                    >
-                      <span className="pb-avatar" aria-hidden="true"><PersonIcon /></span>
-                      <span className="min-w-0 flex-1">
-                        <span className="block text-[15px] font-extrabold text-[#0b2a4f]">{label}</span>
-                        <span className="block text-xs font-medium text-slate-500">{desc}</span>
-                      </span>
-                      {selected ? (
-                        <span className="pb-lang-check" aria-hidden="true"><Check size={17} strokeWidth={3} /></span>
-                      ) : null}
-                    </button>
-                  );
-                })}
+          {step === "language" ? (
+            <section key="language" className="ent-section">
+              <div className="ent-head ent-rise">
+                <h1 className="ent-title">Choose your language</h1>
               </div>
-              <div className="mt-6">
-                <button
-                  type="button"
-                  onClick={confirmGender}
-                  disabled={!picked}
-                  className="pb-btn pb-btn-primary w-full disabled:opacity-40"
-                >
-                  {copy.continue} <ArrowRight size={17} className="rtl:rotate-180" />
-                </button>
+              <div className="ent-lang-grid">
+                {LANGUAGES.map((item, index) => (
+                  <button
+                    key={item.code}
+                    type="button"
+                    lang={item.code}
+                    onClick={() => chooseLanguage(item.code)}
+                    className="ent-card ent-lang-card ent-rise"
+                    style={{ animationDelay: `${80 + index * 70}ms` }}
+                  >
+                    <span className="ent-mark" aria-hidden="true">{item.mark}</span>
+                    <span className="ent-lang-text">
+                      <span className="ent-lang-native">{item.native}</span>
+                      <span className="ent-lang-label">{item.label}</span>
+                    </span>
+                    <span className="ent-go" aria-hidden="true"><ChevronRight size={18} className="rtl:rotate-180" /></span>
+                  </button>
+                ))}
+              </div>
+            </section>
+          ) : null}
+
+          {step === "gender" ? (
+            <section key={step} className="ent-section" lang={lang}>
+              <div className="ent-head ent-rise">
+                <h1 className="ent-title">{copy.title}</h1>
+                <p className="ent-sub">{copy.hint}</p>
+              </div>
+              <div className="ent-gender-grid">
+                {([
+                  { id: "male" as const, label: copy.male },
+                  { id: "female" as const, label: copy.female },
+                ]).map(({ id, label }, index) => (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => chooseGender(id)}
+                    aria-pressed={picked === id}
+                    data-tone={id}
+                    className={`ent-card ent-gender-card ent-rise ${picked === id ? "is-picked" : ""}`}
+                    style={{ animationDelay: `${80 + index * 80}ms` }}
+                  >
+                    <span className="ent-symbol" aria-hidden="true"><GenderSymbol kind={id} /></span>
+                    <span className="ent-gender-label">{label}</span>
+                  </button>
+                ))}
               </div>
             </section>
           ) : null}
         </div>
+
+        {step !== "welcome" ? (
+          <div className="ent-dots" aria-hidden="true">
+            <span className={step === "language" ? "is-on" : ""} />
+            <span className={step === "gender" ? "is-on" : ""} />
+          </div>
+        ) : null}
       </div>
     </main>
   );
