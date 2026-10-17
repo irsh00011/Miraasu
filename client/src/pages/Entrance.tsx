@@ -7,12 +7,17 @@
  *   5. Gender        → two premium cards, shown in the chosen language.
  * Frontend only: no calculation or routing logic is changed. Language cards still open /ta, /en, /ar, /ur.
  */
-import { useEffect, useRef, useState } from "react";
+import { Suspense, lazy, useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Check, ChevronRight, Download } from "lucide-react";
 import { useLocation } from "wouter";
 import { Splash } from "@/premium/Splash";
 import { Welcome } from "@/premium/Welcome";
-import { Collaboration } from "@/premium/Collaboration";
+
+/** Lazy: carries the embedded logo data URIs (~590KB) — loaded on demand,
+ *  not in the initial bundle. */
+const Collaboration = lazy(() =>
+  import("@/premium/Collaboration").then((mod) => ({ default: mod.Collaboration })),
+);
 
 type Lang = "ta" | "en" | "ar" | "ur";
 type Phase = "splash" | "welcome" | "collaboration" | "language" | "gender";
@@ -117,7 +122,17 @@ export default function Entrance() {
 
   if (phase === "splash") return <Splash onDone={afterSplash} />;
   if (phase === "welcome") return <Welcome onStart={() => setPhase("collaboration")} />;
-  if (phase === "collaboration") return <Collaboration onBack={() => setPhase("welcome")} onContinue={afterCollaboration} />;
+  if (phase === "collaboration") return (
+    <Suspense
+      fallback={
+        <div className="pb-welcome-page" aria-label="Loading">
+          <p className="pb-lead">Loading…</p>
+        </div>
+      }
+    >
+      <Collaboration onBack={() => setPhase("welcome")} onContinue={afterCollaboration} />
+    </Suspense>
+  );
 
   return (
     <main className="pb-entrance" dir={rtl ? "rtl" : "ltr"}>

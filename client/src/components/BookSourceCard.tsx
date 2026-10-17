@@ -1,4 +1,6 @@
 /** Design: Miraasu Scholarly Ledger — compact source-book reference with the supplied cover. */
+import { BOOK_COVER_SRC } from "@/components/bookCoverImage";
+
 type BookSourceCardProps = { language?: "ta" | "en" | "ar" | "ur" };
 
 const copy = {
@@ -13,7 +15,7 @@ export function BookSourceCard({ language = "ta" }: BookSourceCardProps) {
   return (
     <figure className="pb-card mt-6 flex items-center gap-4 p-4">
       <div className="h-28 w-24 shrink-0 overflow-hidden rounded-xl border border-[#d8e6f7] bg-white shadow-md shadow-blue-100">
-        <img src="/book-cover.jpg" alt={text.alt} className="size-full object-cover" loading="lazy" />
+        <img src={BOOK_COVER_SRC} alt={text.alt} className="size-full object-cover" loading="lazy" />
       </div>
       <figcaption>
         <p className="text-xs font-extrabold tracking-wide text-[#1559a6]">{text.title}</p>

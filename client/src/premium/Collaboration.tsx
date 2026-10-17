@@ -7,6 +7,7 @@
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { premiumCopy } from "@/premium/copy";
 import { PbButton } from "@/premium/ui";
+import { BUKHARI_LOGO_SRC, CRESCENT_LOGO_SRC } from "@/premium/collabImages";
 
 export function Collaboration({ onBack, onContinue }: { onBack: () => void; onContinue: () => void }) {
   const t = premiumCopy.en;
@@ -19,7 +20,7 @@ export function Collaboration({ onBack, onContinue }: { onBack: () => void; onCo
 
         <div className="pb-collab-logos">
           <figure className="pb-logo-card">
-            <img src="/bukhari-logo.png" alt={t.collabBukhariName} />
+            <img src={BUKHARI_LOGO_SRC} alt={t.collabBukhariName} />
             <figcaption>
               <span className="pb-logo-name">{t.collabBukhariName}</span>
               <span className="pb-logo-tamil" lang="ta">{t.collabBukhariTamil}</span>
@@ -35,7 +36,7 @@ export function Collaboration({ onBack, onContinue }: { onBack: () => void; onCo
           </div>
 
           <figure className="pb-logo-card">
-            <img src="/crescent-logo.png" alt={t.collabCrescentName} />
+            <img src={CRESCENT_LOGO_SRC} alt={t.collabCrescentName} />
             <figcaption>
               <span className="pb-logo-name">{t.collabCrescentName}</span>
               <span className="pb-logo-tamil" lang="ta">{t.collabCrescentTamil}</span>
