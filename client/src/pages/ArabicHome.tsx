@@ -184,8 +184,8 @@ export default function ArabicHome() {
                     ) : null}
                     {result.exclusions.length > 0 ? (
                       <details className="ms-zero-box">
-                        <summary className="cursor-pointer text-sm font-extrabold text-rose-800">قرابات لا ترث في هذه الحالة (<span className="num">{result.exclusions.length}</span>)</summary>
-                        <div className="mt-2 space-y-1.5 text-sm text-rose-700">{result.exclusions.map((item) => <p key={`${item.key}-${item.label}`}><strong>{arabicLabels[item.key as string] ?? item.label}:</strong> محجوب بقريب أقرب.</p>)}</div>
+                        <summary>قرابات لا ترث في هذه الحالة (<span className="num">{result.exclusions.length}</span>)</summary>
+                        <div className="ms-zero-list">{result.exclusions.map((item) => <p key={`${item.key}-${item.label}`}><strong>{arabicLabels[item.key as string] ?? item.label}:</strong> محجوب بقريب أقرب.</p>)}</div>
                       </details>
                     ) : null}
                   </>

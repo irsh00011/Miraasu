@@ -8,9 +8,10 @@
 import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, ChevronRight, Download } from "lucide-react";
 import { useLocation } from "wouter";
+import Splash from "../components/Splash";
 
 type Lang = "ta" | "en" | "ar" | "ur";
-type Step = "welcome" | "language" | "gender";
+type Step = "splash" | "welcome" | "collaboration" | "language" | "gender";
 type Gender = "male" | "female";
 
 const LANGUAGES: { code: Lang; href: string; native: string; label: string; mark: string }[] = [
@@ -67,7 +68,7 @@ export default function Entrance() {
     await promptEvent.userChoice;
     setInstallEvent(null);
   };
-  const [step, setStep] = useState<Step>("welcome");
+  const [step, setStep] = useState<Step>("splash");
   const [lang, setLang] = useState<Lang>("en");
   const [picked, setPicked] = useState<Gender | null>(null);
   const timer = useRef<number | undefined>(undefined);
@@ -92,11 +93,14 @@ export default function Entrance() {
   const goBack = () => {
     window.clearTimeout(timer.current);
     setPicked(null);
-    setStep(step === "gender" ? "language" : "welcome");
+    setStep(step === "gender" ? "language" : step === "language" ? "collaboration" : "welcome");
   };
 
   return (
     <main className="ent-shell" dir={rtl ? "rtl" : "ltr"}>
+      {step === "splash" ? (
+        <Splash onComplete={() => setStep("welcome")} />
+      ) : (
       <div className="ent-frame">
         {step !== "welcome" ? (
           <header className="ent-top">
@@ -111,42 +115,51 @@ export default function Entrance() {
         <div className="ent-stage">
           {step === "welcome" ? (
             <section key="welcome" className="ent-welcome">
-              <div className="ent-corner-logos ent-rise" style={{ animationDelay: "0ms" }}>
-                <figure className="ent-corner-logo">
-                  <img src="/bukhari-logo.svg" alt="Bukhari Aalim Arabic College" />
-                  <figcaption>Bukhari Aalim<br />Arabic College</figcaption>
-                </figure>
-                <figure className="ent-corner-logo">
-                  <img src="/crescent-logo.svg" alt="B.S. Abdur Rahman Crescent Institute of Science and Technology" />
-                  <figcaption>Crescent<br />Institute</figcaption>
-                </figure>
-              </div>
-              <img src="/book-cover-icon-192.png" alt="" className="ent-logo ent-rise" style={{ animationDelay: "0ms" }} />
-              <h1 className="ent-welcome-title" aria-label="Welcome">
-                <span className="sr-only">Welcome</span>
-                <span aria-hidden="true" className="ent-letter-row">
-                  {"Welcome".split("").map((letter, index) => (
-                    <span key={`${letter}-${index}`} className="ent-welcome-letter ent-rise" style={{ animationDelay: `${90 + index * 55}ms` }}>{letter}</span>
-                  ))}
-                </span>
-              </h1>
-              <span className="ent-rule ent-rise" style={{ animationDelay: "170ms" }} aria-hidden="true" />
-              <p className="ent-welcome-sub ent-rise" style={{ animationDelay: "200ms" }}>to Miraasu</p>
-              <p className="ent-brand ent-rise" style={{ animationDelay: "230ms" }}>Islamic Inheritance Calculator</p>
-              <article className="ent-hadith ent-rise" lang="en" style={{ animationDelay: "280ms" }}>
+              <img src="/book-cover-icon-192.png" alt="Miraasu" className="ent-logo ent-logo-float ent-rise" style={{ animationDelay: "0ms" }} />
+              <p className="ent-arabic-hero ent-rise" lang="ar" style={{ animationDelay: "70ms" }} aria-label="Mirath">مِيرَاث</p>
+              <h1 className="ent-welcome-title ent-rise" style={{ animationDelay: "130ms" }}>Miraasu</h1>
+              <p className="ent-usp ent-rise" style={{ animationDelay: "190ms" }}>Every heir&rsquo;s exact share &mdash; the Islamic way.</p>
+              <p className="ent-expect ent-rise" style={{ animationDelay: "230ms" }}>3 quick questions &middot; No account needed</p>
+              <ol className="ent-steps">
+                <li className="ent-step ent-rise" style={{ animationDelay: "290ms" }}><span className="ent-step-num" aria-hidden="true">1</span><span>Add family</span></li>
+                <li className="ent-step ent-rise" style={{ animationDelay: "350ms" }}><span className="ent-step-num" aria-hidden="true">2</span><span>Enter estate</span></li>
+                <li className="ent-step ent-rise" style={{ animationDelay: "410ms" }}><span className="ent-step-num" aria-hidden="true">3</span><span>See shares</span></li>
+              </ol>
+              <article className="ent-hadith ent-rise" lang="en" style={{ animationDelay: "470ms" }}>
                 <p className="ent-hadith-kicker">A teaching on inheritance</p>
                 <blockquote className="ent-hadith-quote">“O Abu Hurairah. Learn about the inheritance and teach it, for it is half of knowledge, but it will be forgotten. This is the first thing that will be taken away from my nation.”</blockquote>
                 <p className="ent-hadith-source">Narrated by Abu Hurairah · <a href="https://sunnah.com/ibnmajah:2719" target="_blank" rel="noreferrer">Sunan Ibn Majah 2719</a></p>
                 <p className="ent-hadith-grade">Grade: Daʿif (weak) · Darussalam</p>
               </article>
-              <button type="button" onClick={() => setStep("language")} className="ent-start ent-rise" style={{ animationDelay: "320ms" }}>
+              <button type="button" onClick={() => setStep("collaboration")} className="ent-start ent-rise" style={{ animationDelay: "530ms" }}>
                 Start <ArrowRight size={18} />
               </button>
+              <p className="ent-trust ent-rise" style={{ animationDelay: "580ms" }} aria-label="Free, no sign-up, available in 4 languages">Free &middot; No sign-up &middot; 4 languages</p>
               {installEvent ? (
                 <button type="button" onClick={installApp} className="ent-install ent-rise" style={{ animationDelay: "360ms" }}>
                   <Download size={15} /> Install app
                 </button>
               ) : null}
+            </section>
+          ) : null}
+
+          {step === "collaboration" ? (
+            <section key="collaboration" className="ent-section ent-collab">
+              <p className="ent-collab-kicker ent-rise" style={{ animationDelay: "0ms" }}>In Collaboration With</p>
+              <span className="ent-rule ent-rise" style={{ animationDelay: "80ms" }} aria-hidden="true" />
+              <div className="ent-collab-grid">
+                <figure className="ent-collab-card ent-rise" style={{ animationDelay: "140ms" }}>
+                  <img src="/bukhari-logo.svg" alt="Bukhari Aalim Arabic College logo" className="ent-collab-logo" />
+                  <figcaption className="ent-collab-name">Bukhari Aalim Arabic College</figcaption>
+                </figure>
+                <figure className="ent-collab-card ent-rise" style={{ animationDelay: "260ms" }}>
+                  <img src="/crescent-logo.svg" alt="B.S. Abdur Rahman Crescent Institute of Science and Technology logo" className="ent-collab-logo" />
+                  <figcaption className="ent-collab-name">B.S. Abdur Rahman Crescent Institute of Science and Technology</figcaption>
+                </figure>
+              </div>
+              <button type="button" onClick={() => setStep("language")} className="ent-start ent-rise" style={{ animationDelay: "380ms" }}>
+                Continue <ArrowRight size={18} />
+              </button>
             </section>
           ) : null}
 
@@ -208,11 +221,13 @@ export default function Entrance() {
 
         {step !== "welcome" ? (
           <div className="ent-dots" aria-hidden="true">
+            <span className={step === "collaboration" ? "is-on" : ""} />
             <span className={step === "language" ? "is-on" : ""} />
             <span className={step === "gender" ? "is-on" : ""} />
           </div>
         ) : null}
       </div>
+      )}
     </main>
   );
 }
