@@ -1,6 +1,6 @@
 /** Design: Miraasu Scholarly Ledger — compact chip grid for the close family; search + spouse selector on top. */
-import { useMemo } from "react";
-import { RotateCcw, Search, type LucideIcon } from "lucide-react";
+import { useMemo, useState } from "react";
+import { ChevronDown, RotateCcw, Search, type LucideIcon } from "lucide-react";
 import { HeirRow } from "@/components/HeirRow";
 import { heirIconForEmoji, heirIconForKey } from "@/components/heirIcons";
 import { ARABIC_EXTENDED_COPY, EXTENDED_HEIR_SECTIONS, type AppLanguage, type ExtendedHeirKey, type HeirInput } from "@/lib/inheritance";
@@ -60,12 +60,12 @@ type FamilyListProps = {
 export function FamilyList({ heirs, onChange, onResetAll, query, onQueryChange, onSearchEnter, language = "ta" }: FamilyListProps) {
   const copy =
     language === "en"
-      ? { search: "Search a family member…", clear: "Clear all", none: "No match. Clear the search to see everyone.", spouseNone: "None", husband: "Husband", wife: "Wife", wivesLabel: "Wives" }
+      ? { search: "Search a family member…", clear: "Clear all", none: "No match. Clear the search to see everyone.", spouseNone: "None", husband: "Husband", wife: "Wife", wivesLabel: "Wives", more: "More relatives" }
       : language === "ar"
-        ? { search: "ابحث عن قريب…", clear: "مسح الكل", none: "لا توجد نتيجة. امسح البحث لرؤية الجميع.", spouseNone: "لا أحد", husband: "الزوج", wife: "الزوجة", wivesLabel: "الزوجات" }
+        ? { search: "ابحث عن قريب…", clear: "مسح الكل", none: "لا توجد نتيجة. امسح البحث لرؤية الجميع.", spouseNone: "لا أحد", husband: "الزوج", wife: "الزوجة", wivesLabel: "الزوجات", more: "أقارب آخرون" }
         : language === "ur"
-          ? { search: "رشتہ دار تلاش کریں…", clear: "سب صاف کریں", none: "کوئی نتیجہ نہیں۔ سب دیکھنے کے لیے تلاش صاف کریں۔", spouseNone: "کوئی نہیں", husband: "شوہر", wife: "بیوی", wivesLabel: "بیویاں" }
-          : { search: "உறவைத் தேடுக…", clear: "அனைத்தையும் அழி", none: "பொருத்தம் இல்லை. தேடலை அழிக்கவும்.", spouseNone: "யாருமில்லை", husband: "கணவன்", wife: "மனைவி", wivesLabel: "மனைவிகள்" };
+          ? { search: "رشتہ دار تلاش کریں…", clear: "سب صاف کریں", none: "کوئی نتیجہ نہیں۔ سب دیکھنے کے لیے تلاش صاف کریں۔", spouseNone: "کوئی نہیں", husband: "شوہر", wife: "بیوی", wivesLabel: "بیویاں", more: "مزید رشتہ دار" }
+          : { search: "உறவைத் தேடுக…", clear: "அனைத்தையும் அழி", none: "பொருத்தம் இல்லை. தேடலை அழிக்கவும்.", spouseNone: "யாருமில்லை", husband: "கணவன்", wife: "மனைவி", wivesLabel: "மனைவிகள்", more: "மேலும் உறவுகள்" };
 
   const rows = useMemo(() => {
     const primaryRows: { key: keyof HeirInput; icon: LucideIcon; label: string; max: number | undefined }[] = PRIMARY.map((item) => ({
@@ -80,11 +80,16 @@ export function FamilyList({ heirs, onChange, onResetAll, query, onQueryChange, 
       label: language === "en" ? item.labelEn : language === "ar" ? ARABIC_EXTENDED_COPY[item.key].label : language === "ur" ? URDU_EXTENDED_LABELS[item.key] : item.label,
       max: undefined as number | undefined,
     }));
-    return [...primaryRows, ...extendedRows];
+    return { primaryRows, extendedRows, all: [...primaryRows, ...extendedRows] };
   }, [language]);
 
   const normalizedQuery = query.trim().toLocaleLowerCase();
-  const filteredRows = normalizedQuery ? rows.filter((row) => row.label.toLocaleLowerCase().includes(normalizedQuery)) : rows;
+  const filteredRows = normalizedQuery ? rows.all.filter((row) => row.label.toLocaleLowerCase().includes(normalizedQuery)) : rows.all;
+  // Progressive disclosure: close family first; the 24 extended relatives open on demand,
+  // and stay open by themselves when any of them is already selected.
+  const [moreOpen, setMoreOpen] = useState(false);
+  const extendedSelected = rows.extendedRows.reduce((total, row) => total + (heirs[row.key] ?? 0), 0);
+  const showExtended = moreOpen || extendedSelected > 0;
 
   const chooseSpouse = (choice: "none" | "husband" | "wives") => {
     onChange("husband", choice === "husband" ? 1 : 0);
@@ -140,13 +145,33 @@ export function FamilyList({ heirs, onChange, onResetAll, query, onQueryChange, 
       ) : null}
 
       {filteredRows.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-[rgba(22,79,134,0.3)] bg-white/70 px-4 py-6 text-center text-sm text-slate-500">{copy.none}</p>
-      ) : (
+        <p className="rounded-2xl border border-dashed border-[rgba(22,79,134,0.3)] bg-white/70 px-4 py-6 text-center text-sm text-slate-600">{copy.none}</p>
+      ) : normalizedQuery ? (
         <div className="ms-chips">
-          {filteredRows.map((row) => (
-            <HeirRow key={row.key} icon={row.icon} label={row.label} value={heirs[row.key] ?? 0} onChange={(value) => onChange(row.key, value)} max={row.max} language={language} />
+          {filteredRows.map((row, index) => (
+            <HeirRow key={row.key} index={index} icon={row.icon} label={row.label} value={heirs[row.key] ?? 0} onChange={(value) => onChange(row.key, value)} max={row.max} language={language} />
           ))}
         </div>
+      ) : (
+        <>
+          <div className="ms-chips">
+            {rows.primaryRows.map((row, index) => (
+              <HeirRow key={row.key} index={index} icon={row.icon} label={row.label} value={heirs[row.key] ?? 0} onChange={(value) => onChange(row.key, value)} max={row.max} language={language} />
+            ))}
+          </div>
+          <button type="button" className="ms-more" aria-expanded={showExtended} aria-controls="ms-more-relatives" onClick={() => setMoreOpen((open) => !open)}>
+            <span>{copy.more}</span>
+            {extendedSelected > 0 ? <span className="ms-more-count num">{extendedSelected}</span> : null}
+            <ChevronDown size={18} className="ms-more-chev" aria-hidden="true" />
+          </button>
+          {showExtended ? (
+            <div id="ms-more-relatives" className="ms-chips">
+              {rows.extendedRows.map((row, index) => (
+                <HeirRow key={row.key} index={index} icon={row.icon} label={row.label} value={heirs[row.key] ?? 0} onChange={(value) => onChange(row.key, value)} max={row.max} language={language} />
+              ))}
+            </div>
+          ) : null}
+        </>
       )}
     </div>
   );

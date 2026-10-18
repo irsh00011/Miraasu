@@ -95,7 +95,7 @@ export function ShareTable({ language, rows, money, empty }: Props) {
       </div>
       <ul className="ms-share-tbody">
         {rows.map((row, index) => (
-          <li key={row.key} className="ms-share-trow">
+          <li key={row.key} className="ms-share-trow" style={{ "--i": index } as React.CSSProperties}>
             <span className="ms-share-cname">
               {row.name}
               {row.count > 1 ? <span className="ms-tag ms-tag-count num">×{row.count}</span> : null}

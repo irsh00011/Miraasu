@@ -68,7 +68,10 @@ export default function Entrance() {
     await promptEvent.userChoice;
     setInstallEvent(null);
   };
-  const [step, setStep] = useState<Step>("splash");
+  // The splash is a brand moment, not a toll booth: once per browser session.
+  const [step, setStep] = useState<Step>(() => {
+    try { return window.sessionStorage.getItem("miraasu:splash") ? "welcome" : "splash"; } catch { return "splash"; }
+  });
   const [lang, setLang] = useState<Lang>("en");
   const [picked, setPicked] = useState<Gender | null>(null);
   const timer = useRef<number | undefined>(undefined);
@@ -85,6 +88,13 @@ export default function Entrance() {
   }, [step, collabLogos]);
 
   useEffect(() => () => window.clearTimeout(timer.current), []);
+
+  // This screen is written in English until a language is chosen: say so, so assistive tech
+  // and the :lang() typography rules (tracked caps are Latin-only) behave correctly.
+  useEffect(() => {
+    document.documentElement.lang = "en";
+    document.documentElement.dir = "ltr";
+  }, []);
 
   const copy = COPY[lang];
   const rtl = step === "gender" && (lang === "ar" || lang === "ur");
@@ -110,7 +120,7 @@ export default function Entrance() {
   return (
     <main className="ent-shell" dir={rtl ? "rtl" : "ltr"}>
       {step === "splash" ? (
-        <Splash onComplete={() => setStep("welcome")} />
+        <Splash onComplete={() => { try { window.sessionStorage.setItem("miraasu:splash", "1"); } catch { /* private mode: fine */ } setStep("welcome"); }} />
       ) : (
       <div className="ent-frame">
         {step !== "welcome" ? (
@@ -126,26 +136,22 @@ export default function Entrance() {
         <div className="ent-stage">
           {step === "welcome" ? (
             <section key="welcome" className="ent-welcome">
-              <img src="/book-cover-icon-192.png" alt="Miraasu" className="ent-logo ent-logo-float ent-rise" style={{ animationDelay: "0ms" }} />
+              <img src="/book-cover-icon-192.png" alt="" className="ent-logo ent-rise" style={{ animationDelay: "0ms" }} />
               <p className="ent-arabic-hero ent-rise" lang="ar" style={{ animationDelay: "70ms" }} aria-label="Mirath">مِيرَاث</p>
               <h1 className="ent-welcome-title ent-rise" style={{ animationDelay: "130ms" }}>Miraasu</h1>
               <p className="ent-usp ent-rise" style={{ animationDelay: "190ms" }}>Every heir&rsquo;s exact share &mdash; the Islamic way.</p>
               <p className="ent-expect ent-rise" style={{ animationDelay: "230ms" }}>3 quick questions &middot; No account needed</p>
-              <ol className="ent-steps">
-                <li className="ent-step ent-rise" style={{ animationDelay: "290ms" }}><span className="ent-step-num" aria-hidden="true">1</span><span>Add family</span></li>
-                <li className="ent-step ent-rise" style={{ animationDelay: "350ms" }}><span className="ent-step-num" aria-hidden="true">2</span><span>Enter estate</span></li>
-                <li className="ent-step ent-rise" style={{ animationDelay: "410ms" }}><span className="ent-step-num" aria-hidden="true">3</span><span>See shares</span></li>
-              </ol>
-              <article className="ent-hadith ent-rise" lang="en" style={{ animationDelay: "470ms" }}>
-                <p className="ent-hadith-kicker">A teaching on inheritance</p>
-                <blockquote className="ent-hadith-quote">“O Abu Hurairah. Learn about the inheritance and teach it, for it is half of knowledge, but it will be forgotten. This is the first thing that will be taken away from my nation.”</blockquote>
-                <p className="ent-hadith-source">Narrated by Abu Hurairah · <a href="https://sunnah.com/ibnmajah:2719" target="_blank" rel="noreferrer">Sunan Ibn Majah 2719</a></p>
-                <p className="ent-hadith-grade">Grade: Daʿif (weak) · Darussalam</p>
-              </article>
-              <button type="button" onClick={() => setStep("collaboration")} className="ent-start ent-rise" style={{ animationDelay: "530ms" }}>
+              <button type="button" onClick={() => setStep("collaboration")} className="ent-start ent-rise" style={{ animationDelay: "290ms" }}>
                 Start <ArrowRight size={18} />
               </button>
-              <p className="ent-trust ent-rise" style={{ animationDelay: "580ms" }} aria-label="Free, no sign-up, available in 4 languages">Free &middot; No sign-up &middot; 4 languages</p>
+              <details className="ent-hadith ent-rise" lang="en" style={{ animationDelay: "350ms" }}>
+                <summary>A teaching on inheritance</summary>
+                <div className="ent-hadith-body">
+                  <blockquote className="ent-hadith-quote">“O Abu Hurairah. Learn about the inheritance and teach it, for it is half of knowledge, but it will be forgotten. This is the first thing that will be taken away from my nation.”</blockquote>
+                  <p className="ent-hadith-source">Narrated by Abu Hurairah · <a href="https://sunnah.com/ibnmajah:2719" target="_blank" rel="noreferrer">Sunan Ibn Majah 2719</a></p>
+                  <p className="ent-hadith-grade">Grade: Daʿif (weak) · Darussalam</p>
+                </div>
+              </details>
               {installEvent ? (
                 <button type="button" onClick={installApp} className="ent-install ent-rise" style={{ animationDelay: "360ms" }}>
                   <Download size={15} /> Install app

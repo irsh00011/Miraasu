@@ -147,7 +147,7 @@ export default function EnglishHome() {
         ) : null}
 
         {view === "calculator" ? (
-          <section className="page-enter">
+          <section key={step} className="page-enter">
             <StepBar step={step} labels={stepLabels} ariaLabel="Steps" resetLabel="New calculation" onGo={setStep} onReset={startNew} />
 
             {step === 1 ? (
@@ -182,7 +182,7 @@ export default function EnglishHome() {
                 <div className="mt-4">
                   <FamilyList heirs={heirs} onChange={updateHeir} onResetAll={() => resetHeirKeys(Object.keys(initialHeirs) as (keyof HeirInput)[])} query={familyQuery} onQueryChange={setFamilyQuery} onSearchEnter={finishCalculation} language="en" />
                 </div>
-                <div className="mt-6 border-t border-[rgba(22,79,134,0.12)] pt-4 flex items-center justify-between gap-3">
+                <div className="ms-actionbar">
                   <button type="button" onClick={() => setStep(1)} className="ms-btn ms-btn-ghost min-h-11! px-3! text-sm!"><ArrowLeft size={17} /> Back</button>
                   <button type="button" onClick={finishCalculation} className="ms-btn ms-btn-primary"><Calculator size={16} /> See result</button>
                 </div>
@@ -191,7 +191,7 @@ export default function EnglishHome() {
 
             {step === 3 ? (
               <div className="space-y-4">
-                <ResultHero title="Distribution result" savedNote={justSaved ? "Saved to history" : undefined} />
+                <ResultHero title="Distribution result" amount={{ label: "Total estate", value: result.netEstate, money }} savedNote={justSaved ? "Saved to history" : undefined} />
 
                 {result.notices.length > 0 ? <div className="space-y-2">{result.notices.map((notice) => <p key={notice} className="ms-notice">{noticeInEnglish(notice)}</p>)}</div> : null}
                 {result.requiresScholarReview ? <p className="ms-notice font-extrabold!">Scholar review required — this result is not final.</p> : null}

@@ -115,7 +115,7 @@ export default function ArabicHome() {
         ) : null}
 
         {view === "calculator" ? (
-          <section className="page-enter">
+          <section key={step} className="page-enter">
             <StepBar step={step} labels={stepLabels} ariaLabel="الخطوات" resetLabel="حساب جديد" onGo={setStep} onReset={fresh} />
 
             {step === 1 ? (
@@ -148,7 +148,7 @@ export default function ArabicHome() {
                 <div className="mt-4">
                   <FamilyList heirs={heirs} onChange={updateHeir} onResetAll={() => resetKeys(Object.keys(initialHeirs) as (keyof HeirInput)[])} query={query} onQueryChange={setQuery} onSearchEnter={finish} language="ar" />
                 </div>
-                <div className="mt-6 border-t border-[rgba(22,79,134,0.12)] pt-4 flex items-center justify-between gap-3">
+                <div className="ms-actionbar">
                   <button type="button" onClick={() => setStep(1)} className="ms-btn ms-btn-ghost min-h-11! px-3! text-sm!"><ArrowRight size={17} />السابق</button>
                   <button type="button" onClick={finish} className="ms-btn ms-btn-primary"><Calculator size={16} />عرض النتيجة</button>
                 </div>
@@ -157,7 +157,7 @@ export default function ArabicHome() {
 
             {step === 3 ? (
               <div className="space-y-4">
-                <ResultHero title="نتيجة القسمة" />
+                <ResultHero title="نتيجة القسمة" amount={{ label: "إجمالي التركة", value: result.netEstate, money }} />
                 {result.notices.map((notice) => <div key={notice} className="ms-notice">{noticeArabic(notice)}</div>)}
                 {result.requiresScholarReview ? <p className="ms-notice font-extrabold!">يلزم تأكيد من مختص — هذه النتيجة غير نهائية.</p> : null}
 
