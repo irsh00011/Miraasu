@@ -157,7 +157,7 @@ export default function ArabicHome() {
 
             {step === 3 ? (
               <div className="space-y-4">
-                <ResultHero title="نتيجة القسمة" amount={{ label: "إجمالي التركة", value: result.netEstate, money }} />
+                <ResultHero title="نتيجة القسمة" />
                 {result.notices.map((notice) => <div key={notice} className="ms-notice">{noticeArabic(notice)}</div>)}
                 {result.requiresScholarReview ? <p className="ms-notice font-extrabold!">يلزم تأكيد من مختص — هذه النتيجة غير نهائية.</p> : null}
 

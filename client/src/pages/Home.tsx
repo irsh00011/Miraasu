@@ -304,7 +304,7 @@ export default function Home() {
 
             {step === 3 ? (
               <div className="space-y-4">
-                <ResultHero title="பங்கீட்டு முடிவு" amount={{ label: "மொத்த சொத்து", value: result.netEstate, money }} savedNote={justSaved ? "வரலாற்றில் சேமிக்கப்பட்டது" : undefined} />
+                <ResultHero title="பங்கீட்டு முடிவு" savedNote={justSaved ? "வரலாற்றில் சேமிக்கப்பட்டது" : undefined} />
                 <ShareTable
                   language="ta"
                   rows={tableRows}
