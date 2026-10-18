@@ -114,7 +114,7 @@
   /* One focus language everywhere: 2px royal ring on light, gold ring on dark surfaces. */
   :focus-visible { outline: 2px solid var(--ms-royal); outline-offset: 3px; border-radius: 0.5rem; }
   .ent-shell :focus-visible, .ms-hero :focus-visible, .ms-amount-hero :focus-visible,
-  .ms-chip.is-on :focus-visible { outline-color: var(--ms-gold-bright); }
+  .ms-chip.is-on :focus-visible { outline-color: #fff; }
 }
 
 /* ── Numerals: tabular lining figures for money, fractions, percents ── */
@@ -221,6 +221,16 @@
   .ms-card, .ms-share, .ms-hero, .ms-result-head { box-shadow: none !important; break-inside: avoid; }
   .ms-hero, .ms-result-seal { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   body { background: #fff !important; }
+}
+
+@layer components {
+  /* Result header — seal only, minimal */
+  .ms-result-head { display: flex; justify-content: center; padding: 0.5rem 0; }
+  .ms-result-seal {
+    display: grid; place-items: center; flex: none;
+    width: 2.5rem; height: 2.5rem; border-radius: 999px; color: #ffffff;
+    background: #15803d;
+  }
 }
 
 /* Print-only summary sheet (used by the Download button → "Save as PDF").
@@ -562,7 +572,7 @@
     background: linear-gradient(180deg, #1d5a91 0%, #0f3a66 100%); border-color: #0d2c4f; color: #fff;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16);
   }
-  .ms-chip.is-on .ms-chip-icon { background: rgba(255, 255, 255, 0.16); color: var(--ms-gold-bright); animation: ms-pop var(--dur) var(--ease); }
+  .ms-chip.is-on .ms-chip-icon { background: rgba(255, 255, 255, 0.16); color: #fff; animation: ms-pop var(--dur) var(--ease); }
 
   /* Toggle chips (father, mother …): the whole chip is the tap target. */
   .ms-chip-toggle {
@@ -573,7 +583,7 @@
   }
   .ms-chip-toggle::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
   .ms-chip-toggle:focus-visible { outline: none; }
-  .ms-chip.is-on .ms-chip-toggle { background: var(--ms-gold-bright); border-color: var(--ms-gold-bright); color: var(--ms-navy); }
+  .ms-chip.is-on .ms-chip-toggle { background: #fff; border-color: #fff; color: var(--ms-navy); }
 
   .ms-stepper { display: flex; align-items: center; gap: 0.125rem; flex: none; }
   .ms-stepper button {

@@ -43,11 +43,7 @@ export function EstateStep({ estate, onChange, netEstateText, onNext, notices, t
         />
       </div>
 
-      <section className="ms-deduct-simple premium-pop mt-4" style={{ animationDelay: "70ms" }} aria-label={text.addExtras}>
-        <div className="ms-deduct-simple-head">
-          <h2>{text.addExtras}</h2>
-          <span className="ms-deduct-simple-opt">{text.optional}</span>
-        </div>
+      <section className="ms-deduct-simple premium-pop mt-4" style={{ animationDelay: "70ms" }}>
         <div className="ms-deduct-simple-list">
           <div className="ms-deduct-row">
             <MoneyField label={text.costs} value={estate.funeralCosts} onValueChange={(value) => onChange("funeralCosts", value)} onKeyDown={onKeyDown} />
