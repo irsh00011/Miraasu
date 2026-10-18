@@ -136,20 +136,16 @@ export default function Entrance() {
                 <li className="ent-step ent-rise" style={{ animationDelay: "350ms" }}><span className="ent-step-num" aria-hidden="true">2</span><span>Enter estate</span></li>
                 <li className="ent-step ent-rise" style={{ animationDelay: "410ms" }}><span className="ent-step-num" aria-hidden="true">3</span><span>See shares</span></li>
               </ol>
-              <article className="ent-info-card ent-rise" style={{ animationDelay: "450ms" }}>
-                <p className="ent-info-kicker">Why Miraasu</p>
-                <p className="ent-info-text">Fara&rsquo;id shares, Asabah and Radd &mdash; calculated instantly and exactly, the way Islamic law prescribes.</p>
-              </article>
-              <article className="ent-hadith ent-rise" lang="en" style={{ animationDelay: "510ms" }}>
+              <article className="ent-hadith ent-rise" lang="en" style={{ animationDelay: "470ms" }}>
                 <p className="ent-hadith-kicker">A teaching on inheritance</p>
                 <blockquote className="ent-hadith-quote">“O Abu Hurairah. Learn about the inheritance and teach it, for it is half of knowledge, but it will be forgotten. This is the first thing that will be taken away from my nation.”</blockquote>
                 <p className="ent-hadith-source">Narrated by Abu Hurairah · <a href="https://sunnah.com/ibnmajah:2719" target="_blank" rel="noreferrer">Sunan Ibn Majah 2719</a></p>
                 <p className="ent-hadith-grade">Grade: Daʿif (weak) · Darussalam</p>
               </article>
-              <button type="button" onClick={() => setStep("collaboration")} className="ent-start ent-rise" style={{ animationDelay: "570ms" }}>
+              <button type="button" onClick={() => setStep("collaboration")} className="ent-start ent-rise" style={{ animationDelay: "530ms" }}>
                 Start <ArrowRight size={18} />
               </button>
-              <p className="ent-trust ent-rise" style={{ animationDelay: "620ms" }} aria-label="Free, no sign-up, available in 4 languages">Free &middot; No sign-up &middot; 4 languages</p>
+              <p className="ent-trust ent-rise" style={{ animationDelay: "580ms" }} aria-label="Free, no sign-up, available in 4 languages">Free &middot; No sign-up &middot; 4 languages</p>
               {installEvent ? (
                 <button type="button" onClick={installApp} className="ent-install ent-rise" style={{ animationDelay: "360ms" }}>
                   <Download size={15} /> Install app
