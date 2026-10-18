@@ -212,7 +212,7 @@ export default function EnglishHome() {
                 {result.allocations.length > 0 ? (
                   <>
                     {remainingAmount > 0.005 ? (
-                      <div className="ms-total-strip bg-[#7c5a1c]!">
+                      <div className="ms-total-strip">
                         <span>Remaining amount</span>
                         <strong className="num"><AnimatedMoney value={remainingAmount} money={money} delay={250 + displayAllocations.length * 70} /></strong>
                       </div>

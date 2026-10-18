@@ -321,7 +321,7 @@ export default function Home() {
                 {resultRows.length > 0 ? (
                   <>
                     {remainingAmount > 0.005 ? (
-                      <div className="ms-total-strip bg-[#7c5a1c]!">
+                      <div className="ms-total-strip">
                         <span>மீதமுள்ள தொகை</span>
                         <strong className="num"><AnimatedMoney value={remainingAmount} money={money} delay={250 + shareRows.length * 70} /></strong>
                       </div>
