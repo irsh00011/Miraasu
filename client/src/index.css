@@ -612,13 +612,13 @@
       radial-gradient(28rem 13rem at 8% -40%, rgba(140, 190, 240, 0.32), transparent 62%),
       linear-gradient(165deg, #174f86 0%, #0e3560 58%, #0b2a4f 100%); }
   @media (min-width: 640px) { .ms-hero { padding: 1.75rem 1.75rem 1.625rem; } }
-  .ms-hero-kicker { color: var(--ms-gold-bright); font-family: var(--font-sans); font-size: var(--fs-caption); font-weight: 700; letter-spacing: var(--track-wide); text-transform: var(--caps); }
+  .ms-hero-kicker { color: #cfe0f2; font-family: var(--font-sans); font-size: var(--fs-caption); font-weight: 700; letter-spacing: var(--track-wide); text-transform: var(--caps); }
   .ms-hero-label { margin-top: 0.875rem; color: #cddff2; font-size: 0.875rem; font-weight: 500; }
   .ms-hero-amount {
-    margin-top: 0.125rem; color: #fff; font-size: var(--fs-display); font-weight: 700; letter-spacing: -0.03em; line-height: 1.1;
-    overflow-wrap: anywhere;
+    margin-top: 0.125rem; color: #4ade80; font-size: var(--fs-display); font-weight: 700; letter-spacing: -0.03em; line-height: 1.1;
+    overflow-wrap: anywhere; font-variant-numeric: tabular-nums;
   }
-  .ms-hero-note { margin-top: 1rem; display: inline-flex; align-items: center; gap: 0.5rem; color: var(--ms-gold-bright); font-size: 0.875rem; font-weight: 600; }
+  .ms-hero-note { margin-top: 1rem; display: inline-flex; align-items: center; gap: 0.5rem; color: #cfe0f2; font-size: 0.875rem; font-weight: 600; }
 
   .ms-share-table { background: #fff; border: 1px solid var(--ms-line); border-radius: 1.5rem; overflow: hidden; box-shadow: inset 0 1px 0 #fff; }
   .ms-share-thead { display: none; }
@@ -632,8 +632,8 @@
   .ms-share-cname { grid-area: name; display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem; min-width: 0; font-size: 1.0625rem; font-weight: 700; color: var(--ms-navy); line-height: 1.35; }
   .ms-share-cchips { grid-area: chips; display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem 0.5rem; min-width: 0; color: var(--ms-muted); }
   .ms-mini-chip { padding: 0; background: none; color: inherit; font-size: 0.875rem; font-weight: 600; line-height: 1.4; white-space: nowrap; }
-  .ms-mini-chip + .ms-mini-chip::before { content: "·"; margin-inline-end: 0.5rem; color: var(--ms-gold); font-weight: 800; }
-  .ms-share-camount { grid-area: amount; text-align: end; font-size: 1.375rem; font-weight: 800; color: var(--ms-navy); letter-spacing: -0.02em; min-width: 0; }
+  .ms-mini-chip + .ms-mini-chip::before { content: "·"; margin-inline-end: 0.5rem; color: #8a9bb0; font-weight: 800; }
+  .ms-share-camount { grid-area: amount; text-align: end; font-size: 1.375rem; font-weight: 800; color: #15803d; letter-spacing: -0.02em; min-width: 0; font-variant-numeric: tabular-nums; }
   .ms-tag, .ms-tag-count { display: inline-flex; align-items: center; border-radius: 999px; padding: 0.125rem 0.5rem; background: var(--ms-tint); color: var(--ms-royal); font-size: var(--fs-caption); font-weight: 700; }
   @media (min-width: 640px) {
     .ms-share-trow { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) auto; grid-template-areas: "name chips amount"; padding: 1.125rem 1.5rem; }
@@ -779,14 +779,23 @@
   .ent-start:active { scale: 0.97; }
 
   /* The hadith: kept in full, disclosed on request. */
-  .ent-hadith { width: min(100%, 30rem); margin-top: 1.75rem; border: 1px solid rgba(255, 255, 255, 0.22); border-radius: 1.25rem; background: rgba(255, 255, 255, 0.07); text-align: start; }
-  .ent-hadith > summary { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; min-height: 3rem; padding: 0 1.125rem; list-style: none; color: #fff; font-size: 0.875rem; font-weight: 600; }
-  .ent-hadith > summary::-webkit-details-marker { display: none; }
-  .ent-hadith > summary::after { content: ""; width: 0.5rem; height: 0.5rem; border-inline-end: 2px solid currentColor; border-bottom: 2px solid currentColor; rotate: 45deg; transition: rotate var(--dur) var(--ease); }
-  .ent-hadith[open] > summary::after { rotate: 225deg; }
-  .ent-hadith-body { padding: 0 1.125rem 1.125rem; animation: ms-rise var(--dur) var(--ease) both; }
-  .ent-hadith-quote { color: rgba(255, 255, 255, 0.92); font-size: 0.9375rem; line-height: 1.65; }
-  .ent-hadith-source { margin-top: 0.75rem; color: rgba(255, 255, 255, 0.78); font-size: 0.8125rem; line-height: 1.5; }
+  /* Hadith — blue card, white text, gentle entrance */
+  .ent-hadith {
+    width: min(100%, 30rem); margin-top: 1.75rem; padding: 1.25rem 1.35rem;
+    border-radius: 1.25rem; text-align: center;
+    background: linear-gradient(160deg, #1e5a96 0%, #123a66 100%);
+    box-shadow: 0 16px 32px -16px rgba(11, 42, 79, 0.55);
+    animation: ent-hadith-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  @keyframes ent-hadith-in {
+    from { opacity: 0; transform: translateY(18px) scale(0.97); }
+    to { opacity: 1; transform: none; }
+  }
+  .ent-hadith-quote { color: #ffffff; font-size: 1rem; font-weight: 600; line-height: 1.65; font-style: italic; }
+  .ent-hadith-source { margin-top: 0.7rem; color: rgba(255, 255, 255, 0.75); font-size: 0.8rem; font-weight: 700; letter-spacing: 0.06em; }
+  @media (prefers-reduced-motion: reduce) {
+    .ent-hadith { animation: none; }
+  }
   .ent-hadith-source a { color: var(--ms-gold-bright); text-decoration: underline; text-underline-offset: 3px; }
   .ent-hadith-grade { margin-top: 0.25rem; color: var(--ms-gold-bright); font-size: 0.8125rem; font-weight: 600; line-height: 1.45; }
 

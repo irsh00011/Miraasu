@@ -140,18 +140,13 @@ export default function Entrance() {
               <p className="ent-arabic-hero ent-rise" lang="ar" style={{ animationDelay: "70ms" }} aria-label="Mirath">مِيرَاث</p>
               <h1 className="ent-welcome-title ent-rise" style={{ animationDelay: "130ms" }}>Miraasu</h1>
               <p className="ent-usp ent-rise" style={{ animationDelay: "190ms" }}>Every heir&rsquo;s exact share &mdash; the Islamic way.</p>
-              <p className="ent-expect ent-rise" style={{ animationDelay: "230ms" }}>3 quick questions &middot; No account needed</p>
-              <button type="button" onClick={() => setStep("collaboration")} className="ent-start ent-rise" style={{ animationDelay: "290ms" }}>
+              <button type="button" onClick={() => setStep("collaboration")} className="ent-start ent-rise" style={{ animationDelay: "250ms" }}>
                 Start <ArrowRight size={18} />
               </button>
-              <details className="ent-hadith ent-rise" lang="en" style={{ animationDelay: "350ms" }}>
-                <summary>A teaching on inheritance</summary>
-                <div className="ent-hadith-body">
-                  <blockquote className="ent-hadith-quote">“O Abu Hurairah. Learn about the inheritance and teach it, for it is half of knowledge, but it will be forgotten. This is the first thing that will be taken away from my nation.”</blockquote>
-                  <p className="ent-hadith-source">Narrated by Abu Hurairah · <a href="https://sunnah.com/ibnmajah:2719" target="_blank" rel="noreferrer">Sunan Ibn Majah 2719</a></p>
-                  <p className="ent-hadith-grade">Grade: Daʿif (weak) · Darussalam</p>
-                </div>
-              </details>
+              <article className="ent-hadith ent-rise" lang="en" style={{ animationDelay: "350ms" }}>
+                <blockquote className="ent-hadith-quote">&ldquo;Learn the Fara&rsquo;id and teach it, for it is half of knowledge.&rdquo;</blockquote>
+                <p className="ent-hadith-source">Sunan Ibn Majah 2719</p>
+              </article>
               {installEvent ? (
                 <button type="button" onClick={installApp} className="ent-install ent-rise" style={{ animationDelay: "360ms" }}>
                   <Download size={15} /> Install app

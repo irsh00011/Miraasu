@@ -1,5 +1,4 @@
-/** Design: Miraasu — Quiet Ledger. One focal point (the amount), optional deductions disclosed on demand,
- *  the net figure as a quiet line that only appears when it differs from the gross. UI only. */
+/** Design: Miraasu Scholarly Ledger — estate worksheet: hero amount, tidy deductions, strong total footer. */
 import type { ReactNode } from "react";
 import { ArrowRight } from "lucide-react";
 import type { EstateInput } from "@/lib/inheritance";
@@ -28,8 +27,6 @@ type Props = {
 
 export function EstateStep({ estate, onChange, netEstateText, onNext, notices, text }: Props) {
   const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => advanceOnEnter(event, onNext);
-  // Presentation only: deductions open themselves when they already hold a value (e.g. re-opened history).
-  const hasDeductions = estate.funeralCosts > 0 || estate.debts > 0 || estate.bequest > 0;
 
   return (
     <div className="ms-card p-4 sm:p-7" data-step-fields>
@@ -46,12 +43,12 @@ export function EstateStep({ estate, onChange, netEstateText, onNext, notices, t
         />
       </div>
 
-      <details className="ms-disclose" open={hasDeductions || undefined}>
-        <summary>
-          <span>{text.addExtras}</span>
-          <span className="ms-disclose-opt">{text.optional}</span>
-        </summary>
-        <div className="ms-disclose-body">
+      <section className="ms-deduct-simple premium-pop mt-4" style={{ animationDelay: "70ms" }} aria-label={text.addExtras}>
+        <div className="ms-deduct-simple-head">
+          <h2>{text.addExtras}</h2>
+          <span className="ms-deduct-simple-opt">{text.optional}</span>
+        </div>
+        <div className="ms-deduct-simple-list">
           <div className="ms-deduct-row">
             <MoneyField label={text.costs} value={estate.funeralCosts} onValueChange={(value) => onChange("funeralCosts", value)} onKeyDown={onKeyDown} />
           </div>
@@ -62,16 +59,16 @@ export function EstateStep({ estate, onChange, netEstateText, onNext, notices, t
             <MoneyField label={text.bequest} help={text.bequestHelp} value={estate.bequest} onValueChange={(value) => onChange("bequest", value)} onKeyDown={onKeyDown} />
           </div>
         </div>
-      </details>
+      </section>
 
       {notices ? <div className="mt-3 grid gap-2">{notices}</div> : null}
 
-      {hasDeductions ? (
-        <footer className="ms-total-row" aria-live="polite">
+      <footer className="ms-total-row">
+        <div className="min-w-0">
           <p className="ms-total-label">{text.distributable}</p>
           <p className="ms-total-value num">{netEstateText}</p>
-        </footer>
-      ) : null}
+        </div>
+      </footer>
 
       <div className="ms-next-row">
         <button type="button" onClick={onNext} aria-keyshortcuts="Enter" className="ms-btn ms-btn-primary ms-btn-block">
