@@ -5,6 +5,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, Calculator, Download, Printer, UsersRound } from "lucide-react";
 import { FamilyList } from "@/components/FamilyList";
+import { CalculatingOverlay } from "@/components/calc/CalculatingOverlay";
 import { BookSourceCard } from "@/components/BookSourceCard";
 import {
   asabahPartsFor,
@@ -88,6 +89,7 @@ export default function Home() {
   const [history, setHistory] = useState<SavedCalculation[]>([]);
   const [justSaved, setJustSaved] = useState(false);
   const [familyQuery, setFamilyQuery] = useState("");
+  const [calculating, setCalculating] = useState(false);
 
   const result = useMemo(() => calculateInheritance(estate, heirs), [estate, heirs]);
   const distributedTotal = useMemo(() => result.allocations.reduce((total, item) => total + result.netEstate * fractionToNumber(item.share), 0), [result]);
@@ -169,7 +171,11 @@ export default function Home() {
 
   const finishCalculation = () => {
     setJustSaved(false);
-    setStep(3);
+    setCalculating(true);
+    window.setTimeout(() => {
+      setCalculating(false);
+      setStep(3);
+    }, 2000);
     saveCalculation();
   };
 
@@ -222,6 +228,7 @@ export default function Home() {
 
   return (
     <>
+    {calculating ? <CalculatingOverlay language="ta" /> : null}
     <div className="ms-page ms-watermark">
       <AppHeader
         title="Islamic Inheritance Calculator"

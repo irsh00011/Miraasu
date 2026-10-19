@@ -5,6 +5,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, ArrowRight, Calculator, Download, Printer, UsersRound } from "lucide-react";
 import { FamilyList } from "@/components/FamilyList";
+import { CalculatingOverlay } from "@/components/calc/CalculatingOverlay";
 import { BookSourceCard } from "@/components/BookSourceCard";
 import { ARABIC_EXTENDED_COPY, aggregateAllocationsForDisplay, asabahPartsFor, calculateInheritance, fractionToNumber, fractionToText, type EstateInput, type HeirInput } from "@/lib/inheritance";
 import { CalculationTrace } from "@/components/CalculationTrace";
@@ -63,7 +64,8 @@ export default function ArabicHome() {
   const resetKeys = (keys: (keyof HeirInput)[]) => setHeirs((current) => Object.fromEntries(Object.entries(current).map(([key, value]) => [key, keys.includes(key as keyof HeirInput) ? 0 : value])) as HeirInput);
   const start = () => { setView("calculator"); setStep(1); };
   const fresh = () => { setEstate(initialEstate); setHeirs(initialHeirs); setQuery(""); start(); };
-  const finish = () => { setStep(3); if (result.netEstate <= 0 || result.allocations.length === 0) return; const record: SavedCalculation = { id: crypto.randomUUID(), fingerprint, createdAt: new Date().toISOString(), estate, heirs, netEstate: result.netEstate, totalHeirs: heirCount(heirs) }; setHistory((current) => { const next = [record, ...current.filter((item) => item.fingerprint !== record.fingerprint)].slice(0, 12); writeCalculationHistory(next); return next; }); };
+  const [calculating, setCalculating] = useState(false);
+  const finish = () => { setCalculating(true); window.setTimeout(() => { setCalculating(false); setStep(3); }, 2000); if (result.netEstate <= 0 || result.allocations.length === 0) return; const record: SavedCalculation = { id: crypto.randomUUID(), fingerprint, createdAt: new Date().toISOString(), estate, heirs, netEstate: result.netEstate, totalHeirs: heirCount(heirs) }; setHistory((current) => { const next = [record, ...current.filter((item) => item.fingerprint !== record.fingerprint)].slice(0, 12); writeCalculationHistory(next); return next; }); };
 
   const displayAllocations = aggregateAllocationsForDisplay(result.allocations);
   const tableRows = useMemo(
@@ -85,6 +87,7 @@ export default function ArabicHome() {
 
   return (
     <>
+    {calculating ? <CalculatingOverlay language="ar" /> : null}
     <div className="ms-page ms-watermark">
       <AppHeader
         title="Islamic Inheritance Calculator"

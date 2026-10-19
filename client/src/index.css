@@ -646,10 +646,10 @@
     grid-template-areas: "name amount" "chips chips";
     gap: 0.35rem 0.6rem; align-items: center;
     padding: 1rem 1.15rem; border-radius: 1.1rem;
-    background: linear-gradient(160deg, #1a4d84 0%, #123a66 100%);
-    border: 2px solid rgba(255, 255, 255, 0.85);
-    outline: 1px solid #0d2c4f; outline-offset: -1px;
-    box-shadow: 0 12px 24px -14px rgba(11, 42, 79, 0.5);
+    background: linear-gradient(165deg, #2563a8 0%, #16467e 55%, #0e3260 100%);
+    border: 2px solid #7fb3e8;
+    outline: 2px solid #0d2c4f; outline-offset: -2px;
+    box-shadow: 0 14px 28px -12px rgba(11, 42, 79, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.22);
     animation: ms-card-pop 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
   .ms-share-trow:nth-child(2) { animation-delay: 0.06s; }
@@ -673,8 +673,40 @@
     font-variant-numeric: tabular-nums;
   }
   .ms-share-camount {
-    grid-area: amount; text-align: end; font-weight: 800; font-size: 1.25rem; color: #ffffff; min-width: 0;
-    font-variant-numeric: tabular-nums;
+    grid-area: amount; text-align: end; font-weight: 800; font-size: 1.25rem; color: #4ade80; min-width: 0;
+    font-variant-numeric: tabular-nums; text-shadow: 0 1px 8px rgba(74, 222, 128, 0.35);
+  }
+
+  /* Calculation overlay: 2s "computing" moment before the result. */
+  .ms-calc-overlay {
+    position: fixed; inset: 0; z-index: 60; display: grid; place-items: center;
+    background: rgba(11, 42, 79, 0.72); backdrop-filter: blur(6px);
+    animation: ms-calc-in 0.25s ease both;
+  }
+  @keyframes ms-calc-in { from { opacity: 0; } to { opacity: 1; } }
+  .ms-calc-box {
+    display: flex; flex-direction: column; align-items: center; gap: 1rem;
+    background: linear-gradient(160deg, #1a4d84 0%, #0b2a4f 100%);
+    border: 2px solid rgba(255, 255, 255, 0.85); border-radius: 1.5rem;
+    padding: 2rem 2.5rem; box-shadow: 0 24px 48px -16px rgba(0, 0, 0, 0.5);
+    animation: ms-card-pop 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .ms-calc-icon {
+    display: grid; place-items: center; width: 4rem; height: 4rem; border-radius: 999px;
+    background: rgba(255, 255, 255, 0.14); color: #fff;
+    animation: ms-calc-pulse 1s ease-in-out infinite;
+  }
+  @keyframes ms-calc-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.12); } }
+  .ms-calc-bar { width: 12rem; height: 0.5rem; border-radius: 999px; background: rgba(255, 255, 255, 0.18); overflow: hidden; }
+  .ms-calc-fill {
+    display: block; height: 100%; width: 40%; border-radius: 999px; background: #4ade80;
+    animation: ms-calc-slide 1s ease-in-out infinite;
+  }
+  @keyframes ms-calc-slide { 0% { transform: translateX(-100%); } 100% { transform: translateX(350%); } }
+  .ms-calc-text { margin: 0; color: #fff; font-size: 1rem; font-weight: 700; }
+  @media (prefers-reduced-motion: reduce) {
+    .ms-calc-icon, .ms-calc-fill { animation: none; }
+    .ms-calc-fill { width: 100%; transform: none; }
   }
   .ms-tag-count { background: rgba(255,255,255,0.16); color: #fff; border-radius: 0.55rem; padding: 0.2rem 0.5rem; font-size: 0.72rem; font-weight: 800; }
 

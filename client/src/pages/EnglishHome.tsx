@@ -5,6 +5,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, Calculator, Download, Printer, UsersRound } from "lucide-react";
 import { FamilyList } from "@/components/FamilyList";
+import { CalculatingOverlay } from "@/components/calc/CalculatingOverlay";
 import { BookSourceCard } from "@/components/BookSourceCard";
 import { aggregateAllocationsForDisplay, asabahPartsFor, calculateInheritance, fractionToNumber, fractionToText, EXTENDED_HEIR_SECTIONS, type EstateInput, type HeirInput } from "@/lib/inheritance";
 import { CalculationTrace } from "@/components/CalculationTrace";
@@ -68,6 +69,7 @@ export default function EnglishHome() {
   const [heirs, setHeirs] = useState<HeirInput>(initialHeirs);
   const [history, setHistory] = useState<SavedCalculation[]>([]);
   const [familyQuery, setFamilyQuery] = useState("");
+  const [calculating, setCalculating] = useState(false);
   const [justSaved, setJustSaved] = useState(false);
   const result = useMemo(() => calculateInheritance(estate, heirs), [estate, heirs]);
   const fingerprint = useMemo(() => JSON.stringify({ estate, heirs }), [estate, heirs]);
@@ -94,7 +96,7 @@ export default function EnglishHome() {
     setHistory((current) => { const next = [record, ...current.filter((item) => item.fingerprint !== record.fingerprint)].slice(0, 12); writeCalculationHistory(next); return next; });
     setJustSaved(true);
   };
-  const finishCalculation = () => { setJustSaved(false); setStep(3); saveCalculation(); };
+  const finishCalculation = () => { setJustSaved(false); setCalculating(true); window.setTimeout(() => { setCalculating(false); setStep(3); }, 2000); saveCalculation(); };
   const reopen = (record: SavedCalculation) => { setEstate(record.estate); setHeirs(record.heirs); setView("calculator"); setStep(3); };
   const deleteRecord = (id: string) => setHistory((current) => { const next = current.filter((item) => item.id !== id); writeCalculationHistory(next); return next; });
 
@@ -118,6 +120,7 @@ export default function EnglishHome() {
 
   return (
     <>
+    {calculating ? <CalculatingOverlay language="en" /> : null}
     <div className="ms-page ms-watermark">
       <AppHeader
         title="Islamic Inheritance Calculator"
