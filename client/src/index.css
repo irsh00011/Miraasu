@@ -597,7 +597,7 @@
     min-height: 2.75rem; border-radius: 0.875rem; padding-inline: 0.5rem; font-size: 0.9375rem; font-weight: 600; color: var(--ms-muted);
     transition: background var(--dur) var(--ease), color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
   }
-  .ms-spouse.is-on { background: #fff; color: var(--ms-navy); font-weight: 700; box-shadow: 0 0 0 1px var(--ms-line), inset 0 1px 0 #fff; }
+  .ms-spouse.is-on { background: linear-gradient(180deg, #1d5a91 0%, #0f3a66 100%); color: #fff; font-weight: 700; box-shadow: 0 0 0 1px #0d2c4f, inset 0 1px 0 rgba(255, 255, 255, 0.16); }
 
   /* Progressive disclosure for the 24 extended relatives. */
   .ms-more {
@@ -673,8 +673,8 @@
     font-variant-numeric: tabular-nums;
   }
   .ms-share-camount {
-    grid-area: amount; text-align: end; font-weight: 800; font-size: 1.25rem; color: #4ade80; min-width: 0;
-    font-variant-numeric: tabular-nums; text-shadow: 0 1px 8px rgba(74, 222, 128, 0.35);
+    grid-area: amount; text-align: end; font-weight: 800; font-size: 1.25rem; color: #ffffff; min-width: 0;
+    font-variant-numeric: tabular-nums;
   }
 
   /* Calculation overlay: 2s "computing" moment before the result. */
