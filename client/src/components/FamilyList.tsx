@@ -19,6 +19,12 @@ const PRIMARY: PrimaryDef[] = [
   { key: "maternalSisters", ta: "தாய் வழி சகோதரி", en: "Maternal half-sisters", ar: "الأخوات لأم", ur: "ماں کی طرف کی بہنیں" },
 ];
 
+/** Tamil display overrides for engine labels that contain English text (engine file is protected). */
+const TA_LABEL_OVERRIDES: Partial<Record<ExtendedHeirKey, string>> = {
+  paternalGrandmothers: "தந்தை வழி பாட்டி",
+  maternalGrandmothers: "தாய் வழி பாட்டி",
+};
+
 /** Urdu labels for the extended relatives (engine copy stays Tamil; shown to the user in Urdu). */
 const URDU_EXTENDED_LABELS: Record<ExtendedHeirKey, string> = {
   sonsSons: "پوتے",
@@ -77,7 +83,7 @@ export function FamilyList({ heirs, onChange, onResetAll, query, onQueryChange, 
     const extendedRows = EXTENDED_HEIR_SECTIONS.flatMap((section) => section.items).map((item) => ({
       key: item.key as keyof HeirInput,
       icon: heirIconForEmoji(item.emoji),
-      label: language === "en" ? item.labelEn : language === "ar" ? ARABIC_EXTENDED_COPY[item.key].label : language === "ur" ? URDU_EXTENDED_LABELS[item.key] : item.label,
+      label: language === "en" ? item.labelEn : language === "ar" ? ARABIC_EXTENDED_COPY[item.key].label : language === "ur" ? URDU_EXTENDED_LABELS[item.key] : (TA_LABEL_OVERRIDES[item.key] ?? item.label),
       max: undefined as number | undefined,
     }));
     return { primaryRows, extendedRows, all: [...primaryRows, ...extendedRows] };

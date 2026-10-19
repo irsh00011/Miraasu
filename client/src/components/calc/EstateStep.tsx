@@ -59,13 +59,6 @@ export function EstateStep({ estate, onChange, netEstateText, onNext, notices, t
 
       {notices ? <div className="mt-3 grid gap-2">{notices}</div> : null}
 
-      <footer className="ms-total-row">
-        <div className="min-w-0">
-          <p className="ms-total-label">{text.distributable}</p>
-          <p className="ms-total-value num">{netEstateText}</p>
-        </div>
-      </footer>
-
       <div className="ms-next-row">
         <button type="button" onClick={onNext} aria-keyshortcuts="Enter" className="ms-btn ms-btn-primary ms-btn-block">
           {text.next}<ArrowRight size={16} className="rtl:rotate-180" />

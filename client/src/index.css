@@ -559,7 +559,7 @@
     display: grid; place-items: center; width: 2rem; height: 2rem; flex: none; border-radius: 0.625rem;
     background: var(--ms-tint); color: var(--ms-royal); transition: background var(--dur) var(--ease), color var(--dur) var(--ease);
   }
-  .ms-chip-name { min-width: 0; flex: 1; font-size: 0.9375rem; font-weight: 600; line-height: 1.35; overflow-wrap: break-word; }
+  .ms-chip-name { min-width: 0; flex: 1; font-size: 1rem; font-weight: 700; line-height: 1.5; overflow-wrap: break-word; text-align: start; }
   .ms-chip.is-on {
     background: linear-gradient(180deg, #1d5a91 0%, #0f3a66 100%); border-color: #0d2c4f; color: #fff;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16);
@@ -673,7 +673,7 @@
     font-variant-numeric: tabular-nums;
   }
   .ms-share-camount {
-    grid-area: amount; text-align: end; font-weight: 800; font-size: 1.25rem; color: #4ade80; min-width: 0;
+    grid-area: amount; text-align: end; font-weight: 800; font-size: 1.25rem; color: #ffffff; min-width: 0;
     font-variant-numeric: tabular-nums;
   }
   .ms-tag-count { background: rgba(255,255,255,0.16); color: #fff; border-radius: 0.55rem; padding: 0.2rem 0.5rem; font-size: 0.72rem; font-weight: 800; }
