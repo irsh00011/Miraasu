@@ -11,7 +11,7 @@ import { useLocation } from "wouter";
 import Splash from "../components/Splash";
 
 type Lang = "ta" | "en" | "ar" | "ur";
-type Step = "splash" | "welcome" | "collaboration" | "language" | "gender";
+type Step = "splash" | "welcome" | "language" | "gender";
 type Gender = "male" | "female";
 
 const LANGUAGES: { code: Lang; href: string; native: string; label: string; mark: string }[] = [
@@ -76,11 +76,11 @@ export default function Entrance() {
   const [picked, setPicked] = useState<Gender | null>(null);
   const timer = useRef<number | undefined>(undefined);
 
-  // Institution logos (user-supplied) load lazily as a separate chunk when the
-  // collaboration step shows, keeping the main bundle lean. SVG fallbacks show first.
+  // Institution logos (user-supplied) load lazily as a separate chunk on the
+  // welcome step, keeping the main bundle lean. SVG fallbacks show first.
   const [collabLogos, setCollabLogos] = useState<{ bukhari: string; crescent: string } | null>(null);
   useEffect(() => {
-    if (step === "collaboration" && !collabLogos) {
+    if (step === "welcome" && !collabLogos) {
       import("../collabLogos")
         .then((m) => setCollabLogos({ bukhari: m.BUKHARI_LOGO, crescent: m.CRESCENT_LOGO }))
         .catch(() => undefined);
@@ -114,7 +114,7 @@ export default function Entrance() {
   const goBack = () => {
     window.clearTimeout(timer.current);
     setPicked(null);
-    setStep(step === "gender" ? "language" : step === "language" ? "collaboration" : "welcome");
+    setStep(step === "gender" ? "language" : "welcome");
   };
 
   return (
@@ -136,11 +136,15 @@ export default function Entrance() {
         <div className="ent-stage">
           {step === "welcome" ? (
             <section key="welcome" className="ent-welcome">
-              <img src="/book-cover-icon-192.png" alt="" className="ent-logo ent-rise" style={{ animationDelay: "0ms" }} />
+              <div className="ent-logo-row ent-rise" style={{ animationDelay: "0ms" }}>
+                <img src={collabLogos?.bukhari ?? "/bukhari-logo.svg"} alt="Bukhari Aalim Arabic College" className="ent-side-logo" />
+                <img src="/book-cover-icon-192.png" alt="" className="ent-logo" />
+                <img src={collabLogos?.crescent ?? "/crescent-logo.svg"} alt="B.S. Abdur Rahman Crescent Institute of Science and Technology" className="ent-side-logo" />
+              </div>
               <p className="ent-arabic-hero ent-rise" lang="ar" style={{ animationDelay: "70ms" }} aria-label="Mirath">مِيرَاث</p>
               <h1 className="ent-welcome-title ent-rise" style={{ animationDelay: "130ms" }}>Miraasu</h1>
               <p className="ent-usp ent-rise" style={{ animationDelay: "190ms" }}>Every heir&rsquo;s exact share &mdash; the Islamic way.</p>
-              <button type="button" onClick={() => setStep("collaboration")} className="ent-start ent-rise" style={{ animationDelay: "250ms" }}>
+              <button type="button" onClick={() => setStep("language")} className="ent-start ent-rise" style={{ animationDelay: "250ms" }}>
                 Start <ArrowRight size={18} />
               </button>
               <article className="ent-hadith ent-rise" lang="en" style={{ animationDelay: "350ms" }}>
@@ -152,26 +156,6 @@ export default function Entrance() {
                   <Download size={15} /> Install app
                 </button>
               ) : null}
-            </section>
-          ) : null}
-
-          {step === "collaboration" ? (
-            <section key="collaboration" className="ent-section ent-collab">
-              <p className="ent-collab-kicker ent-rise" style={{ animationDelay: "0ms" }}>In Collaboration With</p>
-              <span className="ent-rule ent-rise" style={{ animationDelay: "80ms" }} aria-hidden="true" />
-              <div className="ent-collab-grid">
-                <figure className="ent-collab-card ent-rise" style={{ animationDelay: "140ms" }}>
-                  <img src={collabLogos?.bukhari ?? "/bukhari-logo.svg"} alt="Bukhari Aalim Arabic College logo" className="ent-collab-logo" />
-                  <figcaption className="ent-collab-name">Bukhari Aalim Arabic College</figcaption>
-                </figure>
-                <figure className="ent-collab-card ent-rise" style={{ animationDelay: "260ms" }}>
-                  <img src={collabLogos?.crescent ?? "/crescent-logo.svg"} alt="B.S. Abdur Rahman Crescent Institute of Science and Technology logo" className="ent-collab-logo" />
-                  <figcaption className="ent-collab-name">B.S. Abdur Rahman Crescent Institute of Science and Technology</figcaption>
-                </figure>
-              </div>
-              <button type="button" onClick={() => setStep("language")} className="ent-start ent-rise" style={{ animationDelay: "380ms" }}>
-                Continue <ArrowRight size={18} />
-              </button>
             </section>
           ) : null}
 

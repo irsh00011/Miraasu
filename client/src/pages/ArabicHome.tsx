@@ -11,7 +11,6 @@ import { CalculationTrace } from "@/components/CalculationTrace";
 import { AppHeader } from "@/components/calc/AppHeader";
 import { EstateStep } from "@/components/calc/EstateStep";
 import { HistoryView } from "@/components/calc/HistoryView";
-import { ResultHero } from "@/components/calc/ResultHero";
 import { methodCopy } from "@/components/calc/MethodPanels";
 import { ShareTable, buildShareTableRows } from "@/components/calc/ShareTable";
 
@@ -157,7 +156,6 @@ export default function ArabicHome() {
 
             {step === 3 ? (
               <div className="space-y-4">
-                <ResultHero title="نتيجة القسمة" />
                 {result.notices.map((notice) => <div key={notice} className="ms-notice">{noticeArabic(notice)}</div>)}
                 {result.requiresScholarReview ? <p className="ms-notice font-extrabold!">يلزم تأكيد من مختص — هذه النتيجة غير نهائية.</p> : null}
 

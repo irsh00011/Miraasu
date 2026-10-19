@@ -20,7 +20,6 @@ import { CalculationTrace } from "@/components/CalculationTrace";
 import { AppHeader } from "@/components/calc/AppHeader";
 import { EstateStep } from "@/components/calc/EstateStep";
 import { HistoryView } from "@/components/calc/HistoryView";
-import { ResultHero } from "@/components/calc/ResultHero";
 import { methodCopy } from "@/components/calc/MethodPanels";
 import { ShareTable, buildShareTableRows } from "@/components/calc/ShareTable";
 
@@ -268,8 +267,8 @@ export default function Home() {
                   kicker: "படி 1 / 3",
                   title: "மொத்த சொத்து",
                   gross: "சொத்தின் மதிப்பு",
-                  optional: "விருப்பம்",
-                  addExtras: "கழிவுகள்",
+                  optional: "",
+                  addExtras: "",
                   costs: "அடக்கச் செலவு",
                   debts: "கடன்",
                   bequest: "வஸிய்யத்",
@@ -304,7 +303,6 @@ export default function Home() {
 
             {step === 3 ? (
               <div className="space-y-4">
-                <ResultHero title="பங்கீட்டு முடிவு" savedNote={justSaved ? "வரலாற்றில் சேமிக்கப்பட்டது" : undefined} />
                 <ShareTable
                   language="ta"
                   rows={tableRows}
@@ -354,7 +352,7 @@ export default function Home() {
       </div>
       <PrintSheet
         brand="மீராஸ்"
-        title="பங்கீட்டு முடிவு"
+        title=""
         dateText={new Date().toLocaleDateString("ta-IN", { day: "numeric", month: "long", year: "numeric" })}
         estateLabel="மொத்த சொத்து"
         estate={money(result.netEstate)}

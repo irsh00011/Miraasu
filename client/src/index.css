@@ -223,16 +223,6 @@
   body { background: #fff !important; }
 }
 
-@layer components {
-  /* Result header — seal only, minimal */
-  .ms-result-head { display: flex; justify-content: center; padding: 0.5rem 0; }
-  .ms-result-seal {
-    display: grid; place-items: center; flex: none;
-    width: 2.5rem; height: 2.5rem; border-radius: 999px; color: #ffffff;
-    background: #15803d;
-  }
-}
-
 /* Print-only summary sheet (used by the Download button → "Save as PDF").
    Hidden on screen; when body.print-summary is set, the app is hidden and
    only this clean sheet prints. */
@@ -489,7 +479,9 @@
   .ms-amount-hero .ms-input:focus { border-color: #fff; box-shadow: 0 0 0 4px rgba(140, 190, 240, 0.35), inset 0 2px 6px rgba(11, 42, 79, 0.1); }
   .ms-amount-hero .ms-help { color: #a9c6e4; }
 
-  .ms-field { display: block; }
+  /* Deductions block on the amount page: thick royal-blue border. */
+  .ms-deduct-simple { border: 3px solid var(--ms-royal); border-radius: 1.1rem; padding: 0.9rem; background: #fff; }
+  .ms-deduct-simple-list { display: grid; gap: 0.75rem; }
   .ms-label { display: block; margin-bottom: 0.375rem; color: var(--ms-muted); font-size: 0.875rem; font-weight: 600; }
   .ms-money { position: relative; display: block; }
   .ms-money-currency { position: absolute; inset-block: 0; inset-inline-start: 0; display: flex; align-items: center; padding-inline-start: 1rem; color: var(--ms-royal); font-weight: 700; pointer-events: none; }
@@ -823,6 +815,9 @@
   /* Welcome: logo · script · name · promise · one button. Everything else is a tap away. */
   .ent-welcome { display: flex; flex-direction: column; align-items: center; text-align: center; max-width: 30rem; }
   .ent-logo { width: 4.5rem; height: 4.5rem; border-radius: 1.375rem; object-fit: cover; box-shadow: 0 0 0 1px rgba(232, 196, 119, 0.5), 0 12px 28px -12px rgba(4, 20, 40, 0.6); }
+  /* Welcome logo row: institution logos flank the book, all the same size. */
+  .ent-logo-row { display: flex; align-items: center; justify-content: center; gap: 1rem; }
+  .ent-side-logo { width: 4.5rem; height: 4.5rem; border-radius: 1.375rem; object-fit: contain; background: #fff; padding: 0.4rem; box-shadow: 0 12px 28px -12px rgba(4, 20, 40, 0.6); }
   .ent-arabic-hero { margin-top: 1.25rem; color: var(--ms-gold-bright); font-family: "Noto Naskh Arabic", "Source Serif 4", serif; font-size: clamp(2.25rem, 9vw, 3rem); font-weight: 700; line-height: 1.4; }
   .ent-welcome-title { margin-top: 0.125rem; color: #fff; font-family: var(--font-display); font-weight: 700; font-size: clamp(3rem, 13vw, 5rem); line-height: 1; letter-spacing: -0.03em; }
   .ent-usp { margin-top: 1rem; color: #fff; font-size: clamp(1.0625rem, 4.4vw, 1.25rem); font-weight: 600; line-height: 1.45; }
