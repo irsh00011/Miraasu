@@ -148,7 +148,11 @@ export default function Entrance() {
                 </div>
                 <span className="ent-timeline-connector ent-rise" aria-hidden="true" style={{ animationDelay: "60ms" }} />
                 <p className="ent-arabic-hero ent-rise" lang="ar" style={{ animationDelay: "120ms" }} aria-label="Mirath">مِيرَاث</p>
-                <h1 className="ent-welcome-title ent-rise" style={{ animationDelay: "180ms" }}>Miraasu</h1>
+                <h1 className="ent-welcome-title ent-rise" style={{ animationDelay: "180ms" }} aria-label="Miraasu">
+                  {"Miraasu".split("").map((ch, i) => (
+                    <span key={i} className="ent-wave-letter" style={{ animationDelay: `${i * 0.14}s` }} aria-hidden="true">{ch}</span>
+                  ))}
+                </h1>
                 <span className="ent-timeline-connector ent-rise" aria-hidden="true" style={{ animationDelay: "240ms" }} />
                 <p className="ent-usp ent-rise" style={{ animationDelay: "300ms" }}>Every heir&rsquo;s exact share &mdash; the Islamic way.</p>
                 <span className="ent-timeline-connector ent-rise" aria-hidden="true" style={{ animationDelay: "360ms" }} />

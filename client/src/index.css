@@ -1096,3 +1096,39 @@
 @media (prefers-reduced-motion: reduce) {
   .ent-shell::after, .ent-start, .ent-start svg, .ent-start::after, .ent-section { animation: none !important; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   WELCOME — clean structured version (2026-10-27, round 2)
+   No decorative designs: plain deep-blue field, all letters pure white,
+   even spacing, one running font animation on the title. Frontend only.
+   ═══════════════════════════════════════════════════════════════════ */
+.ent-shell { background: linear-gradient(180deg, #0b3f78 0%, #07294f 55%, #041a33 100%); }
+.ent-shell::before { background-image: none; }
+.ent-shell::after { display: none; }
+.ent-timeline-connector { display: none; }
+.ent-logo-row { margin-top: 0.5rem; }
+.ent-arabic-hero { color: #fff; margin-top: 1.5rem; }
+.ent-welcome-title { margin-top: 0.5rem; }
+.ent-usp { margin-top: 1rem; color: #fff; }
+.ent-hadith {
+  margin-top: 1.5rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  box-shadow: none;
+}
+.ent-hadith-quote { color: #fff; }
+.ent-hadith-source { color: #fff; }
+.ent-hadith-source a { color: #fff; }
+.ent-hadith-grade { color: #fff; }
+
+/* Running font animation: a wave runs across the title letters, looping. */
+.ent-wave-letter { display: inline-block; animation: ent-wave 2.4s ease-in-out infinite; }
+@keyframes ent-wave {
+  0%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-5px); }
+  60% { transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ent-wave-letter { animation: none !important; }
+}
