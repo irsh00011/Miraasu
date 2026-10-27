@@ -5,6 +5,7 @@
    Languages: Tamil / English / Arabic (RTL) / Urdu (RTL). Mobile-first.
    Colour budget per screen: navy-blue family + gold accent + neutral white.
    ═══════════════════════════════════════════════════════════════════ */
+@import url("https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -841,7 +842,7 @@
   [dir="rtl"] .ent-back { padding: 0 0.75rem 0 1rem; }
   .ent-back:active { scale: 0.96; }
   @media (hover: hover) { .ent-back:hover { background: rgba(255, 255, 255, 0.2); } }
-  .ent-top-logo { width: 2.5rem; height: 2.5rem; border-radius: 0.75rem; box-shadow: 0 0 0 1px rgba(232, 196, 119, 0.45); }
+  .ent-top-logo { width: 2.5rem; height: 2.5rem; border-radius: 0.75rem; box-shadow: 0 0 0 1px rgba(127, 179, 232, 0.45); }
   .ent-stage { display: flex; flex: 1; align-items: center; justify-content: center; padding: 1.5rem 0; }
 
   .ent-rise { opacity: 0; animation: ent-pop var(--dur-slow) var(--ease) both; }
@@ -849,18 +850,18 @@
 
   /* Welcome: logo · script · name · promise · one button. Everything else is a tap away. */
   .ent-welcome { display: flex; flex-direction: column; align-items: center; text-align: center; max-width: 30rem; }
-  .ent-logo { width: 4.5rem; height: 4.5rem; border-radius: 1.375rem; object-fit: cover; box-shadow: 0 0 0 1px rgba(232, 196, 119, 0.5), 0 12px 28px -12px rgba(4, 20, 40, 0.6); }
+  .ent-logo { width: 4.5rem; height: 4.5rem; border-radius: 1.375rem; object-fit: cover; box-shadow: 0 0 0 1px rgba(127, 179, 232, 0.5), 0 12px 28px -12px rgba(4, 20, 40, 0.6); }
   /* Welcome logo row: institution logos flank the book, all the same size. */
   .ent-logo-row { display: flex; align-items: center; justify-content: center; gap: 1rem; }
   .ent-side-logo { width: 4.5rem; height: 4.5rem; border-radius: 1.375rem; object-fit: contain; background: #fff; padding: 0.4rem; box-shadow: 0 12px 28px -12px rgba(4, 20, 40, 0.6); }
-  .ent-arabic-hero { margin-top: 1.25rem; color: var(--ms-gold-bright); font-family: "Noto Naskh Arabic", "Source Serif 4", serif; font-size: clamp(2.25rem, 9vw, 3rem); font-weight: 700; line-height: 1.4; }
+  .ent-arabic-hero { margin-top: 1.25rem; color: #9cc8f0; font-family: "Noto Naskh Arabic", "Source Serif 4", serif; font-size: clamp(2.25rem, 9vw, 3rem); font-weight: 700; line-height: 1.4; }
   .ent-welcome-title { margin-top: 0.125rem; color: #fff; font-family: var(--font-display); font-weight: 700; font-size: clamp(3rem, 13vw, 5rem); line-height: 1; letter-spacing: -0.03em; }
   .ent-usp { margin-top: 1rem; color: #fff; font-size: clamp(1.0625rem, 4.4vw, 1.25rem); font-weight: 600; line-height: 1.45; }
   .ent-expect { margin-top: 0.5rem; color: rgba(255, 255, 255, 0.78); font-size: 0.875rem; font-weight: 500; }
   .ent-start {
     display: inline-flex; align-items: center; justify-content: center; gap: 0.625rem; min-height: 3.5rem; margin-top: 2rem; padding: 0 2rem;
     border-radius: 999px; color: #0e4179; font-size: 1.0625rem; font-weight: 700;
-    background: linear-gradient(180deg, #ffffff, #e9f2fb); box-shadow: inset 0 1px 0 #fff, 0 0 0 1px rgba(232, 196, 119, 0.4);
+    background: linear-gradient(180deg, #ffffff, #e9f2fb); box-shadow: inset 0 1px 0 #fff, 0 0 0 1px rgba(127, 179, 232, 0.4);
     transition: scale var(--dur-fast) var(--ease), background var(--dur-fast) ease;
   }
   .ent-start svg { transition: translate var(--dur) var(--ease); }
@@ -885,10 +886,10 @@
   @media (prefers-reduced-motion: reduce) {
     .ent-hadith { animation: none; }
   }
-  .ent-hadith-source a { color: var(--ms-gold-bright); text-decoration: underline; text-underline-offset: 3px; }
-  .ent-hadith-grade { margin-top: 0.25rem; color: var(--ms-gold-bright); font-size: 0.8125rem; font-weight: 600; line-height: 1.45; }
+  .ent-hadith-source a { color: #7fb3e8; text-decoration: underline; text-underline-offset: 3px; }
+  .ent-hadith-grade { margin-top: 0.25rem; color: #7fb3e8; font-size: 0.8125rem; font-weight: 600; line-height: 1.45; }
 
-  .ent-rule { display: block; width: 3rem; height: 2px; margin: 1.25rem 0 1rem; background: linear-gradient(90deg, transparent, var(--ms-gold-bright), transparent); }
+  .ent-rule { display: block; width: 3rem; height: 2px; margin: 1.25rem 0 1rem; background: linear-gradient(90deg, transparent, #7fb3e8, transparent); }
   .ent-install { display: inline-flex; align-items: center; gap: 0.5rem; min-height: 2.75rem; margin-top: 1rem; padding: 0 1.25rem; border-radius: 999px; border: 1px solid rgba(255, 255, 255, 0.4); background: rgba(255, 255, 255, 0.1); color: #fff; font-size: 0.875rem; font-weight: 600; }
 
   .ent-section { width: 100%; max-width: 44rem; }
@@ -900,16 +901,16 @@
   /* Cards: white paper, one gold hairline, lift on hover-capable devices only. */
   .ent-card {
     position: relative; display: flex; width: 100%; color: var(--ms-navy); text-align: start; overflow: hidden;
-    border: 1px solid rgba(232, 196, 119, 0.55); border-radius: 1.5rem;
+    border: 1px solid rgba(127, 179, 232, 0.55); border-radius: 1.5rem;
     background: linear-gradient(180deg, #ffffff 0%, #f4f8fd 100%); box-shadow: inset 0 1px 0 #fff;
     transition: translate var(--dur) var(--ease), border-color var(--dur) ease, scale var(--dur-fast) var(--ease);
   }
-  @media (hover: hover) { .ent-card:hover { translate: 0 -3px; border-color: var(--ms-gold-bright); } }
+  @media (hover: hover) { .ent-card:hover { translate: 0 -3px; border-color: #7fb3e8; } }
   .ent-card:active { scale: 0.975; }
-  .ent-card:focus-visible { outline: 3px solid var(--ms-gold-bright); outline-offset: 3px; }
+  .ent-card:focus-visible { outline: 3px solid #7fb3e8; outline-offset: 3px; }
   .ent-lang-grid { display: grid; gap: 0.75rem; }
   .ent-lang-card { align-items: center; gap: 1rem; min-height: 5.5rem; padding: 1rem 1.125rem; }
-  .ent-mark { display: grid; flex: none; place-items: center; width: 3.25rem; height: 3.25rem; border-radius: 1rem; color: #fff; font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; background: linear-gradient(160deg, #1d5a91, #0e3a68); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 0 0 1px rgba(232, 196, 119, 0.5); }
+  .ent-mark { display: grid; flex: none; place-items: center; width: 3.25rem; height: 3.25rem; border-radius: 1rem; color: #fff; font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; background: linear-gradient(160deg, #1d5a91, #0e3a68); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 0 0 1px rgba(127, 179, 232, 0.5); }
   .ent-lang-text { display: flex; flex: 1; flex-direction: column; min-width: 0; }
   .ent-lang-native { font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; line-height: 1.3; color: var(--ms-navy); }
   .ent-lang-label { margin-top: 0.125rem; color: var(--ms-muted); font-size: 0.8125rem; font-weight: 600; letter-spacing: var(--track); text-transform: var(--caps); }
@@ -919,12 +920,12 @@
   .ent-gender-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.875rem; max-width: 30rem; margin: 0 auto; }
   .ent-gender-card { flex-direction: column; align-items: center; justify-content: center; gap: 1rem; min-height: 14rem; padding: 2rem 1rem 1.5rem; text-align: center; }
   /* Both options share one colour: the symbol, not a hue, tells them apart. */
-  .ent-symbol { display: grid; place-items: center; width: 5.5rem; height: 5.5rem; border-radius: 999px; color: #fff; background: linear-gradient(160deg, #1d5a91, #0e3a68); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 0 0 1px rgba(232, 196, 119, 0.5), 0 0 0 6px rgba(22, 79, 134, 0.07); }
+  .ent-symbol { display: grid; place-items: center; width: 5.5rem; height: 5.5rem; border-radius: 999px; color: #fff; background: linear-gradient(160deg, #1d5a91, #0e3a68); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 0 0 1px rgba(127, 179, 232, 0.5), 0 0 0 6px rgba(22, 79, 134, 0.07); }
   .ent-gender-label { font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; line-height: 1.3; color: var(--ms-navy); }
-  .ent-gender-card.is-picked { border-color: var(--ms-gold-bright); box-shadow: 0 0 0 3px rgba(232, 196, 119, 0.55); }
+  .ent-gender-card.is-picked { border-color: #7fb3e8; box-shadow: 0 0 0 3px rgba(127, 179, 232, 0.55); }
   .ent-dots { display: flex; justify-content: center; gap: 0.5rem; padding-top: 0.5rem; }
   .ent-dots span { width: 0.5rem; height: 0.5rem; border-radius: 999px; background: rgba(255, 255, 255, 0.35); transition: width var(--dur) var(--ease), background var(--dur) ease; }
-  .ent-dots span.is-on { width: 1.5rem; background: var(--ms-gold-bright); }
+  .ent-dots span.is-on { width: 1.5rem; background: #7fb3e8; }
   @media (min-width: 640px) {
     .ent-lang-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
     .ent-lang-card { flex-direction: column; justify-content: center; gap: 0.875rem; min-height: 11rem; padding: 1.5rem 1.125rem 1.25rem; text-align: center; }
@@ -973,4 +974,125 @@
   .ent-splash-pattern, .ent-splash-frame, .ent-splash-glow, .ent-splash-logo, .ent-splash-name, .ent-splash-sub, .ent-splash-loader { animation: none !important; opacity: 1 !important; transform: none !important; }
   .ent-splash-loader span { animation: none !important; opacity: 0; }
   .ent-rise { opacity: 1 !important; animation: none !important; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   ENTRANCE — welcome redesign (2026-10-27)
+   Deep blue field · Sora typography · timeline sequence · Start docked
+   at the bottom · blue clicked cards. Frontend only.
+   ═══════════════════════════════════════════════════════════════════ */
+.ent-shell {
+  font-family: "Sora", "Noto Sans Tamil", "Noto Naskh Arabic", "Source Sans 3", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Sora", "Noto Sans Tamil", "Noto Naskh Arabic", ui-sans-serif, sans-serif;
+  background:
+    radial-gradient(70rem 36rem at 50% -14%, rgba(64, 140, 220, 0.38) 0%, rgba(64, 140, 220, 0) 62%),
+    radial-gradient(40rem 24rem at 88% 108%, rgba(47, 134, 224, 0.22) 0%, rgba(47, 134, 224, 0) 60%),
+    linear-gradient(180deg, #0b3f78 0%, #07294f 55%, #041a33 100%);
+}
+.ent-shell::after {
+  position: absolute; inset: 0; z-index: -1; pointer-events: none; content: "";
+  background:
+    radial-gradient(16rem 16rem at 12% 22%, rgba(96, 165, 250, 0.20) 0%, rgba(96, 165, 250, 0) 70%),
+    radial-gradient(20rem 20rem at 88% 62%, rgba(56, 130, 246, 0.16) 0%, rgba(56, 130, 246, 0) 70%);
+  animation: ent-orb-drift 16s ease-in-out infinite alternate;
+}
+@keyframes ent-orb-drift {
+  from { transform: translateY(0) scale(1); opacity: 0.85; }
+  to { transform: translateY(-2.5rem) scale(1.06); opacity: 1; }
+}
+
+/* Welcome stretches full height so the Start dock can sit at the very bottom. */
+.ent-welcome { flex: 1; width: 100%; justify-content: flex-start; }
+.ent-timeline { display: flex; flex-direction: column; align-items: center; width: 100%; }
+.ent-timeline-connector {
+  position: relative; width: 2px; height: 1.1rem; margin: 0.35rem 0 0.15rem; flex: none;
+  background: linear-gradient(180deg, rgba(127, 179, 232, 0), #7fb3e8 30%, #7fb3e8 70%, rgba(127, 179, 232, 0));
+  border-radius: 2px;
+}
+.ent-timeline-connector::after {
+  content: ""; position: absolute; left: 50%; top: 50%; width: 7px; height: 7px;
+  transform: translate(-50%, -50%); border-radius: 50%;
+  background: #9cc8f0; box-shadow: 0 0 10px rgba(156, 200, 240, 0.9);
+}
+
+/* Start dock: pinned to the bottom of the welcome screen, above the safe area. */
+.ent-start-dock {
+  margin-top: auto; width: 100%; display: flex; justify-content: center;
+  padding: 1.5rem 0 max(0.5rem, env(safe-area-inset-bottom));
+  position: sticky; bottom: 0;
+  background: linear-gradient(180deg, rgba(4, 26, 51, 0), rgba(4, 26, 51, 0.92) 45%);
+}
+.ent-start {
+  position: relative; overflow: hidden; width: min(100%, 22rem);
+  color: #fff;
+  background: linear-gradient(160deg, #2f86e0 0%, #0d4f96 100%);
+  box-shadow: 0 14px 30px -10px rgba(13, 79, 150, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  animation: ent-start-pulse 3.2s ease-in-out infinite;
+}
+.ent-start::after {
+  content: ""; position: absolute; top: 0; bottom: 0; width: 40%;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+  transform: skewX(-20deg) translateX(-220%);
+  animation: ent-start-shine 2.8s ease-in-out infinite;
+}
+.ent-start svg { animation: ent-arrow-nudge 1.6s ease-in-out infinite; }
+@keyframes ent-start-pulse {
+  0%, 100% { box-shadow: 0 14px 30px -10px rgba(13, 79, 150, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 0 0 0 rgba(127, 179, 232, 0.45); }
+  50% { box-shadow: 0 14px 30px -10px rgba(13, 79, 150, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 0 0 10px rgba(127, 179, 232, 0); }
+}
+@keyframes ent-start-shine {
+  0%, 55% { transform: skewX(-20deg) translateX(-220%); }
+  100% { transform: skewX(-20deg) translateX(320%); }
+}
+@keyframes ent-arrow-nudge {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 4px 0; }
+}
+[dir="rtl"] .ent-start svg { animation-name: ent-arrow-nudge-rtl; }
+@keyframes ent-arrow-nudge-rtl {
+  0%, 100% { translate: 0 0; }
+  50% { translate: -4px 0; }
+}
+
+/* Cards turn blue the moment they are tapped — and stay blue while picked. */
+.ent-card:active {
+  background: linear-gradient(160deg, #2b7fd6 0%, #0d4f96 100%);
+  border-color: #9cc8f0; color: #fff;
+}
+.ent-card:active .ent-lang-native, .ent-card:active .ent-lang-label, .ent-card:active .ent-gender-label { color: #fff; }
+.ent-card.is-picked {
+  background: linear-gradient(160deg, #2b7fd6 0%, #0d4f96 100%);
+  border-color: #9cc8f0; color: #fff;
+  box-shadow: 0 0 0 3px rgba(127, 179, 232, 0.45), 0 14px 28px -14px rgba(4, 26, 51, 0.6);
+}
+.ent-card.is-picked .ent-lang-native, .ent-card.is-picked .ent-lang-label, .ent-card.is-picked .ent-gender-label { color: #fff; }
+.ent-card.is-picked .ent-go { background: rgba(255, 255, 255, 0.22); color: #fff; }
+.ent-gender-card.is-picked .ent-symbol {
+  background: linear-gradient(160deg, #5aa2e8, #1d6fc4);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 0 0 1px rgba(156, 200, 240, 0.6), 0 0 0 6px rgba(127, 179, 232, 0.18);
+}
+
+/* Step progress becomes a timeline: a line with glowing step dots. */
+.ent-dots { position: relative; }
+.ent-dots::before {
+  content: ""; position: absolute; top: 50%; left: 50%; width: 3.5rem; height: 2px;
+  transform: translate(-50%, -50%); background: rgba(255, 255, 255, 0.28); border-radius: 2px;
+}
+.ent-dots span { position: relative; z-index: 1; }
+.ent-dots span.is-on { background: #7fb3e8; box-shadow: 0 0 8px rgba(127, 179, 232, 0.8); }
+
+/* Each new step slides in like the next frame of a timeline. */
+.ent-section { animation: ent-section-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both; }
+@keyframes ent-section-in {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: none; }
+}
+[dir="rtl"] .ent-section { animation-name: ent-section-in-rtl; }
+@keyframes ent-section-in-rtl {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ent-shell::after, .ent-start, .ent-start svg, .ent-start::after, .ent-section { animation: none !important; }
 }

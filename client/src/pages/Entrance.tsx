@@ -74,6 +74,7 @@ export default function Entrance() {
   });
   const [lang, setLang] = useState<Lang>("en");
   const [picked, setPicked] = useState<Gender | null>(null);
+  const [pickedLang, setPickedLang] = useState<Lang | null>(null);
   const timer = useRef<number | undefined>(undefined);
 
   // Institution logos (user-supplied) load lazily as a separate chunk on the
@@ -102,7 +103,9 @@ export default function Entrance() {
   const chooseLanguage = (code: Lang) => {
     setLang(code);
     setPicked(null);
-    setStep("gender");
+    // Let the card flash blue first, then move on (mirrors the gender step).
+    setPickedLang(code);
+    timer.current = window.setTimeout(() => setStep("gender"), 220);
   };
 
   const chooseGender = (gender: Gender) => {
@@ -114,6 +117,7 @@ export default function Entrance() {
   const goBack = () => {
     window.clearTimeout(timer.current);
     setPicked(null);
+    setPickedLang(null);
     setStep(step === "gender" ? "language" : "welcome");
   };
 
@@ -136,26 +140,33 @@ export default function Entrance() {
         <div className="ent-stage">
           {step === "welcome" ? (
             <section key="welcome" className="ent-welcome">
-              <div className="ent-logo-row ent-rise" style={{ animationDelay: "0ms" }}>
-                <img src={collabLogos?.bukhari ?? "/bukhari-logo.svg"} alt="Bukhari Aalim Arabic College" className="ent-side-logo" />
-                <img src="/book-cover-icon-192.png" alt="" className="ent-logo" />
-                <img src={collabLogos?.crescent ?? "/crescent-logo.svg"} alt="B.S. Abdur Rahman Crescent Institute of Science and Technology" className="ent-side-logo" />
+              <div className="ent-timeline">
+                <div className="ent-logo-row ent-rise" style={{ animationDelay: "0ms" }}>
+                  <img src={collabLogos?.bukhari ?? "/bukhari-logo.svg"} alt="Bukhari Aalim Arabic College" className="ent-side-logo" />
+                  <img src="/book-cover-icon-192.png" alt="" className="ent-logo" />
+                  <img src={collabLogos?.crescent ?? "/crescent-logo.svg"} alt="B.S. Abdur Rahman Crescent Institute of Science and Technology" className="ent-side-logo" />
+                </div>
+                <span className="ent-timeline-connector ent-rise" aria-hidden="true" style={{ animationDelay: "60ms" }} />
+                <p className="ent-arabic-hero ent-rise" lang="ar" style={{ animationDelay: "120ms" }} aria-label="Mirath">مِيرَاث</p>
+                <h1 className="ent-welcome-title ent-rise" style={{ animationDelay: "180ms" }}>Miraasu</h1>
+                <span className="ent-timeline-connector ent-rise" aria-hidden="true" style={{ animationDelay: "240ms" }} />
+                <p className="ent-usp ent-rise" style={{ animationDelay: "300ms" }}>Every heir&rsquo;s exact share &mdash; the Islamic way.</p>
+                <span className="ent-timeline-connector ent-rise" aria-hidden="true" style={{ animationDelay: "360ms" }} />
+                <article className="ent-hadith ent-rise" lang="en" style={{ animationDelay: "420ms" }}>
+                  <blockquote className="ent-hadith-quote">&ldquo;Learn the Fara&rsquo;id and teach it, for it is half of knowledge.&rdquo;</blockquote>
+                  <p className="ent-hadith-source">Sunan Ibn Majah 2719</p>
+                </article>
+                {installEvent ? (
+                  <button type="button" onClick={installApp} className="ent-install ent-rise" style={{ animationDelay: "460ms" }}>
+                    <Download size={15} /> Install app
+                  </button>
+                ) : null}
               </div>
-              <p className="ent-arabic-hero ent-rise" lang="ar" style={{ animationDelay: "70ms" }} aria-label="Mirath">مِيرَاث</p>
-              <h1 className="ent-welcome-title ent-rise" style={{ animationDelay: "130ms" }}>Miraasu</h1>
-              <p className="ent-usp ent-rise" style={{ animationDelay: "190ms" }}>Every heir&rsquo;s exact share &mdash; the Islamic way.</p>
-              <button type="button" onClick={() => setStep("language")} className="ent-start ent-rise" style={{ animationDelay: "250ms" }}>
-                Start <ArrowRight size={18} />
-              </button>
-              <article className="ent-hadith ent-rise" lang="en" style={{ animationDelay: "350ms" }}>
-                <blockquote className="ent-hadith-quote">&ldquo;Learn the Fara&rsquo;id and teach it, for it is half of knowledge.&rdquo;</blockquote>
-                <p className="ent-hadith-source">Sunan Ibn Majah 2719</p>
-              </article>
-              {installEvent ? (
-                <button type="button" onClick={installApp} className="ent-install ent-rise" style={{ animationDelay: "360ms" }}>
-                  <Download size={15} /> Install app
+              <div className="ent-start-dock ent-rise" style={{ animationDelay: "520ms" }}>
+                <button type="button" onClick={() => setStep("language")} className="ent-start">
+                  Start <ArrowRight size={18} />
                 </button>
-              ) : null}
+              </div>
             </section>
           ) : null}
 
@@ -171,7 +182,8 @@ export default function Entrance() {
                     type="button"
                     lang={item.code}
                     onClick={() => chooseLanguage(item.code)}
-                    className="ent-card ent-lang-card ent-rise"
+                    aria-pressed={pickedLang === item.code}
+                    className={`ent-card ent-lang-card ent-rise ${pickedLang === item.code ? "is-picked" : ""}`}
                     style={{ animationDelay: `${80 + index * 70}ms` }}
                   >
                     <span className="ent-mark" aria-hidden="true">{item.mark}</span>
@@ -217,8 +229,8 @@ export default function Entrance() {
 
         {step !== "welcome" ? (
           <div className="ent-dots" aria-hidden="true">
-            <span className={step === "collaboration" ? "is-on" : ""} />
-            <span className={step === "language" ? "is-on" : ""} />
+            <span className="is-on" />
+            <span className={step === "language" || step === "gender" ? "is-on" : ""} />
             <span className={step === "gender" ? "is-on" : ""} />
           </div>
         ) : null}
