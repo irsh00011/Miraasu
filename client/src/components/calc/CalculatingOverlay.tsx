@@ -1,5 +1,8 @@
-/** Calculation overlay: 2-second "computing shares" animation before the result appears. */
-import { Calculator } from "lucide-react";
+/** Calculation overlay: 2-second "computing shares" animation before the result appears.
+ *  The six Qur'anic fractions swirl together with the small words of the
+ *  selected family members' names — each on its own orbit radius, speed
+ *  and direction, staying upright while it travels. */
+import type { CSSProperties } from "react";
 
 const copy: Record<string, string> = {
   ta: "பங்குகளை கணக்கிடுகிறது…",
@@ -8,11 +11,41 @@ const copy: Record<string, string> = {
   ur: "حصے شمار کیے جا رہے ہیں…",
 };
 
-export function CalculatingOverlay({ language = "ta" }: { language?: string }) {
+const FRACTIONS = ["1/2", "1/4", "1/8", "1/3", "2/3", "1/6"];
+const FRAC_RADII = ["3.2rem", "2.2rem", "3.2rem", "2.2rem", "3.2rem", "2.2rem"];
+const NAME_RADII = ["2.8rem", "1.6rem", "3.4rem", "2.8rem", "1.6rem", "3.4rem", "2.8rem", "1.6rem", "3.4rem", "2.8rem"];
+
+const swirlStyle = (index: number, radius: string, angle: number): CSSProperties => ({
+  "--r": radius,
+  "--a": `${angle}deg`,
+  animationDuration: `${2.8 + (index % 4) * 0.35}s`,
+  animationDelay: `${-index * 0.45}s`,
+} as CSSProperties);
+
+export function CalculatingOverlay({ language = "ta", names = [] }: { language?: string; names?: string[] }) {
   return (
     <div className="ms-calc-overlay" role="status" aria-live="polite">
       <div className="ms-calc-box">
-        <span className="ms-calc-icon"><Calculator size={32} /></span>
+        <div className="ms-calc-mix" aria-hidden="true">
+          {FRACTIONS.map((fraction, index) => (
+            <span
+              key={fraction}
+              className={`ms-calc-frac ${index % 2 === 0 ? "is-cw" : "is-ccw"}`}
+              style={swirlStyle(index, FRAC_RADII[index], index * 60)}
+            >
+              {fraction}
+            </span>
+          ))}
+          {names.map((name, index) => (
+            <span
+              key={`${name}-${index}`}
+              className={`ms-calc-word ${index % 2 === 0 ? "is-ccw" : "is-cw"}`}
+              style={swirlStyle(index, NAME_RADII[index % NAME_RADII.length], 30 + index * 36)}
+            >
+              {name}
+            </span>
+          ))}
+        </div>
         <div className="ms-calc-bar"><span className="ms-calc-fill" /></div>
         <p className="ms-calc-text">{copy[language] ?? copy.ta}</p>
       </div>

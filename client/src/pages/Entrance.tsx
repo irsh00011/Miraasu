@@ -6,7 +6,8 @@
  * Frontend only: no calculation or routing logic is changed. Language cards still open /ta, /en, /ar, /ur.
  */
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, ChevronRight, Download } from "lucide-react";
+import { ArrowLeft, ArrowRight, ChevronRight, Feather, Globe, Landmark, MoonStar } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { useLocation } from "wouter";
 import Splash from "../components/Splash";
 
@@ -14,11 +15,11 @@ type Lang = "ta" | "en" | "ar" | "ur";
 type Step = "splash" | "welcome" | "language" | "gender";
 type Gender = "male" | "female";
 
-const LANGUAGES: { code: Lang; href: string; native: string; label: string; mark: string }[] = [
-  { code: "ta", href: "/ta", native: "தமிழ்", label: "Tamil", mark: "த" },
-  { code: "en", href: "/en", native: "English", label: "English", mark: "En" },
-  { code: "ar", href: "/ar", native: "العربية", label: "Arabic", mark: "ع" },
-  { code: "ur", href: "/ur", native: "اردو", label: "Urdu", mark: "ا" },
+const LANGUAGES: { code: Lang; href: string; native: string; label: string; icon: LucideIcon }[] = [
+  { code: "ta", href: "/ta", native: "தமிழ்", label: "Tamil", icon: Landmark },
+  { code: "en", href: "/en", native: "English", label: "English", icon: Globe },
+  { code: "ar", href: "/ar", native: "العربية", label: "Arabic", icon: MoonStar },
+  { code: "ur", href: "/ur", native: "اردو", label: "Urdu", icon: Feather },
 ];
 
 const COPY: Record<Lang, { back: string; title: string; hint: string; male: string; female: string }> = {
@@ -49,25 +50,6 @@ function GenderSymbol({ kind }: { kind: Gender }) {
 
 export default function Entrance() {
   const [, navigate] = useLocation();
-  const [installEvent, setInstallEvent] = useState<Event | null>(null);
-
-  // PWA: capture the install prompt so we can offer an in-app Install button.
-  useEffect(() => {
-    const handler = (event: Event) => {
-      event.preventDefault();
-      setInstallEvent(event);
-    };
-    window.addEventListener("beforeinstallprompt", handler);
-    return () => window.removeEventListener("beforeinstallprompt", handler);
-  }, []);
-
-  const installApp = async () => {
-    const promptEvent = installEvent as (Event & { prompt: () => Promise<void>; userChoice: Promise<{ outcome: string }> }) | null;
-    if (!promptEvent) return;
-    await promptEvent.prompt();
-    await promptEvent.userChoice;
-    setInstallEvent(null);
-  };
   // The splash is a brand moment, not a toll booth: once per browser session.
   const [step, setStep] = useState<Step>(() => {
     try { return window.sessionStorage.getItem("miraasu:splash") ? "welcome" : "splash"; } catch { return "splash"; }
@@ -146,25 +128,16 @@ export default function Entrance() {
                   <img src="/book-cover-icon-192.png" alt="" className="ent-logo" />
                   <img src={collabLogos?.crescent ?? "/crescent-logo.svg"} alt="B.S. Abdur Rahman Crescent Institute of Science and Technology" className="ent-side-logo" />
                 </div>
-                <span className="ent-timeline-connector ent-rise" aria-hidden="true" style={{ animationDelay: "60ms" }} />
-                <p className="ent-arabic-hero ent-rise" lang="ar" style={{ animationDelay: "120ms" }} aria-label="Mirath">مِيرَاث</p>
-                <h1 className="ent-welcome-title ent-rise" style={{ animationDelay: "180ms" }} aria-label="Miraasu">
-                  {"Miraasu".split("").map((ch, i) => (
-                    <span key={i} className="ent-wave-letter" style={{ animationDelay: `${i * 0.14}s` }} aria-hidden="true">{ch}</span>
+                <h1 className="ent-welcome-title ent-arabic-title ent-rise" lang="ar" style={{ animationDelay: "120ms" }} aria-label="Mirath">مِيرَاث</h1>
+                <p className="ent-usp ent-rise" style={{ animationDelay: "300ms" }}>
+                  {["Every", "heir\u2019s", "exact", "share", "\u2014", "the", "Islamic", "way."].map((word, i) => (
+                    <span key={i} className="ent-word" style={{ animationDelay: `${0.35 + i * 0.09}s` }}>{word}{" "}</span>
                   ))}
-                </h1>
-                <span className="ent-timeline-connector ent-rise" aria-hidden="true" style={{ animationDelay: "240ms" }} />
-                <p className="ent-usp ent-rise" style={{ animationDelay: "300ms" }}>Every heir&rsquo;s exact share &mdash; the Islamic way.</p>
-                <span className="ent-timeline-connector ent-rise" aria-hidden="true" style={{ animationDelay: "360ms" }} />
+                </p>
                 <article className="ent-hadith ent-rise" lang="en" style={{ animationDelay: "420ms" }}>
                   <blockquote className="ent-hadith-quote">&ldquo;Learn the Fara&rsquo;id and teach it, for it is half of knowledge.&rdquo;</blockquote>
                   <p className="ent-hadith-source">Sunan Ibn Majah 2719</p>
                 </article>
-                {installEvent ? (
-                  <button type="button" onClick={installApp} className="ent-install ent-rise" style={{ animationDelay: "460ms" }}>
-                    <Download size={15} /> Install app
-                  </button>
-                ) : null}
               </div>
               <div className="ent-start-dock ent-rise" style={{ animationDelay: "520ms" }}>
                 <button type="button" onClick={() => setStep("language")} className="ent-start">
@@ -190,7 +163,7 @@ export default function Entrance() {
                     className={`ent-card ent-lang-card ent-rise ${pickedLang === item.code ? "is-picked" : ""}`}
                     style={{ animationDelay: `${80 + index * 70}ms` }}
                   >
-                    <span className="ent-mark" aria-hidden="true">{item.mark}</span>
+                    <span className="ent-mark" aria-hidden="true"><item.icon size={26} strokeWidth={1.9} /></span>
                     <span className="ent-lang-text">
                       <span className="ent-lang-native">{item.native}</span>
                       <span className="ent-lang-label">{item.label}</span>

@@ -4,7 +4,7 @@
  */
 import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, Calculator, Download, Printer, UsersRound } from "lucide-react";
-import { FamilyList } from "@/components/FamilyList";
+import { FamilyList, selectedHeirLabels } from "@/components/FamilyList";
 import { CalculatingOverlay } from "@/components/calc/CalculatingOverlay";
 import { BookSourceCard } from "@/components/BookSourceCard";
 import { aggregateAllocationsForDisplay, asabahPartsFor, calculateInheritance, fractionToNumber, fractionToText, EXTENDED_HEIR_SECTIONS, type EstateInput, type HeirInput } from "@/lib/inheritance";
@@ -120,7 +120,7 @@ export default function EnglishHome() {
 
   return (
     <>
-    {calculating ? <CalculatingOverlay language="en" /> : null}
+    {calculating ? <CalculatingOverlay language="en" names={selectedHeirLabels(heirs, "en")} /> : null}
     <div className="ms-page ms-watermark">
       <AppHeader
         title="Islamic Inheritance Calculator"

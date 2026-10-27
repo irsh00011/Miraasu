@@ -4,7 +4,7 @@
  */
 import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, Calculator, Download, Printer, UsersRound } from "lucide-react";
-import { FamilyList } from "@/components/FamilyList";
+import { FamilyList, selectedHeirLabels } from "@/components/FamilyList";
 import { CalculatingOverlay } from "@/components/calc/CalculatingOverlay";
 import { BookSourceCard } from "@/components/BookSourceCard";
 import {
@@ -228,7 +228,7 @@ export default function Home() {
 
   return (
     <>
-    {calculating ? <CalculatingOverlay language="ta" /> : null}
+    {calculating ? <CalculatingOverlay language="ta" names={selectedHeirLabels(heirs, "ta")} /> : null}
     <div className="ms-page ms-watermark">
       <AppHeader
         title="Islamic Inheritance Calculator"

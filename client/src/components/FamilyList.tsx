@@ -53,6 +53,38 @@ const URDU_EXTENDED_LABELS: Record<ExtendedHeirKey, string> = {
   mothersSiblingsDescendants: "ان کی اولاد",
 };
 
+/** Labels of the family members actually selected, in the app's display order
+ *  (spouse, close family, extended) — used by the calculation loading screen
+ *  so the selected names can stir together with the fractions. Capped at 10
+ *  so the loading box never turns into mush. */
+export function selectedHeirLabels(heirs: HeirInput, language: AppLanguage | "ur" = "ta"): string[] {
+  const names: string[] = [];
+  const spouse =
+    language === "en" ? { husband: "Husband", wives: "Wives" }
+    : language === "ar" ? { husband: "الزوج", wives: "الزوجات" }
+    : language === "ur" ? { husband: "شوہر", wives: "بیویاں" }
+    : { husband: "கணவன்", wives: "மனைவிகள்" };
+  if ((heirs.husband ?? 0) > 0) names.push(spouse.husband);
+  if ((heirs.wives ?? 0) > 0) names.push(spouse.wives);
+  for (const item of PRIMARY) {
+    if ((heirs[item.key] ?? 0) > 0) {
+      names.push(language === "en" ? item.en : language === "ar" ? item.ar : language === "ur" ? item.ur : item.ta);
+    }
+  }
+  for (const item of EXTENDED_HEIR_SECTIONS.flatMap((section) => section.items)) {
+    const key = item.key as keyof HeirInput;
+    if ((heirs[key] ?? 0) > 0) {
+      names.push(
+        language === "en" ? item.labelEn
+        : language === "ar" ? ARABIC_EXTENDED_COPY[item.key].label
+        : language === "ur" ? URDU_EXTENDED_LABELS[item.key]
+        : (TA_LABEL_OVERRIDES[item.key] ?? item.label),
+      );
+    }
+  }
+  return names.slice(0, 10);
+}
+
 type FamilyListProps = {
   heirs: HeirInput;
   onChange: (key: keyof HeirInput, value: number) => void;
@@ -103,7 +135,7 @@ export function FamilyList({ heirs, onChange, onResetAll, query, onQueryChange, 
   };
 
   return (
-    <div className="space-y-4" dir={language === "ar" || language === "ur" ? "rtl" : "ltr"}>
+    <div className="ms-family-list space-y-4" dir={language === "ar" || language === "ur" ? "rtl" : "ltr"}>
       <div className="flex flex-col gap-2 sm:flex-row">
         <label className="ms-search block flex-1">
           <span className="sr-only">{copy.search}</span>

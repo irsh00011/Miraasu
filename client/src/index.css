@@ -1132,3 +1132,152 @@
 @media (prefers-reduced-motion: reduce) {
   .ent-wave-letter { animation: none !important; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   WELCOME — Arabic title (2026-10-27, round 3)
+   The big title is now the joined Arabic word مِيرَاث at the same size
+   the English title had. A soft white light runs across it (letters stay
+   white; splitting Arabic letters would break their joining, so the shine
+   moves across the whole word instead). Frontend only.
+   ═══════════════════════════════════════════════════════════════════ */
+.ent-arabic-title {
+  font-family: "Noto Naskh Arabic", "Source Serif 4", serif;
+  line-height: 1.5;
+  color: #fff;
+  /* NOTE: ent-pop must stay listed first — a second `animation` rule would
+     replace the entrance animation and leave .ent-rise stuck at opacity 0. */
+  animation: ent-pop var(--dur-slow) var(--ease) both, ent-arabic-glow 3.2s ease-in-out infinite;
+}
+@keyframes ent-arabic-glow {
+  0%, 100% { text-shadow: 0 0 0 rgba(255, 255, 255, 0); }
+  50% { text-shadow: 0 0 22px rgba(255, 255, 255, 0.5); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ent-arabic-title { animation: none !important; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   WELCOME — hadith box (2026-10-27, round 4)
+   Blue card with a white border. Frontend only.
+   ═══════════════════════════════════════════════════════════════════ */
+.ent-hadith {
+  background: linear-gradient(160deg, #2563a8 0%, #123a66 100%);
+  border: 1.5px solid #ffffff;
+  box-shadow: 0 16px 32px -16px rgba(11, 42, 79, 0.55);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   WELCOME — text animation (2026-10-27, round 5)
+   Tagline words rise in one by one; the hadith quote breathes with a
+   soft glow. Each animated element owns only its own animation, so the
+   entrance animations are never replaced. Frontend only.
+   ═══════════════════════════════════════════════════════════════════ */
+.ent-word { display: inline-block; opacity: 0; margin-inline-end: 0.28em; animation: ent-word-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+@keyframes ent-word-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+.ent-hadith-quote { animation: ent-quote-glow 4s ease-in-out infinite; }
+@keyframes ent-quote-glow {
+  0%, 100% { text-shadow: 0 0 0 rgba(255, 255, 255, 0); }
+  50% { text-shadow: 0 0 14px rgba(255, 255, 255, 0.35); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ent-word { animation: none !important; opacity: 1 !important; }
+  .ent-hadith-quote { animation: none !important; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   FAMILY LIST — blue borders (2026-10-27, round 6)
+   A blue border around the whole family list, and a blue border on
+   every box inside it: each member chip, the search box, the spouse
+   row, and the "more relatives" toggle. Frontend only.
+   ═══════════════════════════════════════════════════════════════════ */
+.ms-family-list {
+  border: 2px solid #2563a8;
+  border-radius: 1.25rem;
+  padding: 1rem;
+  background: rgba(239, 246, 253, 0.6);
+}
+@media (max-width: 479px) {
+  .ms-family-list { padding: 0.75rem; }
+}
+.ms-family-list .ms-chip { border: 1.5px solid #7fb3e8; }
+.ms-family-list .ms-chip.is-on {
+  border-color: #2563a8;
+  box-shadow: 0 0 0 2px rgba(37, 99, 168, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.16);
+}
+.ms-family-list .ms-search input { border: 1.5px solid #7fb3e8; }
+.ms-family-list .ms-spouse-row { border: 1.5px solid #7fb3e8; }
+.ms-family-list .ms-more { border: 1.5px solid #7fb3e8; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   STEP TIMELINE 1-2-3 — animation (2026-10-27, round 7)
+   The current step breathes with a pulsing ring, and a light sweep runs
+   along each filled line. Done steps keep their pop. Frontend only.
+   ═══════════════════════════════════════════════════════════════════ */
+.ms-step.is-current .ms-step-dot {
+  animation: ms-step-pulse 2.2s ease-in-out infinite;
+}
+@keyframes ms-step-pulse {
+  0%, 100% { box-shadow: 0 0 0 4px rgba(22, 79, 134, 0.18); }
+  50% { box-shadow: 0 0 0 10px rgba(22, 79, 134, 0); }
+}
+.ms-step-link.is-fill::before {
+  content: ""; position: absolute; top: 0; bottom: 0; width: 40%; z-index: 1;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.75), transparent);
+  animation: ms-link-shine 2s linear infinite;
+}
+@keyframes ms-link-shine {
+  from { transform: translateX(-150%); }
+  to { transform: translateX(350%); }
+}
+[dir="rtl"] .ms-step-link.is-fill::before { animation-name: ms-link-shine-rtl; }
+@keyframes ms-link-shine-rtl {
+  from { transform: translateX(350%); }
+  to { transform: translateX(-150%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ms-step.is-current .ms-step-dot, .ms-step-link.is-fill::before { animation: none !important; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   CALCULATION LOADING — swirling words (2026-10-27, round 11)
+   No calculator, no ring: only the six Qur'anic fractions and the small
+   words of the selected family names, all swirling around the centre of
+   the box like a vortex — each on its own orbit radius, speed and
+   direction (some clockwise, some counter), with a slight spiral pulse,
+   while every word stays upright and readable. Frontend only.
+   ═══════════════════════════════════════════════════════════════════ */
+.ms-calc-mix { position: relative; width: 12rem; height: 8rem; }
+.ms-calc-frac, .ms-calc-word { position: absolute; left: 50%; top: 50%; }
+.ms-calc-frac {
+  color: #fff; font-size: 0.95rem; font-weight: 800; font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.35);
+  animation: ms-swirl-cw 3s linear infinite;
+}
+.ms-calc-word {
+  color: rgba(255, 255, 255, 0.92); font-size: 0.8rem; font-weight: 600; white-space: nowrap;
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+  animation: ms-swirl-cw 3s linear infinite;
+}
+.ms-calc-frac.is-ccw, .ms-calc-word.is-ccw { animation-name: ms-swirl-ccw; }
+@keyframes ms-swirl-cw {
+  from { transform: translate(-50%, -50%) rotate(0deg) translateX(var(--r, 3rem)) rotate(0deg); }
+  50% { transform: translate(-50%, -50%) rotate(180deg) translateX(calc(var(--r, 3rem) * 1.15)) rotate(-180deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg) translateX(var(--r, 3rem)) rotate(-360deg); }
+}
+@keyframes ms-swirl-ccw {
+  from { transform: translate(-50%, -50%) rotate(0deg) translateX(var(--r, 3rem)) rotate(0deg); }
+  50% { transform: translate(-50%, -50%) rotate(-180deg) translateX(calc(var(--r, 3rem) * 1.15)) rotate(180deg); }
+  to { transform: translate(-50%, -50%) rotate(-360deg) translateX(var(--r, 3rem)) rotate(360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ms-calc-frac, .ms-calc-word {
+    animation: none;
+    transform: translate(-50%, -50%) rotate(var(--a, 0deg)) translateX(var(--r, 3rem)) rotate(calc(var(--a, 0deg) * -1));
+  }
+}
