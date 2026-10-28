@@ -26,8 +26,10 @@ export function HeirRow({ icon: Icon, label, value, onChange, max = 20, language
 
   return (
     <div className={`ms-chip ${selected ? "is-on" : ""}`} style={{ "--i": index } as React.CSSProperties}>
-      {Icon ? <span aria-hidden="true" className="ms-chip-icon"><Icon size={17} strokeWidth={2.1} /></span> : null}
-      <span className="ms-chip-name">{label}</span>
+      <div className="ms-chip-top">
+        {Icon ? <span aria-hidden="true" className="ms-chip-icon"><Icon size={17} strokeWidth={2.1} /></span> : null}
+        <span className="ms-chip-name">{label}</span>
+      </div>
 
       {isToggle ? (
         <button

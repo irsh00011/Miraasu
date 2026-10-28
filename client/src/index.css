@@ -1318,3 +1318,51 @@
 @media (max-width: 479px) {
   .ms-spouse-row { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1fr); }
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   FAMILY CHIPS — straight single-line names (2026-10-28)
+   Why the words still weren't straight: in a side-by-side chip the name
+   shared its row with the toggle/stepper, so long names wrapped and the
+   lines sat at different heights. Now the chip is stacked: icon + name
+   take the full row on top, controls sit underneath, so every name gets
+   the whole box width and sits on one straight line. Boxes are smaller
+   again (4.75rem instead of 5.5rem). Only the 1–2 longest extended names
+   can still wrap — whole words only, never cut. Frontend only.
+   ═══════════════════════════════════════════════════════════════════ */
+.ms-chip { flex-direction: column; align-items: stretch; height: auto; min-height: 4.75rem; padding: 0.75rem; gap: 0.5rem; }
+.ms-chip-top { display: flex; align-items: center; gap: 0.5rem; min-width: 0; }
+.ms-chip-name { font-size: 0.875rem; }
+.ms-chip-icon { width: 1.75rem; height: 1.75rem; }
+.ms-chip-toggle, .ms-stepper { align-self: flex-start; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   SPLASH — full blue, Arabic pops up slowly (2026-10-28)
+   Full blue background, the medium-big Arabic word مِيرَاث slowly pops
+   up in the centre, and a very small English about-line fades in under
+   it — all inside the existing 2.3s splash window. Frontend only.
+   ═══════════════════════════════════════════════════════════════════ */
+.ent-splash { background: linear-gradient(180deg, #1c5a91 0%, #0f3a66 100%); }
+.ent-splash-arabic {
+  font-family: "Noto Naskh Arabic", "Source Serif 4", serif;
+  font-size: clamp(2.5rem, 11vw, 3.75rem);
+  line-height: 1.5; color: #fff; font-weight: 700; text-align: center;
+  opacity: 0; animation: ms-splash-pop 1.4s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
+}
+@keyframes ms-splash-pop {
+  from { opacity: 0; transform: scale(0.82) translateY(10px); }
+  60% { opacity: 1; transform: scale(1.04) translateY(0); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+.ent-splash-about {
+  margin-top: 0.5rem; color: rgba(255, 255, 255, 0.78);
+  font-size: 0.7rem; font-weight: 500; letter-spacing: 0.04em; text-align: center;
+  opacity: 0; animation: ms-splash-fade 0.7s ease 1.05s both;
+}
+@keyframes ms-splash-fade { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .ent-splash-arabic, .ent-splash-about { animation: none; opacity: 1; }
+}
+
+/* Extended relatives go full-width on PC, so even the longest extended
+   names sit on one straight line instead of wrapping. */
+#ms-more-relatives { grid-template-columns: 1fr; }

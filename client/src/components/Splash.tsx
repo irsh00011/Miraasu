@@ -1,10 +1,10 @@
 /**
- * Splash — premium entry screen for Miraasu.
+ * Splash — Miraasu entry screen.
  *
- * Shows once when the app first loads: the logo fades and scales in, the app
- * name rises, a subtle Islamic geometric pattern and a fine frame appear, then
- * it hands off to the welcome screen. Frontend only — no routing, app state,
- * or calculation logic is touched here.
+ * Full blue background, the medium-big Arabic word مِيرَاث slowly popping
+ * up in the centre, and a very small English about-line underneath. Then
+ * it hands off to the welcome screen. Frontend only — no routing, app
+ * state, or calculation logic is touched here.
  */
 import { useEffect, useRef, useState } from "react";
 
@@ -40,22 +40,9 @@ export default function Splash({ onComplete }: SplashProps) {
       className={`ent-splash${leaving ? " is-leaving" : ""}`}
       aria-label="Miraasu — Islamic Inheritance Calculator"
     >
-      <div className="ent-splash-pattern" aria-hidden="true" />
-      <div className="ent-splash-frame" aria-hidden="true" />
       <div className="ent-splash-inner">
-        <span className="ent-splash-glow" aria-hidden="true" />
-        <img
-          src="/book-cover-icon-192.png"
-          alt=""
-          width={192}
-          height={192}
-          className="ent-splash-logo"
-        />
-        <h1 className="ent-splash-name">Miraasu</h1>
-        <p className="ent-splash-sub">Islamic Inheritance Calculator</p>
-        <div className="ent-splash-loader" aria-hidden="true">
-          <span />
-        </div>
+        <h1 className="ent-splash-arabic" lang="ar">مِيرَاث</h1>
+        <p className="ent-splash-about">Islamic inheritance shares, the Qur&apos;anic way.</p>
       </div>
     </section>
   );
