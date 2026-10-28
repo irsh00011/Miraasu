@@ -233,7 +233,7 @@ export default function UrduHome() {
             ) : null}
 
             {step === 3 ? (
-              <div className="space-y-4">
+              <div className="ms-result-page space-y-4">
 
                 {result.notices.length > 0 ? <div className="space-y-2">{result.notices.map((notice) => <p key={notice} className="ms-notice">{noticeInUrdu(notice)}</p>)}</div> : null}
                 {result.requiresScholarReview ? <p className="ms-notice font-extrabold!">مستند عالم سے تصدیق ضروری ہے — یہ نتیجہ حتمی نہیں۔</p> : null}

@@ -158,7 +158,7 @@ export default function ArabicHome() {
             ) : null}
 
             {step === 3 ? (
-              <div className="space-y-4">
+              <div className="ms-result-page space-y-4">
                 {result.notices.map((notice) => <div key={notice} className="ms-notice">{noticeArabic(notice)}</div>)}
                 {result.requiresScholarReview ? <p className="ms-notice font-extrabold!">يلزم تأكيد من مختص — هذه النتيجة غير نهائية.</p> : null}
 

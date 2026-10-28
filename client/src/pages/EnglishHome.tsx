@@ -192,7 +192,7 @@ export default function EnglishHome() {
             ) : null}
 
             {step === 3 ? (
-              <div className="space-y-4">
+              <div className="ms-result-page space-y-4">
 
                 {result.notices.length > 0 ? <div className="space-y-2">{result.notices.map((notice) => <p key={notice} className="ms-notice">{noticeInEnglish(notice)}</p>)}</div> : null}
                 {result.requiresScholarReview ? <p className="ms-notice font-extrabold!">Scholar review required — this result is not final.</p> : null}

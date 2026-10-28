@@ -309,7 +309,7 @@ export default function Home() {
             ) : null}
 
             {step === 3 ? (
-              <div className="space-y-4">
+              <div className="ms-result-page space-y-4">
                 <ShareTable
                   language="ta"
                   rows={tableRows}
