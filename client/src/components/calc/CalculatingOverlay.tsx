@@ -12,13 +12,13 @@ const copy: Record<string, string> = {
 };
 
 const FRACTIONS = ["1/2", "1/4", "1/8", "1/3", "2/3", "1/6"];
-const FRAC_RADII = ["3.2rem", "2.2rem", "3.2rem", "2.2rem", "3.2rem", "2.2rem"];
-const NAME_RADII = ["2.8rem", "1.6rem", "3.4rem", "2.8rem", "1.6rem", "3.4rem", "2.8rem", "1.6rem", "3.4rem", "2.8rem"];
+const FRAC_RADII = ["2.2rem", "1.5rem", "2.2rem", "1.5rem", "2.2rem", "1.5rem"];
+const NAME_RADII = ["1.9rem", "1.1rem", "2.4rem", "1.9rem", "1.1rem", "2.4rem", "1.9rem", "1.1rem", "2.4rem", "1.9rem"];
 
 const swirlStyle = (index: number, radius: string, angle: number): CSSProperties => ({
   "--r": radius,
   "--a": `${angle}deg`,
-  animationDuration: `${2.8 + (index % 4) * 0.35}s`,
+  animationDuration: `${3.4 + (index % 4) * 0.4}s`,
   animationDelay: `${-index * 0.45}s`,
 } as CSSProperties);
 

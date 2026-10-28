@@ -1245,14 +1245,15 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════
-   CALCULATION LOADING — swirling words (2026-10-27, round 11)
+   CALCULATION LOADING — swirling words (2026-10-27, round 12)
    No calculator, no ring: only the six Qur'anic fractions and the small
-   words of the selected family names, all swirling around the centre of
-   the box like a vortex — each on its own orbit radius, speed and
-   direction (some clockwise, some counter), with a slight spiral pulse,
-   while every word stays upright and readable. Frontend only.
+   words of the selected family names, swirling in a small, slow vortex
+   that collapses inward — each word travels around the centre on its
+   own tight orbit (some clockwise, some counter), spirals in close to
+   the centre, then opens out again, staying upright and readable.
+   Frontend only.
    ═══════════════════════════════════════════════════════════════════ */
-.ms-calc-mix { position: relative; width: 12rem; height: 8rem; }
+.ms-calc-mix { position: relative; width: 9rem; height: 6.5rem; }
 .ms-calc-frac, .ms-calc-word { position: absolute; left: 50%; top: 50%; }
 .ms-calc-frac {
   color: #fff; font-size: 0.95rem; font-weight: 800; font-variant-numeric: tabular-nums;
@@ -1266,18 +1267,54 @@
 }
 .ms-calc-frac.is-ccw, .ms-calc-word.is-ccw { animation-name: ms-swirl-ccw; }
 @keyframes ms-swirl-cw {
-  from { transform: translate(-50%, -50%) rotate(0deg) translateX(var(--r, 3rem)) rotate(0deg); }
-  50% { transform: translate(-50%, -50%) rotate(180deg) translateX(calc(var(--r, 3rem) * 1.15)) rotate(-180deg); }
-  to { transform: translate(-50%, -50%) rotate(360deg) translateX(var(--r, 3rem)) rotate(-360deg); }
+  from { transform: translate(-50%, -50%) rotate(0deg) translateX(var(--r, 2rem)) rotate(0deg); }
+  50% { transform: translate(-50%, -50%) rotate(180deg) translateX(calc(var(--r, 2rem) * 0.35)) rotate(-180deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg) translateX(var(--r, 2rem)) rotate(-360deg); }
 }
 @keyframes ms-swirl-ccw {
-  from { transform: translate(-50%, -50%) rotate(0deg) translateX(var(--r, 3rem)) rotate(0deg); }
-  50% { transform: translate(-50%, -50%) rotate(-180deg) translateX(calc(var(--r, 3rem) * 1.15)) rotate(180deg); }
-  to { transform: translate(-50%, -50%) rotate(-360deg) translateX(var(--r, 3rem)) rotate(360deg); }
+  from { transform: translate(-50%, -50%) rotate(0deg) translateX(var(--r, 2rem)) rotate(0deg); }
+  50% { transform: translate(-50%, -50%) rotate(-180deg) translateX(calc(var(--r, 2rem) * 0.35)) rotate(180deg); }
+  to { transform: translate(-50%, -50%) rotate(-360deg) translateX(var(--r, 2rem)) rotate(360deg); }
 }
 @media (prefers-reduced-motion: reduce) {
   .ms-calc-frac, .ms-calc-word {
     animation: none;
     transform: translate(-50%, -50%) rotate(var(--a, 0deg)) translateX(var(--r, 3rem)) rotate(calc(var(--a, 0deg) * -1));
   }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   FAMILY ALIGNMENT + UNIFORM BOXES + THICK BLUE BORDERS (2026-10-28)
+   What was wrong: on PC the member names shattered mid-word across
+   lines (break-word splitting Tamil words), chips had different heights,
+   and on mobile the spouse word "யாருமில்லை" overflowed its third.
+   Frontend only — no logic touched.
+   ═══════════════════════════════════════════════════════════════════ */
+/* 1. Words wrap only between whole words — never split inside a word. */
+.ms-chip-name { word-break: keep-all; overflow-wrap: normal; font-size: 0.9375rem; }
+/* 2. Every member box the same height, PC and mobile. */
+.ms-chip { height: 5.5rem; min-width: 0; }
+/* 3. Spouse buttons may shrink, so long words never overflow their third. */
+.ms-spouse { min-width: 0; }
+@media (max-width: 479px) {
+  .ms-spouse { font-size: 0.8125rem; padding-inline: 0.25rem; }
+}
+/* 4. Thick blue borders — family list and every box inside it. */
+.ms-family-list { border: 3px solid #2563a8; }
+.ms-family-list .ms-chip { border: 2px solid #2563a8; }
+.ms-family-list .ms-chip.is-on { border-color: #0d2c4f; }
+.ms-family-list .ms-search input { border: 2px solid #2563a8; }
+.ms-family-list .ms-spouse-row { border: 2px solid #2563a8; }
+.ms-family-list .ms-more { border: 2px solid #2563a8; }
+/* 5. Thick blue border — amount page (outer card + amount hero). */
+.ms-card[data-step-fields] { border: 3px solid #2563a8; }
+.ms-amount-hero { border: 3px solid #7fb3e8; }
+/* 6. Thick blue border — result page share cards. */
+.ms-share-trow { border: 3px solid #7fb3e8; }
+.ms-share { border: 3px solid #2563a8; }
+
+/* Spouse row on narrow phones: the first word ("யாருமில்லை") is long, so
+   its cell gets extra width on mobile instead of clipping. */
+@media (max-width: 479px) {
+  .ms-spouse-row { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1fr); }
 }
