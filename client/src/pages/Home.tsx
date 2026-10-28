@@ -3,9 +3,10 @@
  * UI only: state, handlers and every call into @/lib/inheritance are unchanged.
  */
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, Calculator, Download, Printer, UsersRound } from "lucide-react";
-import { FamilyList, selectedHeirLabels } from "@/components/FamilyList";
+import { BookOpen, ArrowLeft, Calculator, Download, Printer, UsersRound } from "lucide-react";
+import { FamilyList } from "@/components/FamilyList";
 import { CalculatingOverlay } from "@/components/calc/CalculatingOverlay";
+import { ResultDetailsPopup } from "@/components/calc/ResultDetailsPopup";
 import { BookSourceCard } from "@/components/BookSourceCard";
 import {
   asabahPartsFor,
@@ -90,6 +91,7 @@ export default function Home() {
   const [justSaved, setJustSaved] = useState(false);
   const [familyQuery, setFamilyQuery] = useState("");
   const [calculating, setCalculating] = useState(false);
+  const [detailsOpen, setDetailsOpen] = useState(false);
 
   const result = useMemo(() => calculateInheritance(estate, heirs), [estate, heirs]);
   const distributedTotal = useMemo(() => result.allocations.reduce((total, item) => total + result.netEstate * fractionToNumber(item.share), 0), [result]);
@@ -228,7 +230,7 @@ export default function Home() {
 
   return (
     <>
-    {calculating ? <CalculatingOverlay language="ta" names={selectedHeirLabels(heirs, "ta")} /> : null}
+    {calculating ? <CalculatingOverlay language="ta" /> : null}
     <div className="ms-page ms-watermark">
       <AppHeader
         title="Islamic Inheritance Calculator"
@@ -331,25 +333,32 @@ export default function Home() {
                         <strong className="num"><AnimatedMoney value={remainingAmount} money={money} delay={250 + shareRows.length * 70} /></strong>
                       </div>
                     ) : null}
-                    {zeroRows.length > 0 ? (
-                      <details className="ms-zero-box">
-                        <summary>பங்கு இல்லாதவர்கள் (<span className="num">{zeroRows.length}</span>)</summary>
-                        <ul>{zeroRows.map((row) => <li key={`zero-${row.key}`}>{row.label}<span className="ms-zero-reason"> — {row.reason}</span></li>)}</ul>
-                      </details>
-                    ) : null}
+
                   </>
                 ) : null}
-
-                <details className="ms-audit-details">
-                  <summary>{methodCopy.ta.auditTitle}</summary>
-                  <CalculationTrace result={result} language="ta" />
-                </details>
 
                 <div className="ms-actions-packet">
                   <button type="button" onClick={() => window.print()} className="ms-btn-outline"><Printer size={16} /> அச்சிடுக</button>
                   <button type="button" onClick={() => printSummaryAsPdf("Miraasu-Result")} className="ms-btn-outline"><Download size={16} /> பதிவிறக்குக</button>
                 </div>
-                <BookSourceCard language="ta" />
+                {resultRows.length > 0 ? (
+                  <>
+                    <button type="button" onClick={() => setDetailsOpen(true)} className="ms-btn ms-btn-soft min-h-11! w-full! justify-center! text-sm"><BookOpen size={16} /> விவரங்கள் & மூல நூல்</button>
+                    <ResultDetailsPopup open={detailsOpen} onClose={() => setDetailsOpen(false)} title="விவரங்கள் & மூல நூல்" language="ta">
+                      {zeroRows.length > 0 ? (
+                        <section className="ms-popup-section">
+                          <h3>பங்கு இல்லாதவர்கள் (<span className="num">{zeroRows.length}</span>)</h3>
+                          <ul>{zeroRows.map((row) => <li key={`zero-${row.key}`}>{row.label}<span className="ms-zero-reason"> — {row.reason}</span></li>)}</ul>
+                        </section>
+                      ) : null}
+                      <section className="ms-popup-section">
+                        <h3>{methodCopy.ta.auditTitle}</h3>
+                        <CalculationTrace result={result} language="ta" />
+                      </section>
+                      <BookSourceCard language="ta" />
+                    </ResultDetailsPopup>
+                  </>
+                ) : null}
               </div>
             ) : null}
           </section>

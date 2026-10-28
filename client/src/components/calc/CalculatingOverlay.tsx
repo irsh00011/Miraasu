@@ -1,8 +1,8 @@
-/** Calculation overlay: 2-second "computing shares" animation before the result appears.
- *  The six Qur'anic fractions swirl together with the small words of the
- *  selected family members' names — each on its own orbit radius, speed
- *  and direction, staying upright while it travels. */
-import type { CSSProperties } from "react";
+/** Calculation overlay: 2-second smooth, simple calculator animation.
+ *  A small calculator: its display counts smoothly 0 → 100 while the keys
+ *  light up one after another, like keys being pressed. No swirl, no
+ *  floating words — just a calculator calculating. */
+import { useEffect, useState } from "react";
 
 const copy: Record<string, string> = {
   ta: "பங்குகளை கணக்கிடுகிறது…",
@@ -11,40 +11,37 @@ const copy: Record<string, string> = {
   ur: "حصے شمار کیے جا رہے ہیں…",
 };
 
-const FRACTIONS = ["1/2", "1/4", "1/8", "1/3", "2/3", "1/6"];
-const FRAC_RADII = ["2.2rem", "1.5rem", "2.2rem", "1.5rem", "2.2rem", "1.5rem"];
-const NAME_RADII = ["1.9rem", "1.1rem", "2.4rem", "1.9rem", "1.1rem", "2.4rem", "1.9rem", "1.1rem", "2.4rem", "1.9rem"];
+const KEYS = ["7", "8", "9", "÷", "4", "5", "6", "×", "1", "2", "3", "−", "0", ".", "=", "+"];
 
-const swirlStyle = (index: number, radius: string, angle: number): CSSProperties => ({
-  "--r": radius,
-  "--a": `${angle}deg`,
-  animationDuration: `${3.4 + (index % 4) * 0.4}s`,
-  animationDelay: `${-index * 0.45}s`,
-} as CSSProperties);
+export function CalculatingOverlay({ language = "ta" }: { language?: string }) {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setCount(100);
+      return;
+    }
+    let raf = 0;
+    const start = performance.now();
+    const tick = (now: number) => {
+      const p = Math.min(1, (now - start) / 1900);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setCount(Math.round(eased * 100));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, []);
 
-export function CalculatingOverlay({ language = "ta", names = [] }: { language?: string; names?: string[] }) {
   return (
     <div className="ms-calc-overlay" role="status" aria-live="polite">
       <div className="ms-calc-box">
-        <div className="ms-calc-mix" aria-hidden="true">
-          {FRACTIONS.map((fraction, index) => (
-            <span
-              key={fraction}
-              className={`ms-calc-frac ${index % 2 === 0 ? "is-cw" : "is-ccw"}`}
-              style={swirlStyle(index, FRAC_RADII[index], index * 60)}
-            >
-              {fraction}
-            </span>
-          ))}
-          {names.map((name, index) => (
-            <span
-              key={`${name}-${index}`}
-              className={`ms-calc-word ${index % 2 === 0 ? "is-ccw" : "is-cw"}`}
-              style={swirlStyle(index, NAME_RADII[index % NAME_RADII.length], 30 + index * 36)}
-            >
-              {name}
-            </span>
-          ))}
+        <div className="ms-calc-machine" aria-hidden="true">
+          <div className="ms-calc-display"><span className="num">{count}%</span></div>
+          <div className="ms-calc-keys">
+            {KEYS.map((key, index) => (
+              <span key={`${key}-${index}`} className="ms-calc-key" style={{ animationDelay: `${index * 0.12}s` }}>{key}</span>
+            ))}
+          </div>
         </div>
         <div className="ms-calc-bar"><span className="ms-calc-fill" /></div>
         <p className="ms-calc-text">{copy[language] ?? copy.ta}</p>

@@ -1,6 +1,16 @@
-/** Design: Miraasu Scholarly Ledger — compact chip grid for the close family; search + spouse selector on top. */
-import { useMemo, useState } from "react";
-import { ChevronDown, RotateCcw, Search, type LucideIcon } from "lucide-react";
+/** Design: Miraasu Scholarly Ledger — family selection in two sections,
+ *  ஆண் வாரிசுகள் (male heirs) and பெண் வாரிசுகள் (female heirs).
+ *  Every relationship is its own single connected card: icon + name on top,
+ *  the toggle or stepper controls connected below it in the same card.
+ *  Tamil names for the listed relationships are exactly as provided,
+ *  including the bracketed explanations; unlisted members keep the app's
+ *  existing labels. No member added, removed, or duplicated; keys,
+ *  calculations and eligibility are untouched. Spouse exclusivity is
+ *  preserved on the cards themselves: choosing the husband card clears
+ *  wives, and any wives count clears the husband — the old spouse
+ *  selector row is replaced, not the rule. */
+import { useMemo } from "react";
+import { RotateCcw, Search, type LucideIcon } from "lucide-react";
 import { HeirRow } from "@/components/HeirRow";
 import { heirIconForEmoji, heirIconForKey } from "@/components/heirIcons";
 import { ARABIC_EXTENDED_COPY, EXTENDED_HEIR_SECTIONS, type AppLanguage, type ExtendedHeirKey, type HeirInput } from "@/lib/inheritance";
@@ -12,7 +22,7 @@ const PRIMARY: PrimaryDef[] = [
   { key: "mother", ta: "அம்மா", en: "Mother", ar: "الأم", ur: "ماں", max: 1 },
   { key: "sons", ta: "மகன்கள்", en: "Sons", ar: "الأبناء", ur: "بیٹے" },
   { key: "daughters", ta: "மகள்கள்", en: "Daughters", ar: "البنات", ur: "بیٹیاں" },
-  { key: "paternalGrandfather", ta: "தாத்தா (தந்தை வழி)", en: "Father’s father", ar: "جد الأب", ur: "دادا (باپ کی طرف)", max: 1 },
+  { key: "paternalGrandfather", ta: "தாத்தா (தந்தை வழி)", en: "Father's father", ar: "جد الأب", ur: "دادا (باپ کی طرف)", max: 1 },
   { key: "fullBrothers", ta: "உடன்பிறந்த சகோதரர்", en: "Full brothers", ar: "الإخوة الأشقاء", ur: "سگے بھائی" },
   { key: "fullSisters", ta: "உடன்பிறந்த சகோதரி", en: "Full sisters", ar: "الأخوات الشقيقات", ur: "سگی بہنیں" },
   { key: "maternalBrothers", ta: "தாய் வழி சகோதரர்", en: "Maternal half-brothers", ar: "الإخوة لأم", ur: "ماں کی طرف کے بھائی" },
@@ -53,36 +63,80 @@ const URDU_EXTENDED_LABELS: Record<ExtendedHeirKey, string> = {
   mothersSiblingsDescendants: "ان کی اولاد",
 };
 
-/** Labels of the family members actually selected, in the app's display order
- *  (spouse, close family, extended) — used by the calculation loading screen
- *  so the selected names can stir together with the fractions. Capped at 10
- *  so the loading box never turns into mush. */
-export function selectedHeirLabels(heirs: HeirInput, language: AppLanguage | "ur" = "ta"): string[] {
-  const names: string[] = [];
-  const spouse =
-    language === "en" ? { husband: "Husband", wives: "Wives" }
-    : language === "ar" ? { husband: "الزوج", wives: "الزوجات" }
-    : language === "ur" ? { husband: "شوہر", wives: "بیویاں" }
-    : { husband: "கணவன்", wives: "மனைவிகள்" };
-  if ((heirs.husband ?? 0) > 0) names.push(spouse.husband);
-  if ((heirs.wives ?? 0) > 0) names.push(spouse.wives);
-  for (const item of PRIMARY) {
-    if ((heirs[item.key] ?? 0) > 0) {
-      names.push(language === "en" ? item.en : language === "ar" ? item.ar : language === "ur" ? item.ur : item.ta);
-    }
+/** Tamil names exactly as provided, including the bracketed explanations. */
+const TA_PROVIDED_LABELS: Partial<Record<keyof HeirInput, string>> = {
+  sons: "மகன்",
+  sonsSons: "மகனுடைய மகன் (பேரன்)",
+  furtherSonsLineDescendants: "மகனுடைய மகனுடைய மகன் (கொள்ளுப் பேரன்)",
+  father: "தந்தை",
+  paternalGrandfather: "தந்தையுடைய தந்தை (தாத்தா)",
+  furtherPaternalAncestors: "தந்தையுடைய தந்தையுடைய தந்தை (முப்பாட்டன்)",
+  fullBrothers: "உடன்பிறந்த சகோதரர் (அண்ணன் / தம்பி)",
+  fullBrothersSons: "அவருடைய மகன் (சகோதரரின் மகன்)",
+  paternalBrothers: "தந்தை வழிச் சகோதரர் (தந்தை ஒன்று, தாய் வேறு)",
+  paternalBrothersSons: "அவருடைய மகன் (தந்தை வழிச் சகோதரரின் மகன்)",
+  maternalBrothers: "தாய் வழிச் சகோதரர் (தாய் ஒன்று, தந்தை வேறு)",
+  paternalUncles: "தந்தையுடன் பிறந்த சகோதரர்கள் (பெரியாத்தா / சின்னாத்தா)",
+  paternalUnclesSons: "அவர்களுடைய பிள்ளைகள் (பெரியாத்தா / சின்னாத்தாவின் மகன்கள்)",
+  husband: "கணவர்",
+  daughters: "மகள்",
+  mother: "தாய்",
+  wives: "மனைவி",
+  sonsDaughters: "மகனின் மகள்கள் (பேத்திகள்)",
+  paternalGrandmothers: "தந்தையின் தாய் (பாட்டி)",
+  maternalGrandmothers: "தாயின் தாய் (பாட்டி)",
+  fullSisters: "உடன்பிறந்த சகோதரி (அக்கா / தங்கை)",
+  paternalSisters: "தந்தை வழிச் சகோதரி (தந்தை ஒன்று, தாய் வேறு)",
+  maternalSisters: "தாய் வழிச் சகோதரி (தாய் ஒன்று, தந்தை வேறு)",
+};
+
+/** Section order follows the provided lists; unlisted members follow by gender. */
+const MALE_KEYS: (keyof HeirInput)[] = [
+  "sons", "sonsSons", "furtherSonsLineDescendants", "father", "paternalGrandfather",
+  "furtherPaternalAncestors", "fullBrothers", "fullBrothersSons", "paternalBrothers",
+  "paternalBrothersSons", "maternalBrothers", "paternalUncles", "paternalUnclesSons",
+  "husband", "maternalGrandfather", "consanguinePaternalUncles",
+  "consanguinePaternalUnclesSons", "fathersMaternalBrothers",
+  "fathersMaternalBrothersDescendants", "maternalBrothersChildren",
+];
+const FEMALE_KEYS: (keyof HeirInput)[] = [
+  "daughters", "mother", "wives", "sonsDaughters", "paternalGrandmothers",
+  "maternalGrandmothers", "fullSisters", "paternalSisters", "maternalSisters",
+  "fullBrothersDaughters", "daughtersChildren", "sonsDaughtersChildren",
+  "fullSistersChildren", "mothersSiblings", "mothersSiblingsDescendants",
+];
+
+const EXTENDED_BY_KEY = new Map(EXTENDED_HEIR_SECTIONS.flatMap((section) => section.items).map((item) => [item.key, item]));
+
+function labelFor(key: keyof HeirInput, language: AppLanguage | "ur"): string {
+  if (language === "ta") {
+    const provided = TA_PROVIDED_LABELS[key];
+    if (provided) return provided;
   }
-  for (const item of EXTENDED_HEIR_SECTIONS.flatMap((section) => section.items)) {
-    const key = item.key as keyof HeirInput;
-    if ((heirs[key] ?? 0) > 0) {
-      names.push(
-        language === "en" ? item.labelEn
-        : language === "ar" ? ARABIC_EXTENDED_COPY[item.key].label
-        : language === "ur" ? URDU_EXTENDED_LABELS[item.key]
-        : (TA_LABEL_OVERRIDES[item.key] ?? item.label),
-      );
-    }
-  }
-  return names.slice(0, 10);
+  if (key === "husband") return language === "en" ? "Husband" : language === "ar" ? "الزوج" : language === "ur" ? "شوہر" : "கணவர்";
+  if (key === "wives") return language === "en" ? "Wives" : language === "ar" ? "الزوجات" : language === "ur" ? "بیویاں" : "மனைவி";
+  const primary = PRIMARY.find((item) => item.key === key);
+  if (primary) return language === "en" ? primary.en : language === "ar" ? primary.ar : language === "ur" ? primary.ur : primary.ta;
+  const item = EXTENDED_BY_KEY.get(key as ExtendedHeirKey);
+  if (!item) return key;
+  return language === "en"
+    ? item.labelEn
+    : language === "ar"
+      ? ARABIC_EXTENDED_COPY[item.key].label
+      : language === "ur"
+        ? URDU_EXTENDED_LABELS[item.key]
+        : (TA_LABEL_OVERRIDES[item.key] ?? item.label);
+}
+
+function iconFor(key: keyof HeirInput): LucideIcon {
+  const item = EXTENDED_BY_KEY.get(key as ExtendedHeirKey);
+  return item ? heirIconForEmoji(item.emoji) : heirIconForKey(key);
+}
+
+function maxFor(key: keyof HeirInput): number | undefined {
+  if (key === "husband") return 1;
+  if (key === "wives") return 4;
+  return PRIMARY.find((item) => item.key === key)?.max;
 }
 
 type FamilyListProps = {
@@ -98,41 +152,38 @@ type FamilyListProps = {
 export function FamilyList({ heirs, onChange, onResetAll, query, onQueryChange, onSearchEnter, language = "ta" }: FamilyListProps) {
   const copy =
     language === "en"
-      ? { search: "Search a family member…", clear: "Clear all", none: "No match. Clear the search to see everyone.", spouseNone: "None", husband: "Husband", wife: "Wife", wivesLabel: "Wives", more: "More relatives" }
+      ? { search: "Search a family member…", clear: "Clear all", none: "No match. Clear the search to see everyone.", male: "Male heirs", female: "Female heirs" }
       : language === "ar"
-        ? { search: "ابحث عن قريب…", clear: "مسح الكل", none: "لا توجد نتيجة. امسح البحث لرؤية الجميع.", spouseNone: "لا أحد", husband: "الزوج", wife: "الزوجة", wivesLabel: "الزوجات", more: "أقارب آخرون" }
+        ? { search: "ابحث عن قريب…", clear: "مسح الكل", none: "لا توجد نتيجة. امسح البحث لرؤية الجميع.", male: "الورثة الذكور", female: "الورثة الإناث" }
         : language === "ur"
-          ? { search: "رشتہ دار تلاش کریں…", clear: "سب صاف کریں", none: "کوئی نتیجہ نہیں۔ سب دیکھنے کے لیے تلاش صاف کریں۔", spouseNone: "کوئی نہیں", husband: "شوہر", wife: "بیوی", wivesLabel: "بیویاں", more: "مزید رشتہ دار" }
-          : { search: "உறவைத் தேடுக…", clear: "அனைத்தையும் அழி", none: "பொருத்தம் இல்லை. தேடலை அழிக்கவும்.", spouseNone: "யாருமில்லை", husband: "கணவன்", wife: "மனைவி", wivesLabel: "மனைவிகள்", more: "மேலும் உறவுகள்" };
+          ? { search: "رشتہ دار تلاش کریں…", clear: "سب صاف کریں", none: "کوئی نتیجہ نہیں۔ سب دیکھنے کے لیے تلاش صاف کریں۔", male: "مرد ورثاء", female: "خواتین ورثاء" }
+          : { search: "உறவைத் தேடுக…", clear: "அனைத்தையும் அழி", none: "பொருத்தம் இல்லை. தேடலை அழிக்கவும்.", male: "ஆண் வாரிசுகள்", female: "பெண் வாரிசுகள்" };
 
   const rows = useMemo(() => {
-    const primaryRows: { key: keyof HeirInput; icon: LucideIcon; label: string; max: number | undefined }[] = PRIMARY.map((item) => ({
-      key: item.key,
-      icon: heirIconForKey(item.key),
-      label: language === "en" ? item.en : language === "ar" ? item.ar : language === "ur" ? item.ur : item.ta,
-      max: item.max,
-    }));
-    const extendedRows = EXTENDED_HEIR_SECTIONS.flatMap((section) => section.items).map((item) => ({
-      key: item.key as keyof HeirInput,
-      icon: heirIconForEmoji(item.emoji),
-      label: language === "en" ? item.labelEn : language === "ar" ? ARABIC_EXTENDED_COPY[item.key].label : language === "ur" ? URDU_EXTENDED_LABELS[item.key] : (TA_LABEL_OVERRIDES[item.key] ?? item.label),
-      max: undefined as number | undefined,
-    }));
-    return { primaryRows, extendedRows, all: [...primaryRows, ...extendedRows] };
+    const build = (keys: (keyof HeirInput)[]) =>
+      keys.map((key) => ({ key, icon: iconFor(key), label: labelFor(key, language), max: maxFor(key) }));
+    return { male: build(MALE_KEYS), female: build(FEMALE_KEYS) };
   }, [language]);
+  const allRows = [...rows.male, ...rows.female];
 
   const normalizedQuery = query.trim().toLocaleLowerCase();
-  const filteredRows = normalizedQuery ? rows.all.filter((row) => row.label.toLocaleLowerCase().includes(normalizedQuery)) : rows.all;
-  // Progressive disclosure: close family first; the 24 extended relatives open on demand,
-  // and stay open by themselves when any of them is already selected.
-  const [moreOpen, setMoreOpen] = useState(false);
-  const extendedSelected = rows.extendedRows.reduce((total, row) => total + (heirs[row.key] ?? 0), 0);
-  const showExtended = moreOpen || extendedSelected > 0;
+  const filteredRows = normalizedQuery ? allRows.filter((row) => row.label.toLocaleLowerCase().includes(normalizedQuery)) : allRows;
 
-  const chooseSpouse = (choice: "none" | "husband" | "wives") => {
-    onChange("husband", choice === "husband" ? 1 : 0);
-    onChange("wives", choice === "wives" ? Math.max(1, heirs.wives || 1) : 0);
+  const changeFor = (key: keyof HeirInput) => (value: number) => {
+    onChange(key, value);
+    // Spouse exclusivity lives on the cards now: husband clears wives,
+    // any wives count clears the husband — the old selector row is gone.
+    if (key === "husband" && value === 1) onChange("wives", 0);
+    if (key === "wives" && value > 0) onChange("husband", 0);
   };
+
+  const renderRows = (list: typeof allRows) => (
+    <div className="ms-chips">
+      {list.map((row, index) => (
+        <HeirRow key={row.key} index={index} icon={row.icon} label={row.label} value={heirs[row.key] ?? 0} onChange={changeFor(row.key)} max={row.max} language={language} />
+      ))}
+    </div>
+  );
 
   return (
     <div className="ms-family-list space-y-4" dir={language === "ar" || language === "ur" ? "rtl" : "ltr"}>
@@ -162,53 +213,20 @@ export function FamilyList({ heirs, onChange, onResetAll, query, onQueryChange, 
         </button>
       </div>
 
-      {!normalizedQuery ? (
-        <div>
-          <div className="ms-spouse-row">
-            {([["none", copy.spouseNone], ["husband", copy.husband], ["wives", copy.wife]] as const).map(([value, label]) => {
-              const active = (value === "none" && heirs.husband === 0 && heirs.wives === 0) || (value === "husband" && heirs.husband > 0) || (value === "wives" && heirs.wives > 0);
-              return (
-                <button key={value} type="button" onClick={() => chooseSpouse(value)} aria-pressed={active} className={`ms-spouse ${active ? "is-on" : ""}`}>
-                  {label}
-                </button>
-              );
-            })}
-          </div>
-          {heirs.wives > 0 ? (
-            <div className="mt-2 ms-chips" style={{ gridTemplateColumns: "minmax(0,1fr)" }}>
-              <HeirRow icon={heirIconForKey("wives")} label={copy.wivesLabel} value={heirs.wives} onChange={(value) => onChange("wives", Math.max(1, Math.min(4, value)))} max={4} language={language} />
-            </div>
-          ) : null}
-        </div>
-      ) : null}
-
       {filteredRows.length === 0 ? (
         <p className="rounded-2xl border border-dashed border-[rgba(22,79,134,0.3)] bg-white/70 px-4 py-6 text-center text-sm text-slate-600">{copy.none}</p>
       ) : normalizedQuery ? (
-        <div className="ms-chips">
-          {filteredRows.map((row, index) => (
-            <HeirRow key={row.key} index={index} icon={row.icon} label={row.label} value={heirs[row.key] ?? 0} onChange={(value) => onChange(row.key, value)} max={row.max} language={language} />
-          ))}
-        </div>
+        renderRows(filteredRows)
       ) : (
         <>
-          <div className="ms-chips">
-            {rows.primaryRows.map((row, index) => (
-              <HeirRow key={row.key} index={index} icon={row.icon} label={row.label} value={heirs[row.key] ?? 0} onChange={(value) => onChange(row.key, value)} max={row.max} language={language} />
-            ))}
-          </div>
-          <button type="button" className="ms-more" aria-expanded={showExtended} aria-controls="ms-more-relatives" onClick={() => setMoreOpen((open) => !open)}>
-            <span>{copy.more}</span>
-            {extendedSelected > 0 ? <span className="ms-more-count num">{extendedSelected}</span> : null}
-            <ChevronDown size={18} className="ms-more-chev" aria-hidden="true" />
-          </button>
-          {showExtended ? (
-            <div id="ms-more-relatives" className="ms-chips">
-              {rows.extendedRows.map((row, index) => (
-                <HeirRow key={row.key} index={index} icon={row.icon} label={row.label} value={heirs[row.key] ?? 0} onChange={(value) => onChange(row.key, value)} max={row.max} language={language} />
-              ))}
-            </div>
-          ) : null}
+          <section>
+            <h2 className="ms-gender-title">{copy.male}</h2>
+            {renderRows(rows.male)}
+          </section>
+          <section>
+            <h2 className="ms-gender-title">{copy.female}</h2>
+            {renderRows(rows.female)}
+          </section>
         </>
       )}
     </div>

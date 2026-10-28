@@ -3,9 +3,10 @@
  * UI only: state, handlers and every call into @/lib/inheritance are unchanged.
  */
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, ArrowRight, Calculator, Download, Printer, UsersRound } from "lucide-react";
-import { FamilyList, selectedHeirLabels } from "@/components/FamilyList";
+import { BookOpen, ArrowLeft, ArrowRight, Calculator, Download, Printer, UsersRound } from "lucide-react";
+import { FamilyList } from "@/components/FamilyList";
 import { CalculatingOverlay } from "@/components/calc/CalculatingOverlay";
+import { ResultDetailsPopup } from "@/components/calc/ResultDetailsPopup";
 import { BookSourceCard } from "@/components/BookSourceCard";
 import { ARABIC_EXTENDED_COPY, aggregateAllocationsForDisplay, asabahPartsFor, calculateInheritance, fractionToNumber, fractionToText, type EstateInput, type HeirInput } from "@/lib/inheritance";
 import { CalculationTrace } from "@/components/CalculationTrace";
@@ -65,6 +66,7 @@ export default function ArabicHome() {
   const start = () => { setView("calculator"); setStep(1); };
   const fresh = () => { setEstate(initialEstate); setHeirs(initialHeirs); setQuery(""); start(); };
   const [calculating, setCalculating] = useState(false);
+  const [detailsOpen, setDetailsOpen] = useState(false);
   const finish = () => { setCalculating(true); window.setTimeout(() => { setCalculating(false); setStep(3); }, 2000); if (result.netEstate <= 0 || result.allocations.length === 0) return; const record: SavedCalculation = { id: crypto.randomUUID(), fingerprint, createdAt: new Date().toISOString(), estate, heirs, netEstate: result.netEstate, totalHeirs: heirCount(heirs) }; setHistory((current) => { const next = [record, ...current.filter((item) => item.fingerprint !== record.fingerprint)].slice(0, 12); writeCalculationHistory(next); return next; }); };
 
   const displayAllocations = aggregateAllocationsForDisplay(result.allocations);
@@ -87,7 +89,7 @@ export default function ArabicHome() {
 
   return (
     <>
-    {calculating ? <CalculatingOverlay language="ar" names={selectedHeirLabels(heirs, "ar")} /> : null}
+    {calculating ? <CalculatingOverlay language="ar" /> : null}
     <div className="ms-page ms-watermark">
       <AppHeader
         title="Islamic Inheritance Calculator"
@@ -183,25 +185,32 @@ export default function ArabicHome() {
                         <strong className="num"><AnimatedMoney value={remainingAmount} money={money} delay={250 + displayAllocations.length * 70} /></strong>
                       </div>
                     ) : null}
-                    {result.exclusions.length > 0 ? (
-                      <details className="ms-zero-box">
-                        <summary>قرابات لا ترث في هذه الحالة (<span className="num">{result.exclusions.length}</span>)</summary>
-                        <div className="ms-zero-list">{result.exclusions.map((item) => <p key={`${item.key}-${item.label}`}><strong>{arabicLabels[item.key as string] ?? item.label}:</strong> محجوب بقريب أقرب.</p>)}</div>
-                      </details>
-                    ) : null}
+
                   </>
                 ) : null}
-
-                <details className="ms-audit-details">
-                  <summary>{methodCopy.ar.auditTitle}</summary>
-                  <CalculationTrace result={result} language="ar" heirLabels={arabicLabels} />
-                </details>
 
                 <div className="ms-actions-packet">
                   <button type="button" onClick={() => window.print()} className="ms-btn-outline"><Printer size={16} /> طباعة</button>
                   <button type="button" onClick={() => printSummaryAsPdf("Miraasu-Result")} className="ms-btn-outline"><Download size={16} /> تنزيل</button>
                 </div>
-                <BookSourceCard language="ar" />
+                {result.allocations.length > 0 ? (
+                  <>
+                    <button type="button" onClick={() => setDetailsOpen(true)} className="ms-btn ms-btn-soft min-h-11! w-full! justify-center! text-sm"><BookOpen size={16} /> التفاصيل والمصدر</button>
+                    <ResultDetailsPopup open={detailsOpen} onClose={() => setDetailsOpen(false)} title="التفاصيل والمصدر" language="ar">
+                      {result.exclusions.length > 0 ? (
+                        <section className="ms-popup-section">
+                          <h3>قرابات لا ترث في هذه الحالة (<span className="num">{result.exclusions.length}</span>)</h3>
+                          <div className="ms-zero-list">{result.exclusions.map((item) => <p key={`${item.key}-${item.label}`}><strong>{arabicLabels[item.key as string] ?? item.label}:</strong> محجوب بقريب أقرب.</p>)}</div>
+                        </section>
+                      ) : null}
+                      <section className="ms-popup-section">
+                        <h3>{methodCopy.ar.auditTitle}</h3>
+                        <CalculationTrace result={result} language="ar" heirLabels={arabicLabels} />
+                      </section>
+                      <BookSourceCard language="ar" />
+                    </ResultDetailsPopup>
+                  </>
+                ) : null}
               </div>
             ) : null}
           </section>

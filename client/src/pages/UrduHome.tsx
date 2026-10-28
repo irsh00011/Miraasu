@@ -4,9 +4,10 @@
  * Mirrors the Tamil, English and Arabic screens with Urdu copy throughout.
  */
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, ArrowRight, Calculator, Download, Printer, UsersRound } from "lucide-react";
-import { FamilyList, selectedHeirLabels } from "@/components/FamilyList";
+import { BookOpen, ArrowLeft, ArrowRight, Calculator, Download, Printer, UsersRound } from "lucide-react";
+import { FamilyList } from "@/components/FamilyList";
 import { CalculatingOverlay } from "@/components/calc/CalculatingOverlay";
+import { ResultDetailsPopup } from "@/components/calc/ResultDetailsPopup";
 import { BookSourceCard } from "@/components/BookSourceCard";
 import {
   EXTENDED_HEIR_SECTIONS,
@@ -98,6 +99,7 @@ export default function UrduHome() {
   const [history, setHistory] = useState<SavedCalculation[]>([]);
   const [query, setQuery] = useState("");
   const [calculating, setCalculating] = useState(false);
+  const [detailsOpen, setDetailsOpen] = useState(false);
   const [justSaved, setJustSaved] = useState(false);
 
   const result = useMemo(() => {
@@ -160,7 +162,7 @@ export default function UrduHome() {
 
   return (
     <>
-    {calculating ? <CalculatingOverlay language="ur" names={selectedHeirLabels(heirs, "ur")} /> : null}
+    {calculating ? <CalculatingOverlay language="ur" /> : null}
     <div className="ms-page ms-watermark">
       <AppHeader
         title="Islamic Inheritance Calculator"
@@ -260,25 +262,32 @@ export default function UrduHome() {
                         <strong className="num"><AnimatedMoney value={remainingAmount} money={money} delay={250 + displayAllocations.length * 70} /></strong>
                       </div>
                     ) : null}
-                    {result.exclusions.length > 0 ? (
-                      <details className="ms-zero-box">
-                        <summary>اس صورت میں بے حصہ رشتہ دار (<span className="num">{result.exclusions.length}</span>)</summary>
-                        <div className="ms-zero-list">{result.exclusions.map((item) => <p key={`${item.key}-${item.label}`}><strong>{labels[item.key as string] ?? item.label}:</strong> قرابت کی ترتیب سے محجوب۔</p>)}</div>
-                      </details>
-                    ) : null}
+
                   </>
                 ) : null}
-
-                <details className="ms-audit-details">
-                  <summary>{methodCopy.ur.auditTitle}</summary>
-                  <CalculationTrace result={result} language="ur" heirLabels={labels} />
-                </details>
 
                 <div className="ms-actions-packet">
                   <button type="button" onClick={() => window.print()} className="ms-btn-outline"><Printer size={16} /> پرنٹ</button>
                   <button type="button" onClick={() => printSummaryAsPdf("Miraasu-Result")} className="ms-btn-outline"><Download size={16} /> ڈاؤن لوڈ</button>
                 </div>
-                <BookSourceCard language="ur" />
+                {result.allocations.length > 0 ? (
+                  <>
+                    <button type="button" onClick={() => setDetailsOpen(true)} className="ms-btn ms-btn-soft min-h-11! w-full! justify-center! text-sm"><BookOpen size={16} /> تفصیلات اور ماخذ کتاب</button>
+                    <ResultDetailsPopup open={detailsOpen} onClose={() => setDetailsOpen(false)} title="تفصیلات اور ماخذ کتاب" language="ur">
+                      {result.exclusions.length > 0 ? (
+                        <section className="ms-popup-section">
+                          <h3>اس صورت میں بے حصہ رشتہ دار (<span className="num">{result.exclusions.length}</span>)</h3>
+                          <div className="ms-zero-list">{result.exclusions.map((item) => <p key={`${item.key}-${item.label}`}><strong>{labels[item.key as string] ?? item.label}:</strong> قرابت کی ترتیب سے محجوب۔</p>)}</div>
+                        </section>
+                      ) : null}
+                      <section className="ms-popup-section">
+                        <h3>{methodCopy.ur.auditTitle}</h3>
+                        <CalculationTrace result={result} language="ur" heirLabels={labels} />
+                      </section>
+                      <BookSourceCard language="ur" />
+                    </ResultDetailsPopup>
+                  </>
+                ) : null}
               </div>
             ) : null}
           </section>
