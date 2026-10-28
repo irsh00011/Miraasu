@@ -255,7 +255,8 @@ export default function Home() {
             onDelete={deleteHistoryItem}
             onClear={clearHistory}
             onNew={startNewCalculation}
-            text={{ clear: "அனைத்தையும் அழி", deleteLabel: "கணக்கை அழிக்க", emptyTitle: "இன்னும் சேமித்த கணக்கு இல்லை", emptyBody: "ஒரு கணக்கை முடித்ததும் அது இங்கே தானாக சேமிக்கப்படும்.", newLabel: "புதிய கணக்கு" }}
+            onBack={() => setView("calculator")}
+            text={{ clear: "அனைத்தையும் அழி", deleteLabel: "கணக்கை அழிக்க", emptyTitle: "இன்னும் சேமித்த கணக்கு இல்லை", emptyBody: "ஒரு கணக்கை முடித்ததும் அது இங்கே தானாக சேமிக்கப்படும்.", newLabel: "புதிய கணக்கு", backLabel: "பின்செல்" }}
           />
         ) : null}
 
@@ -283,6 +284,7 @@ export default function Home() {
                   bequest: "வஸிய்யத்",
                   distributable: "பகிரக்கூடிய தொகை",
                   next: "தொடர்க",
+                  back: "பின்செல்",
                 }}
               />
             ) : null}
@@ -292,6 +294,7 @@ export default function Home() {
                 <p className="ms-kicker">படி 2 / 3</p>
                 <h1 className="ms-h1 ms-h1-compact">குடும்பத்தைத் தேர்வு செய்க</h1>
                 <p className="ms-lead">உயிருடன் இருப்பவர்களை மட்டும் தேர்வு செய்க.</p>
+                <button type="button" onClick={() => setStep(1)} className="ms-btn ms-btn-ghost mt-4 min-h-11! px-3! text-sm!"><ArrowLeft size={17} /> பின்செல்</button>
                 <div className="mt-4">
                   <FamilyList
                     heirs={heirs}
@@ -312,6 +315,7 @@ export default function Home() {
 
             {step === 3 ? (
               <div className="ms-result-page space-y-4">
+                <button type="button" onClick={() => setStep(2)} className="ms-btn ms-btn-ghost min-h-11! px-3! text-sm!"><ArrowLeft size={17} /> பின்செல்</button>
                 <ShareTable
                   language="ta"
                   rows={tableRows}
@@ -355,7 +359,7 @@ export default function Home() {
                         <h3>{methodCopy.ta.auditTitle}</h3>
                         <CalculationTrace result={result} language="ta" />
                       </section>
-                      <BookSourceCard language="ta" />
+                      <div className="ms-popup-section ms-popup-book"><BookSourceCard language="ta" /></div>
                     </ResultDetailsPopup>
                   </>
                 ) : null}

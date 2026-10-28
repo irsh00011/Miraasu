@@ -1,5 +1,5 @@
 /** Design: Miraasu Scholarly Ledger — saved calculations, local to this device. Shared by all three languages. */
-import { Clock3, FileText, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, Clock3, FileText, Plus, Trash2 } from "lucide-react";
 import type { SavedCalculation } from "@/lib/localHistory";
 
 type Props = {
@@ -13,12 +13,14 @@ type Props = {
   onDelete: (id: string) => void;
   onClear?: () => void;
   onNew: () => void;
-  text: { clear: string; deleteLabel: string; emptyTitle: string; emptyBody: string; newLabel: string };
+  onBack: () => void;
+  text: { clear: string; deleteLabel: string; emptyTitle: string; emptyBody: string; newLabel: string; backLabel: string };
 };
 
-export function HistoryView({ kicker, title, records, formatMoney, formatDate, countText, onOpen, onDelete, onClear, onNew, text }: Props) {
+export function HistoryView({ kicker, title, records, formatMoney, formatDate, countText, onOpen, onDelete, onClear, onNew, onBack, text }: Props) {
   return (
     <section className="page-enter">
+      <button type="button" onClick={onBack} className="ms-btn ms-btn-ghost mb-4 min-h-11! px-3! text-sm!"><ArrowLeft size={17} className="rtl:rotate-180" /> {text.backLabel}</button>
       <div className="flex items-end justify-between gap-3 border-b border-[rgba(22,79,134,0.14)] pb-4">
         <div>
           <p className="ms-kicker">{kicker}</p>

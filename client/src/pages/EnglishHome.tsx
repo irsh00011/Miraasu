@@ -146,7 +146,8 @@ export default function EnglishHome() {
             onOpen={reopen}
             onDelete={deleteRecord}
             onNew={startNew}
-            text={{ clear: "Clear all", deleteLabel: "Delete calculation", emptyTitle: "No saved calculation yet", emptyBody: "A completed calculation is automatically saved here.", newLabel: "New calculation" }}
+            onBack={() => setView("calculator")}
+            text={{ clear: "Clear all", deleteLabel: "Delete calculation", emptyTitle: "No saved calculation yet", emptyBody: "A completed calculation is automatically saved here.", newLabel: "New calculation", backLabel: "Back" }}
           />
         ) : null}
 
@@ -174,6 +175,7 @@ export default function EnglishHome() {
                   bequest: "Bequest",
                   distributable: "TO DISTRIBUTE",
                   next: "Continue",
+                  back: "Back",
                 }}
               />
             ) : null}
@@ -183,6 +185,7 @@ export default function EnglishHome() {
                 <p className="ms-kicker">STEP 2 OF 3</p>
                 <h1 className="ms-h1 ms-h1-compact">Choose your family</h1>
                 <p className="ms-lead">Select only those who are alive.</p>
+                <button type="button" onClick={() => setStep(1)} className="ms-btn ms-btn-ghost mt-4 min-h-11! px-3! text-sm!"><ArrowLeft size={17} /> Back</button>
                 <div className="mt-4">
                   <FamilyList heirs={heirs} onChange={updateHeir} onResetAll={() => resetHeirKeys(Object.keys(initialHeirs) as (keyof HeirInput)[])} query={familyQuery} onQueryChange={setFamilyQuery} onSearchEnter={finishCalculation} language="en" />
                 </div>
@@ -195,6 +198,7 @@ export default function EnglishHome() {
 
             {step === 3 ? (
               <div className="ms-result-page space-y-4">
+                <button type="button" onClick={() => setStep(2)} className="ms-btn ms-btn-ghost min-h-11! px-3! text-sm!"><ArrowLeft size={17} /> Back</button>
 
                 {result.notices.length > 0 ? <div className="space-y-2">{result.notices.map((notice) => <p key={notice} className="ms-notice">{noticeInEnglish(notice)}</p>)}</div> : null}
                 {result.requiresScholarReview ? <p className="ms-notice font-extrabold!">Scholar review required — this result is not final.</p> : null}
@@ -242,7 +246,7 @@ export default function EnglishHome() {
                         <h3>{methodCopy.en.auditTitle}</h3>
                         <CalculationTrace result={result} language="en" heirLabels={labels} />
                       </section>
-                      <BookSourceCard language="en" />
+                      <div className="ms-popup-section ms-popup-book"><BookSourceCard language="en" /></div>
                     </ResultDetailsPopup>
                   </>
                 ) : null}

@@ -187,7 +187,8 @@ export default function UrduHome() {
             onDelete={deleteRecord}
             onClear={clearHistory}
             onNew={startNew}
-            text={{ clear: "سب صاف کریں", deleteLabel: "حساب حذف کریں", emptyTitle: "ابھی کوئی محفوظ حساب نہیں", emptyBody: "حساب مکمل ہوتے ہی یہاں خودکار محفوظ ہو جائے گا۔", newLabel: "نیا حساب" }}
+            onBack={() => setView("calculator")}
+            text={{ clear: "سب صاف کریں", deleteLabel: "حساب حذف کریں", emptyTitle: "ابھی کوئی محفوظ حساب نہیں", emptyBody: "حساب مکمل ہوتے ہی یہاں خودکار محفوظ ہو جائے گا۔", newLabel: "نیا حساب", backLabel: "پیچھے" }}
           />
         ) : null}
 
@@ -215,6 +216,7 @@ export default function UrduHome() {
                   bequest: "وصیت",
                   distributable: "تقسیم کے قابل رقم",
                   next: "جاری رکھیں",
+                  back: "پیچھے",
                 }}
               />
             ) : null}
@@ -224,6 +226,7 @@ export default function UrduHome() {
                 <p className="ms-kicker">مرحلہ 2 از 3</p>
                 <h1 className="ms-h1 ms-h1-compact">خاندان چنیں</h1>
                 <p className="ms-lead">صرف زندہ افراد چنیں۔</p>
+                <button type="button" onClick={() => setStep(1)} className="ms-btn ms-btn-ghost mt-4 min-h-11! px-3! text-sm!"><ArrowLeft size={17} className="rtl:rotate-180" /> پیچھے</button>
                 <div className="mt-4">
                   <FamilyList heirs={heirs} onChange={updateHeir} onResetAll={() => resetKeys(Object.keys(initialHeirs) as (keyof HeirInput)[])} query={query} onQueryChange={setQuery} onSearchEnter={finishCalculation} language="ur" />
                 </div>
@@ -236,6 +239,7 @@ export default function UrduHome() {
 
             {step === 3 ? (
               <div className="ms-result-page space-y-4">
+                <button type="button" onClick={() => setStep(2)} className="ms-btn ms-btn-ghost min-h-11! px-3! text-sm!"><ArrowLeft size={17} className="rtl:rotate-180" /> پیچھے</button>
 
                 {result.notices.length > 0 ? <div className="space-y-2">{result.notices.map((notice) => <p key={notice} className="ms-notice">{noticeInUrdu(notice)}</p>)}</div> : null}
                 {result.requiresScholarReview ? <p className="ms-notice font-extrabold!">مستند عالم سے تصدیق ضروری ہے — یہ نتیجہ حتمی نہیں۔</p> : null}
@@ -284,7 +288,7 @@ export default function UrduHome() {
                         <h3>{methodCopy.ur.auditTitle}</h3>
                         <CalculationTrace result={result} language="ur" heirLabels={labels} />
                       </section>
-                      <BookSourceCard language="ur" />
+                      <div className="ms-popup-section ms-popup-book"><BookSourceCard language="ur" /></div>
                     </ResultDetailsPopup>
                   </>
                 ) : null}

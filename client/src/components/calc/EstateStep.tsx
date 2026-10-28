@@ -1,6 +1,6 @@
 /** Design: Miraasu Scholarly Ledger — estate worksheet: hero amount, tidy deductions, strong total footer. */
 import type { ReactNode } from "react";
-import { ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import type { EstateInput } from "@/lib/inheritance";
 import { MoneyField, advanceOnEnter } from "@/components/calc/MoneyField";
 
@@ -22,6 +22,7 @@ type Props = {
     bequestHelp?: string;
     distributable: string;
     next: string;
+    back: string;
   };
 };
 
@@ -30,6 +31,7 @@ export function EstateStep({ estate, onChange, netEstateText, onNext, notices, t
 
   return (
     <div className="ms-card p-4 sm:p-7" data-step-fields>
+      <a href="/" className="ms-btn ms-btn-ghost mb-4 min-h-11! px-3! text-sm!"><ArrowLeft size={17} className="rtl:rotate-180" /> {text.back}</a>
       <p className="ms-kicker">{text.kicker}</p>
       <h1 className="ms-h1">{text.title}</h1>
 

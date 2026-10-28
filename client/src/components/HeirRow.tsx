@@ -1,10 +1,9 @@
-/** Design: Miraasu Scholarly Ledger — one member, one connected card: icon +
- *  name on top, the toggle or stepper controls connected below it in the
- *  same card, clear selected state. */
-import { Check, Minus, Plus, type LucideIcon } from "lucide-react";
+/** Design: Miraasu Scholarly Ledger — one member, one connected card: the
+ *  name on one side, the toggle or stepper controls in the side corner of
+ *  the same card, clear selected state. No icons on the cards. */
+import { Check, Minus, Plus } from "lucide-react";
 
 type HeirRowProps = {
-  icon?: LucideIcon;
   label: string;
   value: number;
   onChange: (value: number) => void;
@@ -14,7 +13,7 @@ type HeirRowProps = {
   index?: number;
 };
 
-export function HeirRow({ icon: Icon, label, value, onChange, max = 20, language = "ta", index = 0 }: HeirRowProps) {
+export function HeirRow({ label, value, onChange, max = 20, language = "ta", index = 0 }: HeirRowProps) {
   const copy =
     language === "en"
       ? { add: "Add", decrease: "decrease", increase: "increase" }
@@ -29,7 +28,6 @@ export function HeirRow({ icon: Icon, label, value, onChange, max = 20, language
   return (
     <div className={`ms-chip ${selected ? "is-on" : ""}`} style={{ "--i": index } as React.CSSProperties}>
       <div className="ms-chip-top">
-        {Icon ? <span aria-hidden="true" className="ms-chip-icon"><Icon size={17} strokeWidth={2.1} /></span> : null}
         <span className="ms-chip-name">{label}</span>
       </div>
 

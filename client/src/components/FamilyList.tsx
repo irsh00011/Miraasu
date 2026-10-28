@@ -10,9 +10,8 @@
  *  wives, and any wives count clears the husband — the old spouse
  *  selector row is replaced, not the rule. */
 import { useMemo } from "react";
-import { RotateCcw, Search, type LucideIcon } from "lucide-react";
+import { RotateCcw, Search } from "lucide-react";
 import { HeirRow } from "@/components/HeirRow";
-import { heirIconForEmoji, heirIconForKey } from "@/components/heirIcons";
 import { ARABIC_EXTENDED_COPY, EXTENDED_HEIR_SECTIONS, type AppLanguage, type ExtendedHeirKey, type HeirInput } from "@/lib/inheritance";
 
 type PrimaryDef = { key: keyof HeirInput; ta: string; en: string; ar: string; ur: string; max?: number };
@@ -128,11 +127,6 @@ function labelFor(key: keyof HeirInput, language: AppLanguage | "ur"): string {
         : (TA_LABEL_OVERRIDES[item.key] ?? item.label);
 }
 
-function iconFor(key: keyof HeirInput): LucideIcon {
-  const item = EXTENDED_BY_KEY.get(key as ExtendedHeirKey);
-  return item ? heirIconForEmoji(item.emoji) : heirIconForKey(key);
-}
-
 function maxFor(key: keyof HeirInput): number | undefined {
   if (key === "husband") return 1;
   if (key === "wives") return 4;
@@ -161,7 +155,7 @@ export function FamilyList({ heirs, onChange, onResetAll, query, onQueryChange, 
 
   const rows = useMemo(() => {
     const build = (keys: (keyof HeirInput)[]) =>
-      keys.map((key) => ({ key, icon: iconFor(key), label: labelFor(key, language), max: maxFor(key) }));
+      keys.map((key) => ({ key, label: labelFor(key, language), max: maxFor(key) }));
     return { male: build(MALE_KEYS), female: build(FEMALE_KEYS) };
   }, [language]);
   const allRows = [...rows.male, ...rows.female];
@@ -180,7 +174,7 @@ export function FamilyList({ heirs, onChange, onResetAll, query, onQueryChange, 
   const renderRows = (list: typeof allRows) => (
     <div className="ms-chips">
       {list.map((row, index) => (
-        <HeirRow key={row.key} index={index} icon={row.icon} label={row.label} value={heirs[row.key] ?? 0} onChange={changeFor(row.key)} max={row.max} language={language} />
+        <HeirRow key={row.key} index={index} label={row.label} value={heirs[row.key] ?? 0} onChange={changeFor(row.key)} max={row.max} language={language} />
       ))}
     </div>
   );

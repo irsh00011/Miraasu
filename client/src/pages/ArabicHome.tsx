@@ -114,7 +114,8 @@ export default function ArabicHome() {
             onDelete={(id) => setHistory((current) => { const next = current.filter((item) => item.id !== id); writeCalculationHistory(next); return next; })}
             onClear={() => { if (window.confirm("هل تريد حذف كل الحسابات المحفوظة؟")) { setHistory([]); writeCalculationHistory([]); } }}
             onNew={fresh}
-            text={{ clear: "حذف الكل", deleteLabel: "حذف الحساب", emptyTitle: "لا توجد حسابات محفوظة", emptyBody: "يُحفظ الحساب تلقائياً عند إكماله.", newLabel: "حساب جديد" }}
+            onBack={() => setView("calculator")}
+            text={{ clear: "حذف الكل", deleteLabel: "حذف الحساب", emptyTitle: "لا توجد حسابات محفوظة", emptyBody: "يُحفظ الحساب تلقائياً عند إكماله.", newLabel: "حساب جديد", backLabel: "السابق" }}
           />
         ) : null}
 
@@ -140,6 +141,7 @@ export default function ArabicHome() {
                   bequestHelp: "بحسب الضوابط المناسبة",
                   distributable: "صافي التركة",
                   next: "التالي",
+                  back: "السابق",
                 }}
               />
             ) : null}
@@ -149,6 +151,7 @@ export default function ArabicHome() {
                 <p className="ms-kicker">الخطوة 2 من 3</p>
                 <h1 className="ms-h1 ms-h1-compact">اختر عائلتك</h1>
                 <p className="ms-lead">اختر الأحياء فقط.</p>
+                <button type="button" onClick={() => setStep(1)} className="ms-btn ms-btn-ghost mt-4 min-h-11! px-3! text-sm!"><ArrowRight size={17} /> السابق</button>
                 <div className="mt-4">
                   <FamilyList heirs={heirs} onChange={updateHeir} onResetAll={() => resetKeys(Object.keys(initialHeirs) as (keyof HeirInput)[])} query={query} onQueryChange={setQuery} onSearchEnter={finish} language="ar" />
                 </div>
@@ -161,6 +164,7 @@ export default function ArabicHome() {
 
             {step === 3 ? (
               <div className="ms-result-page space-y-4">
+                <button type="button" onClick={() => setStep(2)} className="ms-btn ms-btn-ghost min-h-11! px-3! text-sm!"><ArrowRight size={17} /> السابق</button>
                 {result.notices.map((notice) => <div key={notice} className="ms-notice">{noticeArabic(notice)}</div>)}
                 {result.requiresScholarReview ? <p className="ms-notice font-extrabold!">يلزم تأكيد من مختص — هذه النتيجة غير نهائية.</p> : null}
 
@@ -207,7 +211,7 @@ export default function ArabicHome() {
                         <h3>{methodCopy.ar.auditTitle}</h3>
                         <CalculationTrace result={result} language="ar" heirLabels={arabicLabels} />
                       </section>
-                      <BookSourceCard language="ar" />
+                      <div className="ms-popup-section ms-popup-book"><BookSourceCard language="ar" /></div>
                     </ResultDetailsPopup>
                   </>
                 ) : null}

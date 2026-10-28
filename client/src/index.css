@@ -1466,3 +1466,28 @@ button.ms-name-card:focus-visible { outline: none; }
 }
 .ms-popup-section .ms-zero-list { display: grid; gap: 0.375rem; color: #334155; font-size: 0.875rem; line-height: 1.5; }
 .ms-popup-section .ms-zero-list p { margin: 0; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   FAMILY CARDS — controls in the side corner, no icons (2026-10-28)
+   One row per card: the name takes the free width, the toggle or stepper
+   sits pinned to the top side corner of the same card. Frontend only.
+   ═══════════════════════════════════════════════════════════════════ */
+.ms-chip { flex-direction: row; align-items: flex-start; gap: 0.75rem; min-height: 0; }
+.ms-chip-top { flex: 1; min-width: 0; }
+.ms-chip-toggle, .ms-stepper { flex-shrink: 0; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   CALCULATOR ANIMATION — small (2026-10-28)
+   ═══════════════════════════════════════════════════════════════════ */
+.ms-calc-machine { width: 7.5rem; padding: 0.5rem; }
+.ms-calc-display { padding: 0.375rem 0.5rem; min-height: 1.75rem; font-size: 1rem; }
+.ms-calc-keys { gap: 0.25rem; margin-top: 0.5rem; }
+.ms-calc-key { height: 1.4rem; font-size: 0.75rem; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   POPUP — each remaining thing its own card (2026-10-28)
+   The no-share list, the audit trace and the source book each sit in
+   their own bordered card inside the details popup. Frontend only.
+   ═══════════════════════════════════════════════════════════════════ */
+.ms-popup-section { border: 2px solid #2563a8; border-radius: 1rem; padding: 1rem; background: #fff; }
+.ms-popup-section.ms-popup-book figure { margin-top: 0; border-top: 0; padding-top: 0; }
