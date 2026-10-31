@@ -199,18 +199,18 @@ export default function ArabicHome() {
                 </div>
                 {result.allocations.length > 0 ? (
                   <>
-                    <button type="button" onClick={() => setDetailsOpen(true)} className="ms-btn ms-btn-soft min-h-11! w-full! justify-center! text-sm"><BookOpen size={16} /> التفاصيل والمصدر</button>
-                    <ResultDetailsPopup open={detailsOpen} onClose={() => setDetailsOpen(false)} title="التفاصيل والمصدر" language="ar">
-                      {result.exclusions.length > 0 ? (
-                        <section className="ms-popup-section">
-                          <h3>قرابات لا ترث في هذه الحالة (<span className="num">{result.exclusions.length}</span>)</h3>
-                          <div className="ms-zero-list">{result.exclusions.map((item) => <p key={`${item.key}-${item.label}`}><strong>{arabicLabels[item.key as string] ?? item.label}:</strong> محجوب بقريب أقرب.</p>)}</div>
-                        </section>
-                      ) : null}
+                    {result.exclusions.length > 0 ? (
                       <section className="ms-popup-section">
-                        <h3>{methodCopy.ar.auditTitle}</h3>
-                        <CalculationTrace result={result} language="ar" heirLabels={arabicLabels} />
+                        <h3>قرابات لا ترث في هذه الحالة (<span className="num">{result.exclusions.length}</span>)</h3>
+                        <div className="ms-zero-list">{result.exclusions.map((item) => <p key={`${item.key}-${item.label}`}><strong>{arabicLabels[item.key as string] ?? item.label}:</strong> محجوب بقريب أقرب.</p>)}</div>
                       </section>
+                    ) : null}
+                    <section className="ms-popup-section">
+                      <h3>{methodCopy.ar.auditTitle}</h3>
+                      <CalculationTrace result={result} language="ar" heirLabels={arabicLabels} />
+                    </section>
+                    <button type="button" onClick={() => setDetailsOpen(true)} className="ms-btn ms-btn-soft min-h-11! w-full! justify-center! text-sm"><BookOpen size={16} /> المصدر</button>
+                    <ResultDetailsPopup open={detailsOpen} onClose={() => setDetailsOpen(false)} title="المصدر" language="ar">
                       <div className="ms-popup-section ms-popup-book"><BookSourceCard language="ar" /></div>
                     </ResultDetailsPopup>
                   </>

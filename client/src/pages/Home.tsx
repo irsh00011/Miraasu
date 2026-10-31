@@ -347,18 +347,18 @@ export default function Home() {
                 </div>
                 {resultRows.length > 0 ? (
                   <>
-                    <button type="button" onClick={() => setDetailsOpen(true)} className="ms-btn ms-btn-soft min-h-11! w-full! justify-center! text-sm"><BookOpen size={16} /> விவரங்கள் & மூல நூல்</button>
-                    <ResultDetailsPopup open={detailsOpen} onClose={() => setDetailsOpen(false)} title="விவரங்கள் & மூல நூல்" language="ta">
-                      {zeroRows.length > 0 ? (
-                        <section className="ms-popup-section">
-                          <h3>பங்கு இல்லாதவர்கள் (<span className="num">{zeroRows.length}</span>)</h3>
-                          <ul>{zeroRows.map((row) => <li key={`zero-${row.key}`}>{row.label}<span className="ms-zero-reason"> — {row.reason}</span></li>)}</ul>
-                        </section>
-                      ) : null}
+                    {zeroRows.length > 0 ? (
                       <section className="ms-popup-section">
-                        <h3>{methodCopy.ta.auditTitle}</h3>
-                        <CalculationTrace result={result} language="ta" />
+                        <h3>பங்கு இல்லாதவர்கள் (<span className="num">{zeroRows.length}</span>)</h3>
+                        <ul>{zeroRows.map((row) => <li key={`zero-${row.key}`}>{row.label}<span className="ms-zero-reason"> — {row.reason}</span></li>)}</ul>
                       </section>
+                    ) : null}
+                    <section className="ms-popup-section">
+                      <h3>{methodCopy.ta.auditTitle}</h3>
+                      <CalculationTrace result={result} language="ta" />
+                    </section>
+                    <button type="button" onClick={() => setDetailsOpen(true)} className="ms-btn ms-btn-soft min-h-11! w-full! justify-center! text-sm"><BookOpen size={16} /> மூல நூல்</button>
+                    <ResultDetailsPopup open={detailsOpen} onClose={() => setDetailsOpen(false)} title="மூல நூல்" language="ta">
                       <div className="ms-popup-section ms-popup-book"><BookSourceCard language="ta" /></div>
                     </ResultDetailsPopup>
                   </>

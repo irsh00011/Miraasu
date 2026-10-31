@@ -1,14 +1,19 @@
-/** Design: Miraasu Scholarly Ledger — family selection in two sections,
- *  ஆண் வாரிசுகள் (male heirs) and பெண் வாரிசுகள் (female heirs).
- *  Every relationship is its own single connected card: icon + name on top,
- *  the toggle or stepper controls connected below it in the same card.
- *  Tamil names for the listed relationships are exactly as provided,
- *  including the bracketed explanations; unlisted members keep the app's
- *  existing labels. No member added, removed, or duplicated; keys,
- *  calculations and eligibility are untouched. Spouse exclusivity is
- *  preserved on the cards themselves: choosing the husband card clears
- *  wives, and any wives count clears the husband — the old spouse
- *  selector row is replaced, not the rule. */
+/** Design: Miraasu Scholarly Ledger — family selection as one flat list in
+ *  the provided order, with no side headings or group headings. Every
+ *  relationship is its own single card: name on one side, the toggle or
+ *  stepper controls in the side corner of the same card. Tamil names are
+ *  exactly as provided for the listed relationships; members the list
+ *  does not name keep the app's existing labels and follow after them, so
+ *  no member is added, removed, or duplicated. Keys, calculations,
+ *  eligibility and blocking are untouched. Four pairs the list names
+ *  separately (mother's brother/sister, sister's son/daughter, daughter's
+ *  son/daughter, son's daughter's son/daughter) share one calculator
+ *  member each, so each pair shows as one card carrying both names;
+ *  three listed relationships (son's son's daughter, grandfather's
+ *  brothers and their sons) have no matching member and do not appear
+ *  as cards. Spouse exclusivity is preserved on the cards themselves:
+ *  choosing the husband card clears wives, and any wives count clears
+ *  the husband. */
 import { useMemo } from "react";
 import { RotateCcw, Search } from "lucide-react";
 import { HeirRow } from "@/components/HeirRow";
@@ -62,48 +67,61 @@ const URDU_EXTENDED_LABELS: Record<ExtendedHeirKey, string> = {
   mothersSiblingsDescendants: "ان کی اولاد",
 };
 
-/** Tamil names exactly as provided, including the bracketed explanations. */
+/** Tamil names exactly as provided in the ordered list. Pairs that share
+ *  one calculator member carry both provided names on the one card. */
 const TA_PROVIDED_LABELS: Partial<Record<keyof HeirInput, string>> = {
-  sons: "மகன்",
-  sonsSons: "மகனுடைய மகன் (பேரன்)",
-  furtherSonsLineDescendants: "மகனுடைய மகனுடைய மகன் (கொள்ளுப் பேரன்)",
-  father: "தந்தை",
-  paternalGrandfather: "தந்தையுடைய தந்தை (தாத்தா)",
-  furtherPaternalAncestors: "தந்தையுடைய தந்தையுடைய தந்தை (முப்பாட்டன்)",
-  fullBrothers: "உடன்பிறந்த சகோதரர் (அண்ணன் / தம்பி)",
-  fullBrothersSons: "அவருடைய மகன் (சகோதரரின் மகன்)",
-  paternalBrothers: "தந்தை வழிச் சகோதரர் (தந்தை ஒன்று, தாய் வேறு)",
-  paternalBrothersSons: "அவருடைய மகன் (தந்தை வழிச் சகோதரரின் மகன்)",
-  maternalBrothers: "தாய் வழிச் சகோதரர் (தாய் ஒன்று, தந்தை வேறு)",
-  paternalUncles: "தந்தையுடன் பிறந்த சகோதரர்கள் (பெரியாத்தா / சின்னாத்தா)",
-  paternalUnclesSons: "அவர்களுடைய பிள்ளைகள் (பெரியாத்தா / சின்னாத்தாவின் மகன்கள்)",
   husband: "கணவர்",
-  daughters: "மகள்",
-  mother: "தாய்",
   wives: "மனைவி",
-  sonsDaughters: "மகனின் மகள்கள் (பேத்திகள்)",
+  father: "தந்தை",
+  mother: "தாய்",
+  sons: "மகன்",
+  daughters: "மகள்",
+  paternalGrandfather: "தந்தையின் தந்தை (தாத்தா)",
   paternalGrandmothers: "தந்தையின் தாய் (பாட்டி)",
   maternalGrandmothers: "தாயின் தாய் (பாட்டி)",
+  maternalGrandfather: "தாயின் தந்தை (தாய்வழித் தாத்தா)",
+  sonsSons: "மகனுடைய மகன் (பேரன்)",
+  sonsDaughters: "மகனுடைய மகள் (பேத்தி)",
+  furtherSonsLineDescendants: "மகனுடைய மகனுடைய மகன் (கொள்ளுப் பேரன்)",
+  fullBrothers: "உடன்பிறந்த சகோதரர் (அண்ணன் / தம்பி)",
   fullSisters: "உடன்பிறந்த சகோதரி (அக்கா / தங்கை)",
-  paternalSisters: "தந்தை வழிச் சகோதரி (தந்தை ஒன்று, தாய் வேறு)",
-  maternalSisters: "தாய் வழிச் சகோதரி (தாய் ஒன்று, தந்தை வேறு)",
+  paternalBrothers: "தந்தை வழிச் சகோதரர்",
+  paternalSisters: "தந்தை வழிச் சகோதரி",
+  maternalBrothers: "தாய் வழிச் சகோதரர்",
+  maternalSisters: "தாய் வழிச் சகோதரி",
+  fullBrothersSons: "உடன்பிறந்த சகோதரரின் மகன்",
+  paternalBrothersSons: "தந்தை வழிச் சகோதரரின் மகன்",
+  paternalUncles: "தந்தையின் உடன்பிறந்த சகோதரர் (பெரியப்பா / சித்தப்பா)",
+  paternalUnclesSons: "தந்தையின் உடன்பிறந்த சகோதரரின் மகன்",
+  fathersMaternalBrothers: "தந்தையின் தாய் வழிச் சகோதரர்",
+  mothersSiblings: "தாயின் சகோதரர் (மாமா) / தாயின் சகோதரி (சித்தி / பெரியம்மா)",
+  fullBrothersDaughters: "உடன்பிறந்த சகோதரரின் மகள்",
+  fullSistersChildren: "சகோதரியின் மகன் / சகோதரியின் மகள்",
+  daughtersChildren: "மகளின் மகன் / மகளின் மகள்",
+  sonsDaughtersChildren: "மகனின் மகளின் மகன் / மகனின் மகளின் மகள்",
 };
 
-/** Section order follows the provided lists; unlisted members follow by gender. */
-const MALE_KEYS: (keyof HeirInput)[] = [
-  "sons", "sonsSons", "furtherSonsLineDescendants", "father", "paternalGrandfather",
-  "furtherPaternalAncestors", "fullBrothers", "fullBrothersSons", "paternalBrothers",
-  "paternalBrothersSons", "maternalBrothers", "paternalUncles", "paternalUnclesSons",
-  "husband", "maternalGrandfather", "consanguinePaternalUncles",
-  "consanguinePaternalUnclesSons", "fathersMaternalBrothers",
-  "fathersMaternalBrothersDescendants", "maternalBrothersChildren",
+/** The provided order. The list's son's son's daughter, grandfather's
+ *  brothers and their sons have no matching member in the calculator,
+ *  so they do not appear as cards; members the list does not name
+ *  follow after, in the app's existing order, so nothing is lost. */
+const ORDERED_KEYS: (keyof HeirInput)[] = [
+  "husband", "wives", "father", "mother", "sons", "daughters",
+  "paternalGrandfather", "paternalGrandmothers", "maternalGrandmothers",
+  "maternalGrandfather", "sonsSons", "sonsDaughters",
+  "furtherSonsLineDescendants", "fullBrothers", "fullSisters",
+  "paternalBrothers", "paternalSisters", "maternalBrothers",
+  "maternalSisters", "fullBrothersSons", "paternalBrothersSons",
+  "paternalUncles", "paternalUnclesSons", "fathersMaternalBrothers",
+  "mothersSiblings", "fullBrothersDaughters", "fullSistersChildren",
+  "daughtersChildren", "sonsDaughtersChildren",
 ];
-const FEMALE_KEYS: (keyof HeirInput)[] = [
-  "daughters", "mother", "wives", "sonsDaughters", "paternalGrandmothers",
-  "maternalGrandmothers", "fullSisters", "paternalSisters", "maternalSisters",
-  "fullBrothersDaughters", "daughtersChildren", "sonsDaughtersChildren",
-  "fullSistersChildren", "mothersSiblings", "mothersSiblingsDescendants",
+const UNLISTED_KEYS: (keyof HeirInput)[] = [
+  "furtherPaternalAncestors", "consanguinePaternalUncles",
+  "consanguinePaternalUnclesSons", "maternalBrothersChildren",
+  "fathersMaternalBrothersDescendants", "mothersSiblingsDescendants",
 ];
+const ALL_KEYS: (keyof HeirInput)[] = [...ORDERED_KEYS, ...UNLISTED_KEYS];
 
 const EXTENDED_BY_KEY = new Map(EXTENDED_HEIR_SECTIONS.flatMap((section) => section.items).map((item) => [item.key, item]));
 
@@ -146,19 +164,17 @@ type FamilyListProps = {
 export function FamilyList({ heirs, onChange, onResetAll, query, onQueryChange, onSearchEnter, language = "ta" }: FamilyListProps) {
   const copy =
     language === "en"
-      ? { search: "Search a family member…", clear: "Clear all", none: "No match. Clear the search to see everyone.", male: "Male heirs", female: "Female heirs" }
+      ? { search: "Search a family member…", clear: "Clear all", none: "No match. Clear the search to see everyone." }
       : language === "ar"
-        ? { search: "ابحث عن قريب…", clear: "مسح الكل", none: "لا توجد نتيجة. امسح البحث لرؤية الجميع.", male: "الورثة الذكور", female: "الورثة الإناث" }
+        ? { search: "ابحث عن قريب…", clear: "مسح الكل", none: "لا توجد نتيجة. امسح البحث لرؤية الجميع." }
         : language === "ur"
-          ? { search: "رشتہ دار تلاش کریں…", clear: "سب صاف کریں", none: "کوئی نتیجہ نہیں۔ سب دیکھنے کے لیے تلاش صاف کریں۔", male: "مرد ورثاء", female: "خواتین ورثاء" }
-          : { search: "உறவைத் தேடுக…", clear: "அனைத்தையும் அழி", none: "பொருத்தம் இல்லை. தேடலை அழிக்கவும்.", male: "ஆண் வாரிசுகள்", female: "பெண் வாரிசுகள்" };
+          ? { search: "رشتہ دار تلاش کریں…", clear: "سب صاف کریں", none: "کوئی نتیجہ نہیں۔ سب دیکھنے کے لیے تلاش صاف کریں۔" }
+          : { search: "உறவைத் தேடுக…", clear: "அனைத்தையும் அழி", none: "பொருத்தம் இல்லை. தேடலை அழிக்கவும்." };
 
-  const rows = useMemo(() => {
-    const build = (keys: (keyof HeirInput)[]) =>
-      keys.map((key) => ({ key, label: labelFor(key, language), max: maxFor(key) }));
-    return { male: build(MALE_KEYS), female: build(FEMALE_KEYS) };
-  }, [language]);
-  const allRows = [...rows.male, ...rows.female];
+  const allRows = useMemo(
+    () => ALL_KEYS.map((key) => ({ key, label: labelFor(key, language), max: maxFor(key) })),
+    [language],
+  );
 
   const normalizedQuery = query.trim().toLocaleLowerCase();
   const filteredRows = normalizedQuery ? allRows.filter((row) => row.label.toLocaleLowerCase().includes(normalizedQuery)) : allRows;
@@ -209,19 +225,8 @@ export function FamilyList({ heirs, onChange, onResetAll, query, onQueryChange, 
 
       {filteredRows.length === 0 ? (
         <p className="rounded-2xl border border-dashed border-[rgba(22,79,134,0.3)] bg-white/70 px-4 py-6 text-center text-sm text-slate-600">{copy.none}</p>
-      ) : normalizedQuery ? (
-        renderRows(filteredRows)
       ) : (
-        <>
-          <section>
-            <h2 className="ms-gender-title">{copy.male}</h2>
-            {renderRows(rows.male)}
-          </section>
-          <section>
-            <h2 className="ms-gender-title">{copy.female}</h2>
-            {renderRows(rows.female)}
-          </section>
-        </>
+        renderRows(filteredRows)
       )}
     </div>
   );

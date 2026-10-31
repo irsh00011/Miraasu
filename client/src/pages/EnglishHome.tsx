@@ -234,18 +234,18 @@ export default function EnglishHome() {
                 </div>
                 {result.allocations.length > 0 ? (
                   <>
-                    <button type="button" onClick={() => setDetailsOpen(true)} className="ms-btn ms-btn-soft min-h-11! w-full! justify-center! text-sm"><BookOpen size={16} /> Details & source book</button>
-                    <ResultDetailsPopup open={detailsOpen} onClose={() => setDetailsOpen(false)} title="Details & source book" language="en">
-                      {result.exclusions.length > 0 ? (
-                        <section className="ms-popup-section">
-                          <h3>No share (<span className="num">{result.exclusions.length}</span>)</h3>
-                          <ul>{result.exclusions.map((item, index) => <li key={`exclusion-${item.key ?? index}`}>{labels[item.key as string] ?? item.label}<span className="ms-zero-reason"> — blocked by a nearer relative.</span></li>)}</ul>
-                        </section>
-                      ) : null}
+                    {result.exclusions.length > 0 ? (
                       <section className="ms-popup-section">
-                        <h3>{methodCopy.en.auditTitle}</h3>
-                        <CalculationTrace result={result} language="en" heirLabels={labels} />
+                        <h3>No share (<span className="num">{result.exclusions.length}</span>)</h3>
+                        <ul>{result.exclusions.map((item, index) => <li key={`exclusion-${item.key ?? index}`}>{labels[item.key as string] ?? item.label}<span className="ms-zero-reason"> — blocked by a nearer relative.</span></li>)}</ul>
                       </section>
+                    ) : null}
+                    <section className="ms-popup-section">
+                      <h3>{methodCopy.en.auditTitle}</h3>
+                      <CalculationTrace result={result} language="en" heirLabels={labels} />
+                    </section>
+                    <button type="button" onClick={() => setDetailsOpen(true)} className="ms-btn ms-btn-soft min-h-11! w-full! justify-center! text-sm"><BookOpen size={16} /> Source book</button>
+                    <ResultDetailsPopup open={detailsOpen} onClose={() => setDetailsOpen(false)} title="Source book" language="en">
                       <div className="ms-popup-section ms-popup-book"><BookSourceCard language="en" /></div>
                     </ResultDetailsPopup>
                   </>
