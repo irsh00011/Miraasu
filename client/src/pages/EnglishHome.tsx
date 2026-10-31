@@ -12,7 +12,7 @@ import { aggregateAllocationsForDisplay, asabahPartsFor, calculateInheritance, f
 import { AppHeader } from "@/components/calc/AppHeader";
 import { EstateStep } from "@/components/calc/EstateStep";
 import { HistoryView } from "@/components/calc/HistoryView";
-import { ShareTable, buildShareTableRows, resultCardMaxFor } from "@/components/calc/ShareTable";
+import { ShareTable, buildShareTableRows } from "@/components/calc/ShareTable";
 
 import { AnimatedMoney } from "@/components/calc/AnimatedMoney";
 import { StepBar, StepNav, type Step } from "@/components/calc/StepBar";
@@ -118,21 +118,6 @@ export default function EnglishHome() {
   });
   const noShareNames = result.exclusions.map((item) => labels[item.key as string] ?? item.label);
 
-  /* Result cards: tap toggles the blue selected state; a stepper on a
-   * countable heir changes the count and the result recomputes live. */
-  const [selectedResultKeys, setSelectedResultKeys] = useState<ReadonlySet<string>>(new Set());
-  const toggleResultSelect = (baseKey: string) =>
-    setSelectedResultKeys((current) => {
-      const next = new Set(current);
-      if (next.has(baseKey)) next.delete(baseKey);
-      else next.add(baseKey);
-      return next;
-    });
-  const stepResultHeir = (baseKey: string, delta: number) => {
-    const key = baseKey as keyof HeirInput;
-    updateHeir(key, Math.min(resultCardMaxFor(baseKey), Math.max(0, (heirs[key] ?? 0) + delta)));
-  };
-
   return (
     <>
     {calculating ? <CalculatingOverlay language="en" /> : null}
@@ -220,9 +205,6 @@ export default function EnglishHome() {
                   language="en"
                   rows={tableRows}
                   money={money}
-                  selected={selectedResultKeys}
-                  onSelect={toggleResultSelect}
-                  onStep={stepResultHeir}
                   empty={(
                     <div className="ms-empty">
                       <UsersRound className="mx-auto text-slate-300" size={30} />

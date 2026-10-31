@@ -1521,23 +1521,12 @@ button.ms-name-card:focus-visible { outline: none; }
 }
 
 /* ═══════════════════════════════════════════════════════════════════
-   RESULT CARDS — tap to turn blue, stepper on countable heirs
-   (2026-10-31). Tap toggles the bright-blue selected state; the
-   stepper changes the count and the result recomputes. Single heirs
-   (father, mother, husband, paternal grandfather) get no stepper.
-   Frontend only: counts flow through the existing heirs state.
+   FAMILY CARDS — tap the card itself (2026-10-31). Tapping a card's
+   name area selects it: single heirs toggle, countable heirs get added
+   at 1 when empty; the stepper still changes counts. Frontend only.
    ═══════════════════════════════════════════════════════════════════ */
-.ms-share-trow { cursor: pointer; }
-.ms-share-trow.is-selected {
-  background: linear-gradient(165deg, #3b82f6 0%, #2563a8 55%, #1d4ed8 100%);
-  border-color: #ffffff;
-  box-shadow: 0 0 0 3px #7fb3e8, 0 14px 28px -12px rgba(11, 42, 79, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.22);
-}
-.ms-share-stepper { display: inline-flex; align-items: center; gap: 0.25rem; margin-inline-start: auto; }
-.ms-share-stepbtn {
-  display: grid; place-items: center; width: 1.75rem; height: 1.75rem;
-  border-radius: 999px; border: 1.5px solid rgba(255, 255, 255, 0.7);
-  background: rgba(255, 255, 255, 0.16); color: #ffffff; cursor: pointer;
-}
-.ms-share-stepbtn:disabled { opacity: 0.4; cursor: default; }
-.ms-share-stepval { min-width: 1.5rem; text-align: center; font-weight: 800; color: #ffffff; font-variant-numeric: tabular-nums; }
+.ms-chip-top { cursor: pointer; }
+
+/* FAMILY CARDS — single heirs have no separate add button: the name
+ * itself is the button, so it must look like plain name text. */
+button.ms-chip-top { background: transparent; border: 0; padding: 0; font: inherit; color: inherit; text-align: start; }
