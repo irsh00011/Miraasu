@@ -9,12 +9,10 @@ import { CalculatingOverlay } from "@/components/calc/CalculatingOverlay";
 import { ResultDetailsPopup } from "@/components/calc/ResultDetailsPopup";
 import { BookSourceCard } from "@/components/BookSourceCard";
 import { ARABIC_EXTENDED_COPY, aggregateAllocationsForDisplay, asabahPartsFor, calculateInheritance, fractionToNumber, fractionToText, type EstateInput, type HeirInput } from "@/lib/inheritance";
-import { CalculationTrace } from "@/components/CalculationTrace";
 import { AppHeader } from "@/components/calc/AppHeader";
 import { EstateStep } from "@/components/calc/EstateStep";
 import { HistoryView } from "@/components/calc/HistoryView";
-import { methodCopy } from "@/components/calc/MethodPanels";
-import { ShareTable, buildShareTableRows } from "@/components/calc/ShareTable";
+import { ShareTable, buildShareTableRows, resultCardMaxFor } from "@/components/calc/ShareTable";
 
 import { AnimatedMoney } from "@/components/calc/AnimatedMoney";
 import { StepBar, StepNav, type Step } from "@/components/calc/StepBar";
@@ -86,6 +84,21 @@ export default function ArabicHome() {
     };
   });
   const noShareNames = result.exclusions.map((item) => arabicLabels[item.key as string] ?? item.label);
+
+  /* Result cards: tap toggles the blue selected state; a stepper on a
+   * countable heir changes the count and the result recomputes live. */
+  const [selectedResultKeys, setSelectedResultKeys] = useState<ReadonlySet<string>>(new Set());
+  const toggleResultSelect = (baseKey: string) =>
+    setSelectedResultKeys((current) => {
+      const next = new Set(current);
+      if (next.has(baseKey)) next.delete(baseKey);
+      else next.add(baseKey);
+      return next;
+    });
+  const stepResultHeir = (baseKey: string, delta: number) => {
+    const key = baseKey as keyof HeirInput;
+    updateHeir(key, Math.min(resultCardMaxFor(baseKey), Math.max(0, (heirs[key] ?? 0) + delta)));
+  };
 
   return (
     <>
@@ -172,6 +185,9 @@ export default function ArabicHome() {
                   language="ar"
                   rows={tableRows}
                   money={money}
+                  selected={selectedResultKeys}
+                  onSelect={toggleResultSelect}
+                  onStep={stepResultHeir}
                   empty={(
                     <div className="ms-empty">
                       <UsersRound className="mx-auto text-slate-300" size={30} />
@@ -200,15 +216,20 @@ export default function ArabicHome() {
                 {result.allocations.length > 0 ? (
                   <>
                     {result.exclusions.length > 0 ? (
-                      <section className="ms-popup-section">
-                        <h3>قرابات لا ترث في هذه الحالة (<span className="num">{result.exclusions.length}</span>)</h3>
+                      <details className="ms-popup-section ms-noshare ms-collapsible">
+                        <summary className="ms-collapse-title">قرابات لا ترث في هذه الحالة (<span className="num">{result.exclusions.length}</span>)</summary>
                         <div className="ms-zero-list">{result.exclusions.map((item) => <p key={`${item.key}-${item.label}`}><strong>{arabicLabels[item.key as string] ?? item.label}:</strong> محجوب بقريب أقرب.</p>)}</div>
-                      </section>
+                      </details>
                     ) : null}
-                    <section className="ms-popup-section">
-                      <h3>{methodCopy.ar.auditTitle}</h3>
-                      <CalculationTrace result={result} language="ar" heirLabels={arabicLabels} />
-                    </section>
+                    <details className="ms-popup-section ms-collapsible">
+                      <summary className="ms-collapse-title">مجموع الحصص</summary>
+                      <div className="ms-sum-list">
+                        {printRows.map((row, index) => (
+                          <p key={`sum-${index}`} className="ms-sum-row"><span>{row.name} — {row.share}</span><strong className="num">{row.amount}</strong></p>
+                        ))}
+                        <p className="ms-sum-row ms-sum-total"><span>إجمالي الموزع</span><strong className="num">{money(distributedTotal)}</strong></p>
+                      </div>
+                    </details>
                     <button type="button" onClick={() => setDetailsOpen(true)} className="ms-btn ms-btn-soft min-h-11! w-full! justify-center! text-sm"><BookOpen size={16} /> المصدر</button>
                     <ResultDetailsPopup open={detailsOpen} onClose={() => setDetailsOpen(false)} title="المصدر" language="ar">
                       <div className="ms-popup-section ms-popup-book"><BookSourceCard language="ar" /></div>

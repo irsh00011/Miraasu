@@ -18,12 +18,10 @@ import {
   type EstateInput,
   type HeirInput,
 } from "@/lib/inheritance";
-import { CalculationTrace } from "@/components/CalculationTrace";
 import { AppHeader } from "@/components/calc/AppHeader";
 import { EstateStep } from "@/components/calc/EstateStep";
 import { HistoryView } from "@/components/calc/HistoryView";
-import { methodCopy } from "@/components/calc/MethodPanels";
-import { ShareTable, buildShareTableRows } from "@/components/calc/ShareTable";
+import { ShareTable, buildShareTableRows, resultCardMaxFor } from "@/components/calc/ShareTable";
 
 import { AnimatedMoney } from "@/components/calc/AnimatedMoney";
 import { StepBar, StepNav, type Step } from "@/components/calc/StepBar";
@@ -228,6 +226,21 @@ export default function Home() {
   }));
   const noShareNames = zeroRows.map((row) => row.label);
 
+  /* Result cards: tap toggles the blue selected state; a stepper on a
+   * countable heir changes the count and the result recomputes live. */
+  const [selectedResultKeys, setSelectedResultKeys] = useState<ReadonlySet<string>>(new Set());
+  const toggleResultSelect = (baseKey: string) =>
+    setSelectedResultKeys((current) => {
+      const next = new Set(current);
+      if (next.has(baseKey)) next.delete(baseKey);
+      else next.add(baseKey);
+      return next;
+    });
+  const stepResultHeir = (baseKey: string, delta: number) => {
+    const key = baseKey as keyof HeirInput;
+    updateHeir(key, Math.min(resultCardMaxFor(baseKey), Math.max(0, (heirs[key] ?? 0) + delta)));
+  };
+
   return (
     <>
     {calculating ? <CalculatingOverlay language="ta" /> : null}
@@ -320,6 +333,9 @@ export default function Home() {
                   language="ta"
                   rows={tableRows}
                   money={money}
+                  selected={selectedResultKeys}
+                  onSelect={toggleResultSelect}
+                  onStep={stepResultHeir}
                   empty={(
                     <div className="ms-empty">
                       <UsersRound className="mx-auto text-slate-300" size={30} />
@@ -348,15 +364,20 @@ export default function Home() {
                 {resultRows.length > 0 ? (
                   <>
                     {zeroRows.length > 0 ? (
-                      <section className="ms-popup-section">
-                        <h3>பங்கு இல்லாதவர்கள் (<span className="num">{zeroRows.length}</span>)</h3>
+                      <details className="ms-popup-section ms-noshare ms-collapsible">
+                        <summary className="ms-collapse-title">பங்கு இல்லாதவர்கள் (<span className="num">{zeroRows.length}</span>)</summary>
                         <ul>{zeroRows.map((row) => <li key={`zero-${row.key}`}>{row.label}<span className="ms-zero-reason"> — {row.reason}</span></li>)}</ul>
-                      </section>
+                      </details>
                     ) : null}
-                    <section className="ms-popup-section">
-                      <h3>{methodCopy.ta.auditTitle}</h3>
-                      <CalculationTrace result={result} language="ta" />
-                    </section>
+                    <details className="ms-popup-section ms-collapsible">
+                      <summary className="ms-collapse-title">பங்குகளின் கூட்டுத்தொகை</summary>
+                      <div className="ms-sum-list">
+                        {printRows.map((row, index) => (
+                          <p key={`sum-${index}`} className="ms-sum-row"><span>{row.name} — {row.share}</span><strong className="num">{row.amount}</strong></p>
+                        ))}
+                        <p className="ms-sum-row ms-sum-total"><span>பகிரப்பட்ட மொத்தம்</span><strong className="num">{money(distributedTotal)}</strong></p>
+                      </div>
+                    </details>
                     <button type="button" onClick={() => setDetailsOpen(true)} className="ms-btn ms-btn-soft min-h-11! w-full! justify-center! text-sm"><BookOpen size={16} /> மூல நூல்</button>
                     <ResultDetailsPopup open={detailsOpen} onClose={() => setDetailsOpen(false)} title="மூல நூல்" language="ta">
                       <div className="ms-popup-section ms-popup-book"><BookSourceCard language="ta" /></div>

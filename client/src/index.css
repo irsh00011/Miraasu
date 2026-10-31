@@ -1491,3 +1491,53 @@ button.ms-name-card:focus-visible { outline: none; }
    ═══════════════════════════════════════════════════════════════════ */
 .ms-popup-section { border: 2px solid #2563a8; border-radius: 1rem; padding: 1rem; background: #fff; }
 .ms-popup-section.ms-popup-book figure { margin-top: 0; border-top: 0; padding-top: 0; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   RESULT PAGE — simple sum card, strong red no-share card,
+   family screen spouse top block (2026-10-31). Frontend only.
+   ═══════════════════════════════════════════════════════════════════ */
+.ms-sum-list { display: grid; gap: 0; }
+.ms-sum-row { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin: 0; padding: 0.625rem 0; border-bottom: 1px dashed rgba(22, 79, 134, 0.25); font-size: 0.9375rem; line-height: 1.5; color: #334155; }
+.ms-sum-row:last-child { border-bottom: 0; }
+.ms-sum-row .num { white-space: nowrap; color: #0f3a66; font-weight: 800; }
+.ms-sum-total { margin-top: 0.5rem; padding-top: 0.75rem; border-top: 3px solid #2563a8; border-bottom: 0; color: #0f3a66; font-weight: 800; }
+.ms-popup-section.ms-noshare { border: 3px solid #b91c1c; background: #fef2f2; }
+.ms-popup-section.ms-noshare h3 { color: #991b1b; }
+.ms-popup-section.ms-noshare ul, .ms-popup-section.ms-noshare .ms-zero-list { color: #7f1d1d; }
+.ms-popup-section.ms-noshare .ms-zero-reason { color: #b91c1c; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   TAP-TO-OPEN CARDS (2026-10-31). Cards start closed, showing only the
+   title; tapping the title opens them. Frontend only.
+   ═══════════════════════════════════════════════════════════════════ */
+.ms-collapsible > summary.ms-collapse-title { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; margin: 0; color: var(--ms-navy); font-size: 0.95rem; font-weight: 800; line-height: 1.5; cursor: pointer; list-style: none; }
+.ms-collapsible > summary.ms-collapse-title::-webkit-details-marker { display: none; }
+.ms-collapsible > summary.ms-collapse-title::after { content: "▾"; flex-shrink: 0; font-size: 0.875rem; transition: rotate 0.2s ease; }
+.ms-collapsible[open] > summary.ms-collapse-title::after { rotate: 180deg; }
+.ms-collapsible[open] > summary.ms-collapse-title { margin-bottom: 0.5rem; }
+.ms-popup-section.ms-noshare > summary.ms-collapse-title { color: #991b1b; }
+@media (prefers-reduced-motion: reduce) {
+  .ms-collapsible > summary.ms-collapse-title::after { transition: none; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   RESULT CARDS — tap to turn blue, stepper on countable heirs
+   (2026-10-31). Tap toggles the bright-blue selected state; the
+   stepper changes the count and the result recomputes. Single heirs
+   (father, mother, husband, paternal grandfather) get no stepper.
+   Frontend only: counts flow through the existing heirs state.
+   ═══════════════════════════════════════════════════════════════════ */
+.ms-share-trow { cursor: pointer; }
+.ms-share-trow.is-selected {
+  background: linear-gradient(165deg, #3b82f6 0%, #2563a8 55%, #1d4ed8 100%);
+  border-color: #ffffff;
+  box-shadow: 0 0 0 3px #7fb3e8, 0 14px 28px -12px rgba(11, 42, 79, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+.ms-share-stepper { display: inline-flex; align-items: center; gap: 0.25rem; margin-inline-start: auto; }
+.ms-share-stepbtn {
+  display: grid; place-items: center; width: 1.75rem; height: 1.75rem;
+  border-radius: 999px; border: 1.5px solid rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.16); color: #ffffff; cursor: pointer;
+}
+.ms-share-stepbtn:disabled { opacity: 0.4; cursor: default; }
+.ms-share-stepval { min-width: 1.5rem; text-align: center; font-weight: 800; color: #ffffff; font-variant-numeric: tabular-nums; }
