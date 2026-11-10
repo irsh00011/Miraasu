@@ -236,6 +236,7 @@ export default function Home() {
         homeLabel="முகப்பு"
         historyLabel="வரலாறு"
         calculatorLabel="கணக்கீடு"
+        specialLabel="சிறப்பு முறைகள்"
         historyActive={view === "history"}
         onToggleHistory={() => setView(view === "history" ? "calculator" : "history")}
       />

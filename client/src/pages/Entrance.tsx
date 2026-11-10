@@ -143,6 +143,9 @@ export default function Entrance() {
                 <button type="button" onClick={() => setStep("language")} className="ent-start">
                   Start <ArrowRight size={18} />
                 </button>
+                <a href="/special" className="ent-special-link">
+                  Special Inheritance Methods · சிறப்பு வாரிசுரிமை முறைகள்
+                </a>
               </div>
             </section>
           ) : null}

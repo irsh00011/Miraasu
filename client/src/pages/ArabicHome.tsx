@@ -95,6 +95,7 @@ export default function ArabicHome() {
         homeLabel="الرئيسية"
         historyLabel="السجل"
         calculatorLabel="الحاسبة"
+        specialLabel="طرق خاصة"
         historyActive={view === "history"}
         onToggleHistory={() => setView(view === "history" ? "calculator" : "history")}
       />

@@ -13,6 +13,7 @@ const ArabicHome = lazy(() => import("./pages/ArabicHome"));
 const UrduHome = lazy(() => import("./pages/UrduHome"));
 const Home = lazy(() => import("./pages/Home"));
 const ResearchPage = lazy(() => import("./pages/ResearchPage"));
+const SpecialMethodsPage = lazy(() => import("./pages/SpecialMethodsPage"));
 
 function RouteLoader() {
   return (
@@ -49,6 +50,7 @@ function Router() {
         <Route path={"/ar"} component={ArabicHome} />
         <Route path={"/ur"} component={UrduHome} />
         <Route path={"/research"} component={ResearchPage} />
+        <Route path={"/special"} component={SpecialMethodsPage} />
         <Route path={"/404"} component={NotFound} />
         {/* Final fallback route */}
         <Route component={NotFound} />

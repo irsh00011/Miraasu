@@ -1,5 +1,5 @@
 /** Design: Miraasu Scholarly Ledger — slim premium header, navy serif wordmark, single history action. */
-import { Calculator, History } from "lucide-react";
+import { BookOpen, Calculator, History } from "lucide-react";
 
 type Props = {
   title: string;
@@ -9,9 +9,11 @@ type Props = {
   calculatorLabel: string;
   historyActive: boolean;
   onToggleHistory: () => void;
+  /** Label for the Special Inheritance Methods link (page language); omitted = no link. */
+  specialLabel?: string;
 };
 
-export function AppHeader({ title, subtitle, homeLabel, historyLabel, calculatorLabel, historyActive, onToggleHistory }: Props) {
+export function AppHeader({ title, subtitle, homeLabel, historyLabel, calculatorLabel, historyActive, onToggleHistory, specialLabel }: Props) {
   const toggleLabel = historyActive ? calculatorLabel : historyLabel;
   return (
     <header className="ms-header">
@@ -23,9 +25,17 @@ export function AppHeader({ title, subtitle, homeLabel, historyLabel, calculator
             {subtitle ? <span className="ms-brand-sub">{subtitle}</span> : null}
           </span>
         </a>
-        <button type="button" onClick={onToggleHistory} aria-label={toggleLabel} title={toggleLabel} className="ms-icon-btn">
-          {historyActive ? <Calculator size={18} /> : <History size={18} />}
-        </button>
+        <span className="ms-header-actions">
+          {specialLabel ? (
+            <a href="/special" className="ms-special-link">
+              <BookOpen size={15} aria-hidden="true" />
+              <span>{specialLabel}</span>
+            </a>
+          ) : null}
+          <button type="button" onClick={onToggleHistory} aria-label={toggleLabel} title={toggleLabel} className="ms-icon-btn">
+            {historyActive ? <Calculator size={18} /> : <History size={18} />}
+          </button>
+        </span>
       </div>
     </header>
   );

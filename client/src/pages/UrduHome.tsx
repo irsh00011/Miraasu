@@ -168,6 +168,7 @@ export default function UrduHome() {
         homeLabel="ہوم"
         historyLabel="ہسٹری"
         calculatorLabel="کیلکولیٹر"
+        specialLabel="خصوصی طریقے"
         historyActive={view === "history"}
         onToggleHistory={() => setView(view === "history" ? "calculator" : "history")}
       />

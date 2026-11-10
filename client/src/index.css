@@ -1530,3 +1530,236 @@ button.ms-name-card:focus-visible { outline: none; }
 /* FAMILY CARDS — single heirs have no separate add button: the name
  * itself is the button, so it must look like plain name text. */
 button.ms-chip-top { background: transparent; border: 0; padding: 0; font: inherit; color: inherit; text-align: start; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   SPECIAL INHERITANCE METHODS — /special (2026-11-10).
+   Calculator-first sections for the 12 topics from the Tamil book.
+   Blue and white only. Unlayered rules (Tailwind v4: appended
+   unlayered CSS beats layered rules). Frontend only.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Header "Special methods" link (AppHeader, all four Home pages). */
+.ms-header-actions { display: inline-flex; align-items: center; gap: 0.5rem; }
+.ms-special-link { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.45rem 0.7rem; border: 2px solid #2563a8; border-radius: 999px; background: #fff; color: #16467e; font-size: 0.8rem; font-weight: 800; line-height: 1; text-decoration: none; white-space: nowrap; }
+.ms-special-link:hover { background: #eff6ff; }
+@media (max-width: 560px) { .ms-special-link span { display: none; } .ms-special-link { padding: 0.45rem 0.55rem; } }
+
+/* Entrance welcome-step link. */
+.ent-special-link { display: inline-block; margin-top: 0.9rem; color: #16467e; font-size: 0.9rem; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+.ent-special-link:hover { color: #0e3260; }
+
+/* Page shell. */
+.ms-special-page { min-height: 100vh; background: #f7f8fb; color: #0f172a; }
+.ms-special-header { position: sticky; top: 0; z-index: 20; border-bottom: 2px solid #dbeafe; background: rgba(255,255,255,0.95); backdrop-filter: blur(6px); }
+.ms-special-header-inner { max-width: 72rem; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 0.8rem 1rem; flex-wrap: wrap; }
+@media (max-width: 560px) {
+  .ms-special-header-inner { padding: 0.7rem 0.75rem; gap: 0.5rem; }
+  .ms-special-lang svg { display: none; }
+  .ms-special-lang-btn { padding: 0.3rem 0.55rem; }
+  .ms-special-back { font-size: 0.85rem; min-width: 0; }
+}
+.ms-special-back { display: inline-flex; align-items: center; gap: 0.4rem; color: #16467e; font-size: 0.9rem; font-weight: 800; text-decoration: none; }
+.ms-special-back:hover { text-decoration: underline; }
+.ms-special-lang { display: inline-flex; align-items: center; gap: 0.4rem; color: #16467e; }
+.ms-special-lang-btn { border: 2px solid #2563a8; border-radius: 999px; background: #fff; color: #16467e; padding: 0.35rem 0.8rem; font-size: 0.8rem; font-weight: 800; cursor: pointer; }
+.ms-special-lang-btn.is-on { background: #16467e; color: #fff; }
+.ms-special-main { max-width: 72rem; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+.ms-special-hero { max-width: 56rem; }
+.ms-special-eyebrow { color: #2563a8; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; }
+.ms-special-title { margin-top: 0.5rem; color: #0e3260; font-size: 2rem; font-weight: 800; line-height: 1.25; }
+@media (min-width: 640px) { .ms-special-title { font-size: 2.6rem; } }
+.ms-special-intro { margin-top: 0.75rem; color: #334155; font-size: 1rem; line-height: 1.7; }
+.ms-special-rounding { margin-top: 0.75rem; padding: 0.7rem 0.9rem; border: 2px solid #2563a8; border-radius: 0.9rem; background: #eff6ff; color: #16467e; font-size: 0.875rem; font-weight: 700; line-height: 1.6; }
+
+/* Topic grid. */
+.ms-special-grid { margin-top: 2rem; }
+.ms-special-grid-heading { color: #0e3260; font-size: 1.25rem; font-weight: 800; }
+.ms-special-grid-cards { margin-top: 1rem; display: grid; gap: 0.75rem; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (min-width: 768px) { .ms-special-grid-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (min-width: 1024px) { .ms-special-grid-cards { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.ms-special-grid-card { display: flex; flex-direction: column; gap: 0.15rem; padding: 1rem; border: 2px solid #2563a8; border-radius: 1rem; background: #fff; color: inherit; text-decoration: none; }
+.ms-special-grid-card:hover { background: #eff6ff; }
+.ms-special-grid-num { color: #2563a8; font-size: 0.8rem; font-weight: 800; }
+.ms-special-grid-title { color: #0e3260; font-size: 0.95rem; font-weight: 800; line-height: 1.4; }
+.ms-special-grid-ar { color: #16467e; font-size: 0.95rem; }
+.ms-special-grid-ref { color: #64748b; font-size: 0.75rem; font-weight: 700; }
+
+/* Topic sections. */
+.ms-special-topic { margin-top: 2.5rem; padding-top: 2rem; border-top: 3px solid #2563a8; scroll-margin-top: 5rem; }
+.ms-special-topic-head { display: flex; align-items: flex-start; gap: 0.9rem; flex-wrap: wrap; }
+.ms-special-topic-num { color: #2563a8; font-size: 1.6rem; font-weight: 800; line-height: 1; }
+.ms-special-topic-title { color: #0e3260; font-size: 1.5rem; font-weight: 800; line-height: 1.3; }
+.ms-special-topic-ar { color: #16467e; font-weight: 700; }
+.ms-special-topic-sub { color: #64748b; font-size: 0.9rem; font-weight: 700; }
+.ms-special-book-chip { margin-inline-start: auto; padding: 0.3rem 0.7rem; border: 2px solid #2563a8; border-radius: 999px; background: #eff6ff; color: #16467e; font-size: 0.75rem; font-weight: 800; white-space: nowrap; }
+
+/* Scholar banner. */
+.ms-special-scholar { margin-top: 1rem; padding: 0.9rem 1rem; border: 2px solid #2563a8; border-inline-start: 6px solid #2563a8; border-radius: 0.9rem; background: #eff6ff; color: #0e3260; }
+.ms-special-scholar-title { font-weight: 800; }
+.ms-special-scholar p { margin: 0.25rem 0 0; font-size: 0.9rem; line-height: 1.6; }
+
+/* Calculator card. */
+.ms-special-calc { margin-top: 1.25rem; border: 3px solid #2563a8; border-radius: 1.1rem; background: #fff; overflow: hidden; }
+.ms-special-calc-head { display: flex; align-items: center; gap: 0.5rem; padding: 0.9rem 1.1rem; background: #16467e; color: #fff; }
+.ms-special-calc-head h3 { font-size: 1.05rem; font-weight: 800; }
+.ms-special-calc-body { padding: 1.1rem; }
+.ms-special-hint { color: #334155; font-size: 0.92rem; line-height: 1.6; }
+.ms-special-field { display: block; margin-top: 1rem; color: #0e3260; font-size: 0.9rem; font-weight: 700; }
+.ms-special-field-label { color: #0e3260; font-size: 0.9rem; font-weight: 800; }
+.ms-special-input { width: 100%; margin-top: 0.35rem; padding: 0.6rem 0.75rem; border: 2px solid #2563a8; border-radius: 0.7rem; background: #fff; color: #0f172a; font-size: 0.95rem; }
+.ms-special-input:focus { outline: 3px solid #93c5fd; outline-offset: 1px; }
+.ms-special-money-wrap { display: flex; align-items: center; gap: 0.45rem; margin-top: 0.35rem; padding: 0 0.75rem; border: 2px solid #2563a8; border-radius: 0.7rem; background: #fff; color: #16467e; font-weight: 800; }
+.ms-special-money-wrap .ms-special-input { margin-top: 0; border: 0; padding-inline: 0; }
+.ms-special-money-wrap .ms-special-input:focus { outline: none; }
+.ms-special-field .ms-special-input { display: block; }
+select.ms-special-input { cursor: pointer; }
+
+/* Steppers + heir picker. */
+.ms-special-stepper { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; padding: 0.45rem 0.6rem; border: 2px solid #dbeafe; border-radius: 0.7rem; background: #f8fafc; }
+.ms-special-stepper-label { font-size: 0.88rem; font-weight: 700; color: #0e3260; }
+.ms-special-stepper-controls { display: inline-flex; align-items: center; gap: 0.5rem; }
+.ms-special-step-btn { width: 2rem; height: 2rem; border: 2px solid #2563a8; border-radius: 0.6rem; background: #fff; color: #16467e; font-size: 1.1rem; font-weight: 800; line-height: 1; cursor: pointer; }
+.ms-special-step-btn:disabled { opacity: 0.4; cursor: default; }
+.ms-special-step-value { min-width: 1.5rem; text-align: center; font-weight: 800; color: #0e3260; }
+.ms-special-heirs { margin-top: 1rem; padding: 0.9rem; border: 2px solid #dbeafe; border-radius: 0.9rem; background: #f8fafc; }
+.ms-special-heir-grid { margin-top: 0.7rem; display: grid; gap: 0.6rem; }
+@media (min-width: 640px) { .ms-special-heir-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.ms-special-heir-row { display: flex; flex-direction: column; gap: 0.4rem; }
+.ms-special-single { padding: 0.55rem 0.7rem; border: 2px solid #2563a8; border-radius: 0.7rem; background: #fff; color: #16467e; font-size: 0.9rem; font-weight: 700; text-align: start; cursor: pointer; }
+.ms-special-single.is-on { background: #16467e; color: #fff; }
+.ms-special-name-input { margin-top: 0; }
+.ms-special-names { display: grid; gap: 0.35rem; }
+
+/* Claimant / debt / death rows. */
+.ms-special-claimant, .ms-special-debt-row { display: grid; gap: 0.6rem; margin-top: 0.7rem; padding: 0.8rem; border: 2px solid #dbeafe; border-radius: 0.9rem; background: #fff; }
+@media (min-width: 640px) { .ms-special-claimant { grid-template-columns: 1.4fr 1.2fr 0.9fr 0.8fr 0.9fr auto; align-items: end; } .ms-special-debt-row { grid-template-columns: 1fr 1fr auto; align-items: end; } }
+.ms-special-claimant .ms-special-field, .ms-special-debt-row .ms-special-field { margin-top: 0; }
+.ms-special-death { margin-top: 1rem; padding: 1rem; border: 2px solid #2563a8; border-radius: 0.9rem; background: #f8fafc; }
+.ms-special-death-head { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; }
+.ms-special-chain { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin-top: 0.7rem; }
+.ms-special-chain-link { display: inline-flex; align-items: center; gap: 0.5rem; }
+.ms-special-chain-link .ms-special-input { width: auto; margin-top: 0; }
+.ms-special-chain-preview { margin-top: 0.6rem; color: #16467e; font-weight: 800; }
+
+/* Segmented controls + actions. */
+.ms-special-seg { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; }
+.ms-special-seg-btn { padding: 0.55rem 0.9rem; border: 2px solid #2563a8; border-radius: 999px; background: #fff; color: #16467e; font-size: 0.88rem; font-weight: 800; cursor: pointer; }
+.ms-special-seg-btn.is-on { background: #16467e; color: #fff; }
+.ms-special-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 1.1rem; }
+.ms-special-load-btn, .ms-special-calc-btn, .ms-special-add-btn { display: inline-flex; align-items: center; gap: 0.4rem; border-radius: 0.8rem; font-weight: 800; cursor: pointer; }
+.ms-special-load-btn { padding: 0.6rem 0.9rem; border: 2px solid #2563a8; background: #fff; color: #16467e; font-size: 0.88rem; }
+.ms-special-calc-btn { padding: 0.65rem 1.1rem; border: 2px solid #16467e; background: #16467e; color: #fff; font-size: 0.95rem; }
+.ms-special-add-btn { margin-top: 0.7rem; padding: 0.5rem 0.8rem; border: 2px dashed #2563a8; background: #fff; color: #16467e; font-size: 0.85rem; }
+.ms-special-add-btn:disabled { opacity: 0.45; cursor: default; }
+.ms-special-icon-btn { display: inline-flex; align-items: center; justify-content: center; width: 2.2rem; height: 2.2rem; border: 2px solid #2563a8; border-radius: 0.6rem; background: #fff; color: #16467e; cursor: pointer; }
+
+/* Results. */
+.ms-special-results { margin-top: 1.25rem; border-top: 3px solid #2563a8; padding-top: 1rem; }
+.ms-special-final { padding: 0.85rem 1rem; border-radius: 0.9rem; background: #16467e; color: #fff; font-size: 1rem; font-weight: 800; line-height: 1.6; }
+.ms-special-result-table-wrap { margin-top: 1rem; overflow-x: auto; }
+.ms-special-example { overflow-x: auto; }
+.ms-special-categories { overflow-x: auto; }
+.ms-special-result-title { color: #0e3260; font-size: 1rem; font-weight: 800; margin-bottom: 0.5rem; }
+.ms-special-result-table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+.ms-special-result-table th, .ms-special-result-table td { padding: 0.55rem 0.6rem; border-bottom: 1px solid #dbeafe; text-align: start; vertical-align: top; }
+.ms-special-result-table thead th { color: #16467e; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; }
+.ms-special-result-table tfoot td { border-top: 3px solid #2563a8; border-bottom: 0; color: #0e3260; font-weight: 800; }
+.ms-special-result-table .ms-num { text-align: end; white-space: nowrap; }
+.ms-special-result-table tr.is-held { background: #eff6ff; }
+.ms-special-result-table tr.is-zero { color: #64748b; }
+.ms-special-held-tag { display: inline-block; margin-inline-start: 0.4rem; padding: 0.1rem 0.45rem; border-radius: 999px; background: #dbeafe; color: #16467e; font-size: 0.7rem; font-weight: 800; }
+.ms-special-row-note { display: block; color: #64748b; font-size: 0.8rem; font-weight: 400; }
+.ms-special-opinions { display: grid; gap: 1rem; margin-top: 0.5rem; }
+@media (min-width: 768px) { .ms-special-opinions { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1024px) { .ms-special-opinions-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.ms-special-held-line { margin-top: 0.75rem; padding: 0.7rem 0.9rem; border: 2px solid #2563a8; border-radius: 0.8rem; background: #eff6ff; color: #0e3260; font-weight: 800; }
+.ms-special-state { margin-top: 0.75rem; font-weight: 800; color: #0e3260; }
+.ms-special-muted { margin-top: 0.6rem; color: #475569; font-size: 0.88rem; line-height: 1.6; }
+.ms-special-ok { margin-top: 0.75rem; color: #16467e; font-weight: 800; }
+.ms-special-error { margin-top: 0.75rem; padding: 0.7rem 0.9rem; border: 2px solid #b91c1c; border-radius: 0.8rem; background: #fef2f2; color: #991b1b; font-weight: 700; }
+.ms-special-blocked { margin-top: 1rem; padding: 0.9rem 1rem; border: 3px solid #b91c1c; border-radius: 0.9rem; background: #fef2f2; color: #7f1d1d; }
+.ms-special-blocked ul { margin: 0.4rem 0 0; padding-inline-start: 1.2rem; line-height: 1.7; font-size: 0.92rem; }
+.ms-special-notes { margin-top: 0.9rem; color: #475569; font-size: 0.88rem; line-height: 1.6; }
+.ms-special-notes p { margin-top: 0.35rem; }
+.ms-special-note-flag { color: #16467e; font-weight: 700; }
+.ms-special-bayt { margin-top: 0.6rem; font-weight: 800; color: #0e3260; }
+.ms-special-class-card { margin-top: 0.5rem; padding: 1rem; border: 2px solid #2563a8; border-radius: 0.9rem; background: #eff6ff; }
+.ms-special-class-title { color: #0e3260; font-size: 1.05rem; font-weight: 800; }
+.ms-special-class-value { margin-top: 0.4rem; font-size: 1.1rem; font-weight: 800; color: #16467e; }
+.ms-special-class-card p { margin-top: 0.5rem; line-height: 1.6; font-size: 0.92rem; }
+.ms-special-categories { margin-top: 1rem; }
+.ms-special-wrong { margin-top: 1rem; padding: 0.9rem; border: 2px dashed #b91c1c; border-radius: 0.9rem; }
+.ms-special-wrong .ms-special-result-title { color: #991b1b; }
+.ms-special-disq-row, .ms-special-check-row { display: flex; align-items: center; justify-content: space-between; gap: 0.7rem; margin-top: 0.6rem; font-weight: 700; color: #0e3260; font-size: 0.92rem; }
+.ms-special-disq-row .ms-special-input { width: auto; margin-top: 0; }
+.ms-special-check-row { justify-content: flex-start; }
+.ms-special-check-row input { width: 1.15rem; height: 1.15rem; accent-color: #16467e; }
+
+/* Supporting content (formula / explanation / worked examples). */
+.ms-special-support { margin-top: 1rem; border: 2px solid #dbeafe; border-radius: 0.9rem; background: #fff; padding: 0.9rem 1rem; }
+.ms-special-support-body { padding-top: 0.5rem; }
+.ms-special-support-title { margin-top: 1rem; color: #0e3260; font-size: 1rem; font-weight: 800; }
+.ms-special-formula { margin-top: 0.4rem; padding: 0.8rem 0.9rem; border-radius: 0.8rem; background: #eff6ff; color: #0e3260; font-weight: 700; line-height: 1.7; }
+.ms-special-para { margin-top: 0.5rem; color: #334155; line-height: 1.7; }
+.ms-special-examples { margin-top: 0.6rem; display: grid; gap: 1rem; }
+.ms-special-example { padding: 0.9rem; border: 2px solid #dbeafe; border-radius: 0.9rem; background: #f8fafc; }
+.ms-special-example-title { color: #0e3260; font-weight: 800; margin-bottom: 0.5rem; }
+.ms-special-example-answer { margin-top: 0.6rem; color: #0e3260; font-weight: 700; line-height: 1.6; }
+
+/* Prev / next + footer. */
+.ms-special-prevnext { display: flex; justify-content: space-between; gap: 0.75rem; margin-top: 1.5rem; }
+.ms-special-prevnext-link { display: inline-flex; align-items: center; gap: 0.35rem; max-width: 48%; color: #16467e; font-size: 0.88rem; font-weight: 800; text-decoration: none; }
+.ms-special-prevnext-link:hover { text-decoration: underline; }
+.ms-special-next { margin-inline-start: auto; text-align: end; }
+.ms-special-footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 3px solid #2563a8; color: #475569; font-size: 0.88rem; line-height: 1.7; }
+.ms-special-footer .ms-special-back { margin-top: 0.75rem; }
+
+/* ==========================================================================
+   Special Methods v2 — per-topic calculator layouts.
+   UNLAYERED rules (appended at the end of the file, as instructed).
+   Blue-and-white only (#2563a8 / #16467e / #0e3260 family + white). No gold.
+   Mobile-first: single column at 390px, no horizontal overflow.
+   ========================================================================== */
+
+/* Numbered step headings. */
+.ms-special-step { margin-top: 1.25rem; }
+.ms-special-step-title { display: flex; align-items: center; gap: 0.6rem; color: #0e3260; font-size: 1.05rem; font-weight: 800; line-height: 1.4; }
+.ms-special-step-num { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; width: 1.9rem; height: 1.9rem; border-radius: 999px; background: #16467e; color: #fff; font-size: 0.95rem; font-weight: 800; }
+.ms-special-step-help { margin-top: 0.4rem; color: #475569; font-size: 0.88rem; line-height: 1.6; }
+.ms-special-field-help { display: block; margin-top: 0.25rem; color: #64748b; font-size: 0.82rem; font-weight: 400; line-height: 1.5; }
+
+/* Result table additions: LCM line + step-by-step details. */
+.ms-special-lcm { margin-top: 0.5rem; color: #16467e; font-size: 0.88rem; font-weight: 700; }
+.ms-special-details { margin-top: 0.6rem; padding: 0.7rem 0.9rem; border: 2px solid #dbeafe; border-radius: 0.8rem; background: #f8fafc; }
+.ms-special-details summary { color: #16467e; font-size: 0.88rem; font-weight: 800; cursor: pointer; }
+.ms-special-detail-list { margin-top: 0.5rem; padding-inline-start: 1.2rem; color: #334155; font-size: 0.88rem; line-height: 1.8; }
+
+/* Dhawul Arham branch cards. */
+.ms-special-branch-cards { display: grid; gap: 0.75rem; margin-top: 0.75rem; }
+@media (min-width: 640px) { .ms-special-branch-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.ms-special-branch-card { padding: 0.9rem 1rem; border: 2px solid #dbeafe; border-radius: 0.9rem; background: #fff; }
+.ms-special-branch-card.is-winner { border-color: #2563a8; border-width: 3px; background: #eff6ff; }
+.ms-special-branch-card.is-blocked { border-color: #b91c1c; background: #fef2f2; opacity: 0.85; }
+.ms-special-branch-title { color: #0e3260; font-size: 0.95rem; font-weight: 800; line-height: 1.5; }
+.ms-special-branch-card ul { margin-top: 0.45rem; padding-inline-start: 1.15rem; color: #334155; font-size: 0.88rem; line-height: 1.6; }
+.ms-special-winner-tag, .ms-special-blocked-tag { display: inline-block; margin-inline-start: 0.4rem; padding: 0.1rem 0.5rem; border-radius: 999px; font-size: 0.7rem; font-weight: 800; vertical-align: middle; }
+.ms-special-winner-tag { background: #16467e; color: #fff; }
+.ms-special-blocked-tag { background: #b91c1c; color: #fff; }
+
+/* Opinion cards + alternative-result wrapper (Grandfather / Khuntha / Apostate). */
+.ms-special-opinion-card { padding: 0.85rem; border: 2px solid #dbeafe; border-radius: 0.9rem; background: #fff; }
+.ms-special-opinion-card .ms-special-result-table-wrap { margin-top: 0; }
+.ms-special-alt { margin-top: 1rem; padding: 0.9rem; border: 2px dashed #2563a8; border-radius: 0.9rem; background: #f8fafc; }
+.ms-special-alt .ms-special-result-table-wrap { margin-top: 0; }
+
+/* Munasakha timeline. */
+.ms-special-timeline { list-style: none; margin-top: 0.75rem; padding: 0; display: grid; gap: 0.75rem; }
+.ms-special-stage { position: relative; }
+.ms-special-stage-details { padding: 0.9rem 1rem; border: 2px solid #2563a8; border-radius: 0.9rem; background: #f8fafc; }
+.ms-special-stage-summary { color: #0e3260; font-size: 1rem; font-weight: 800; cursor: pointer; line-height: 1.5; }
+.ms-special-running { margin-top: 0.6rem; color: #16467e; font-size: 0.88rem; font-weight: 700; line-height: 1.6; }
+
+/* Multi-death editor (collapsible stage). */
+.ms-special-death-summary { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; cursor: pointer; }
+.ms-special-death-summary .ms-special-result-title { margin-bottom: 0; }
+details.ms-special-death > .ms-special-field:first-of-type { margin-top: 0.9rem; }

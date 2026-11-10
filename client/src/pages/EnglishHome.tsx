@@ -128,6 +128,7 @@ export default function EnglishHome() {
         homeLabel="Home"
         historyLabel="History"
         calculatorLabel="Calculator"
+        specialLabel="Special methods"
         historyActive={view === "history"}
         onToggleHistory={() => setView(view === "history" ? "calculator" : "history")}
       />
