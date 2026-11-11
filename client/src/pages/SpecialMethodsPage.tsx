@@ -1,32 +1,22 @@
 /**
- * Special Inheritance Methods — /special hub + /special/:topic detail (v4).
+ * Special Inheritance Methods — /special hub + /special/:topic detail (v3).
  *
  * Hub-and-spoke: /special shows a grid of 12 topic cards; clicking a card
- * opens /special/:topic with ONLY that topic's calculator. Each topic keeps
- * its own calculator component (components in client/src/components/special/,
- * wired here via SPECIAL_CALCULATORS) and its worked examples, in a
- * collapsible block. Source of truth:
- * ~/workspace/miraasu/reports/meerath-book-study.md.
+ * opens /special/:topic with ONLY that topic's calculator. The old stacked
+ * all-topics layout is gone. Each topic keeps its own calculator component
+ * (components in client/src/components/special/, wired here via
+ * SPECIAL_CALCULATORS) and its worked examples, in a collapsible block.
+ * Source of truth: ~/workspace/miraasu/reports/meerath-book-study.md.
  * The general calculator is untouched; this page only calls the new
  * client/src/lib/specialMethods.ts module (which reuses the engine).
  * Blue and white only. Tamil + English + Arabic (full RTL layout).
- *
- * v4 (redesign spec §1 + build plan step 4):
- * - Hub cards: number, title, ONE short line, small Arabic term, small
- *   book chip (fix 10) — nothing else on the card.
- * - Detail: one clean top bar (back + title + language toggle, NOT sticky,
- *   fix 9); title + one line only (fix 1); the scholar banner no longer
- *   sits above the inputs — flags live where they apply, at the result
- *   (fix 2). Routes unchanged (/special, /special/:topic).
- * - The 12 per-topic calculators are NOT rebuilt in this batch; they keep
- *   rendering inside the new detail shell.
  */
 import { useEffect, useState } from "react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Calculator, Languages } from "lucide-react";
 import { Link } from "wouter";
 import { SPECIAL_METHODS_PAGE_COPY, SPECIAL_TOPICS, type SpecialTopic, type WorkedExample } from "@/lib/specialMethodsContent";
 import { SPECIAL_CALCULATORS } from "@/components/special";
-import { SpecialTopBar } from "@/components/special/shared";
+import { ScholarBanner } from "@/components/special/shared";
 import {
   fmt,
   tCardLine,
@@ -113,11 +103,14 @@ function HubView({ lang }: { lang: Lang }) {
   return (
     <>
       <section className="ms-special-hero">
+        <p className="ms-special-eyebrow">{tx3(lang, "மீராஸ் · சிறப்பு முறைகள்", "Miraasu · Special methods", "ميراث · طرق خاصة")}</p>
         <h1 className="ms-special-title">{cp(lang, "pageTitle")}</h1>
         <p className="ms-special-intro">{cp(lang, "pageIntro")}</p>
+        <p className="ms-special-rounding">{cp(lang, "roundingRule")}</p>
       </section>
 
       <nav className="ms-special-grid" aria-label={cp(lang, "topicGridHeading")}>
+        <h2 className="ms-special-grid-heading">{cp(lang, "topicGridHeading")}</h2>
         <div className="ms-special-grid-cards">
           {SPECIAL_TOPICS.map((t, i) => (
             <Link key={t.id} href={`/special/${t.id}`} className="ms-special-grid-card">
@@ -138,6 +131,7 @@ function HubView({ lang }: { lang: Lang }) {
             "Source: Islamic Inheritance Law: Modern Calculation — Maulvi Dr. S.A. Usman Ali Hasani (November 2024). This page is a learning aid only; confirm any real distribution with a qualified scholar.",
             "المصدر: قانون الميراث الإسلامي: الحساب الحديث — مولوي د. س. أ. عثمان علي حسني (نوفمبر 2024). هذه الصفحة وسيلة تعليمية فقط؛ أكّد أي توزيع حقيقي مع عالم مؤهل.")}
         </p>
+        <a href="/" className="ms-special-back">{tx3(lang, "கணக்கீட்டிற்குத் திரும்பு", "Back to the calculator", "العودة إلى الحاسبة")}</a>
       </footer>
     </>
   );
@@ -145,18 +139,26 @@ function HubView({ lang }: { lang: Lang }) {
 
 function DetailView({ topic, index, lang }: { topic: SpecialTopic; index: number; lang: Lang }) {
   const Calc = SPECIAL_CALCULATORS[topic.id];
+  const subTitle = lang === "ta" ? topic.titleEn : lang === "ar" ? topic.titleEn : topic.titleTa;
   return (
     <section className="ms-special-topic ms-special-detail" aria-labelledby="h-detail">
-      <header className="ms4-detail-head">
-        <p className="ms4-detail-num">{String(index + 1).padStart(2, "0")}</p>
-        <h2 id="h-detail">
-          {tTitle(topic, lang)}
-          <span className="ms-special-topic-ar" lang="ar" dir="rtl"> {topic.arabicTerm}</span>
-        </h2>
-        <p>{tCardLine(topic, lang)}</p>
-        <span className="ms4-book-chip">{topic.bookRef}</span>
+      <header className="ms-special-topic-head">
+        <p className="ms-special-topic-num">{String(index + 1).padStart(2, "0")}</p>
+        <div>
+          <h2 id="h-detail" className="ms-special-topic-title">
+            {tTitle(topic, lang)}
+            <span className="ms-special-topic-ar" lang="ar" dir="rtl"> {topic.arabicTerm}</span>
+          </h2>
+          <p className="ms-special-topic-sub">{subTitle}</p>
+        </div>
+        <span className="ms-special-book-chip">{topic.bookRef}</span>
       </header>
+      <ScholarBanner topic={topic} lang={lang} />
       <div className="ms-special-calc">
+        <div className="ms-special-calc-head">
+          <Calculator size={18} aria-hidden="true" />
+          <h3>{tx3(lang, "கணக்கீட்டாளர்", "Calculator", "الحاسبة")}</h3>
+        </div>
         {Calc ? <Calc topic={topic} lang={lang} /> : null}
       </div>
       <SupportBlock topic={topic} lang={lang} />
@@ -180,13 +182,27 @@ export default function SpecialMethodsPage({ params }: { params?: { topic?: stri
   }, [lang, params?.topic]);
   return (
     <div className="ms-special-page" dir={rtl ? "rtl" : "ltr"}>
-      <SpecialTopBar
-        title={topic ? tTitle(topic, lang) : cp(lang, "pageTitle")}
-        lang={lang}
-        onLangChange={setLang}
-        backHref={topic ? "/special" : "/"}
-        backLabel={topic ? undefined : cp(lang, "backToCalculator")}
-      />
+      <header className="ms-special-header">
+        <div className="ms-special-header-inner">
+          {topic ? (
+            <Link href="/special" className="ms-special-back">
+              <ArrowLeft size={17} /> {tx3(lang, "அனைத்து முறைகள்", "All methods", "كل الطرق")}
+            </Link>
+          ) : (
+            <a href="/" className="ms-special-back">
+              <ArrowLeft size={17} /> {cp(lang, "backToCalculator")}
+            </a>
+          )}
+          <div className="ms-special-lang" role="group" aria-label={cp(lang, "languageToggleLabel")}>
+            <Languages size={15} aria-hidden="true" />
+            {(["ta", "en", "ar"] as const).map((l) => (
+              <button key={l} type="button" aria-pressed={lang === l} onClick={() => setLang(l)} className={`ms-special-lang-btn ${lang === l ? "is-on" : ""}`}>
+                {l === "ta" ? "தமிழ்" : l === "en" ? "English" : "العربية"}
+              </button>
+            ))}
+          </div>
+        </div>
+      </header>
       <main className="ms-special-main">
         {topic ? <DetailView topic={topic} index={SPECIAL_TOPICS.indexOf(topic)} lang={lang} /> : <HubView lang={lang} />}
       </main>

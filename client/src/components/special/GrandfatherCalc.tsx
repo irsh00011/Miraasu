@@ -1,55 +1,45 @@
 /**
- * 2. Grandfather + siblings (book rules 5.4.7 / 5.5.11; cases 113/114, 138/139).
- * v4 rebuild (redesign spec §3): the grandfather is pre-added and locked
- * (he is the subject of the topic — he cannot be removed from the picker).
- * NO opinion toggle: the result ALWAYS shows two full cards, Hanafi and
- * Shafi'i, stacked on phone and side by side on desktop, equal weight,
- * with the thin line "Different views. Not averaged." If a male brother is
- * added, the book has no case — the result shows ONLY the one-line flag
- * and NO numbers. Calculation unchanged:
- * calculateGrandfatherWithSiblings (existing, tested).
+ * 2. Grandfather + siblings — school toggle (book §4.2).
+ * Hanafi default (the book's default, labelled as such); the selected
+ * school's result is primary and the other school's result is shown as a
+ * labelled alternative below.
  */
 import { useState } from "react";
-import { calculateGrandfatherWithSiblings } from "@/lib/specialMethods";
+import { calculateGrandfatherWithSiblings, type GrandfatherSchool } from "@/lib/specialMethods";
 import type { HeirInput } from "@/lib/inheritance";
-import { errEstate, errHeirs, fmt, ss, tx3, type TopicCalcProps } from "./types";
-import { hasAnyHeir, heirLabel, preloadHeirs } from "./heirMeta";
+import { errEstate, errHeirs, tHint, tx3, type TopicCalcProps } from "./types";
+import { hasAnyHeir, preloadHeirs } from "./heirMeta";
 import {
   CalcButton,
   CalcError,
-  HeirPickerSheet,
+  FinalAnswer,
+  HeirPicker,
   LoadExampleButton,
   MoneyField,
-  OpinionCard,
   ResetButton,
   ResultNotes,
   ResultTable,
-  RoundingRow,
-  StepShell,
+  StepHeading,
 } from "./shared";
 
-const HEIR_KEYS: (keyof HeirInput)[] = [
-  "husband", "wives", "mother",
-  "fullSisters", "paternalSisters", "fullBrothers", "paternalBrothers",
-];
+const schoolLabel = (s: GrandfatherSchool, lang: TopicCalcProps["lang"]) =>
+  s === "hanafi"
+    ? tx3(lang, "அபூ ஹனீஃபா (ஹனஃபி) — நூலின் முன்னிருப்பு", "Abu Hanifa (Hanafi) — the book's default", "أبو حنيفة (الحنفي) — الافتراضي في الكتاب")
+    : tx3(lang, "அஷ்-ஷாஃபிஈ (ஷாஃபிஈ)", "al-Shafi'i (Shafi'i)", "الشافعي");
 
 export default function GrandfatherCalc({ topic, lang }: TopicCalcProps) {
-  const [estate, setEstate] = useState(topic.preload.estate);
-  const [heirs, setHeirs] = useState<HeirInput>(() => preloadHeirs(topic.preload.heirs));
-  const [openStep, setOpenStep] = useState(1);
+  const [estate, setEstate] = useState(0);
+  const [heirs, setHeirs] = useState<HeirInput>(() => preloadHeirs({}));
+  const [school, setSchool] = useState<GrandfatherSchool>("hanafi");
   const [result, setResult] = useState<ReturnType<typeof calculateGrandfatherWithSiblings> | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const clearResult = () => setResult(null);
-  const hasMaleBrothers = (heirs.fullBrothers ?? 0) > 0 || (heirs.paternalBrothers ?? 0) > 0;
-
-  const compute = (e: number, h: HeirInput) => {
+  const compute = (e: number, h: HeirInput, s: GrandfatherSchool) => {
     if (!(e > 0)) { setResult(null); setError(errEstate(lang)); return; }
     if (!hasAnyHeir(h)) { setResult(null); setError(errHeirs(lang)); return; }
     try {
-      setResult(calculateGrandfatherWithSiblings({ estate: e, heirs: h, school: "hanafi" }));
+      setResult(calculateGrandfatherWithSiblings({ estate: e, heirs: h, school: s }));
       setError(null);
-      setOpenStep(0);
     } catch (err) {
       setResult(null);
       setError(err instanceof Error ? err.message : String(err));
@@ -61,127 +51,96 @@ export default function GrandfatherCalc({ topic, lang }: TopicCalcProps) {
     const h = preloadHeirs({ wives: 1, fullSisters: 2, paternalGrandfather: 1 });
     setEstate(e);
     setHeirs(h);
-    compute(e, h);
+    setSchool("hanafi");
+    compute(e, h, "hanafi");
   };
 
   const reset = () => {
-    setEstate(topic.preload.estate);
-    setHeirs(preloadHeirs(topic.preload.heirs));
+    setEstate(0);
+    setHeirs(preloadHeirs({}));
+    setSchool("hanafi");
     setResult(null);
     setError(null);
-    setOpenStep(1);
   };
 
-  const heirCount = Object.values(heirs).reduce((s, v) => s + (v ?? 0), 0);
-  // Case 114 errata flag: the book misprints the Shafi'i grandfather
-  // residue as 975 (copied from case 113); the correct figure is 108.33.
-  // Show the rounding row only when the book-case numbers are the ones
-  // on screen (sisters 866.67, grandfather 108.33).
-  const shafiiGf = result?.shafii.rows.find((r) => r.key === "paternalGrandfather");
-  const shafiiSisters = result?.shafii.rows.find((r) => r.key === "fullSisters" || r.key === "paternalSisters");
-  const showCase114Flag =
-    !!result &&
-    !hasMaleBrothers &&
-    !!shafiiGf &&
-    Math.abs(shafiiGf.amount - 108.33) < 0.01 &&
-    !!shafiiSisters &&
-    Math.abs(shafiiSisters.amount - 866.67) < 0.01;
+  const other: GrandfatherSchool = school === "hanafi" ? "shafii" : "hanafi";
 
   return (
     <div className="ms-special-calc-body">
-      <StepShell
-        n={1}
-        title={ss("stepEstate", lang)}
-        summary={`₹${fmt(estate)}`}
-        open={openStep === 1}
-        onOpen={() => setOpenStep(1)}
-        lang={lang}
-      >
-        <MoneyField
-          id="gf-estate"
-          label={ss("stepEstate", lang)}
-          value={estate}
-          onChange={(v) => { setEstate(v); clearResult(); }}
-        />
-      </StepShell>
+      <p className="ms-special-hint">{tHint(topic, lang)}</p>
 
-      <StepShell
+      <StepHeading n={1} title={tx3(lang, "சொத்து", "Estate", "التركة")} />
+      <MoneyField id="gf-estate" label={tx3(lang, "சொத்து", "Estate", "التركة")} value={estate} onChange={setEstate} />
+
+      <StepHeading
         n={2}
         title={tx3(lang, "பாட்டனும் சகோதர/சகோதரிகளும்", "Grandfather and siblings", "الجد مع الإخوة والأخوات")}
-        summary={heirCount > 0 ? tx3(lang, `${heirCount} வாரிசு(கள்)`, `${heirCount} heir(s)`, `${heirCount} من الورثة`) : null}
-        open={openStep === 2}
-        onOpen={() => setOpenStep(2)}
+        help={tx3(
+          lang,
+          "பாட்டனையும் சகோதரிகளையும் உள்ளிடவும் — மற்ற வாரிசுகள் இருந்தால் அவர்களையும் சேர்க்கவும்.",
+          "Enter the grandfather and the sisters — and any other heirs who are present.",
+          "أدخل الجد والأخوات، وأي ورثة آخرين موجودين.",
+        )}
+      />
+      <HeirPicker
+        heirs={heirs}
+        onChange={setHeirs}
+        keys={["husband", "wives", "father", "mother", "paternalGrandfather", "sons", "daughters", "fullBrothers", "fullSisters", "paternalBrothers", "paternalSisters"]}
         lang={lang}
-      >
-        <div className="ms4-locked-row">
-          <span>{heirLabel("paternalGrandfather", lang)}</span>
-          <span>{tx3(lang, "எப்போதும் சேர்க்கப்படுகிறார்", "Always included", "مضمَّن دائمًا")}</span>
-        </div>
-        <HeirPickerSheet
-          heirs={heirs}
-          onChange={(h) => { setHeirs({ ...h, paternalGrandfather: 1 }); clearResult(); }}
-          keys={HEIR_KEYS}
-          lang={lang}
-        />
-        <p className="ms4-muted">
-          {tx3(
-            lang,
-            "சகோதரிகளையும், இருந்தால் மற்ற வாரிசுகளையும் சேர்க்கவும்.",
-            "Add the sisters, and any other heirs who are present.",
-            "أضف الأخوات، وأي ورثة آخرين موجودين.",
-          )}
-        </p>
-      </StepShell>
+      />
+
+      <StepHeading
+        n={3}
+        title={tx3(lang, "எந்த இமாமின் கருத்து?", "Which imam's opinion?", "رأي أي إمام؟")}
+        help={tx3(
+          lang,
+          "ஹனஃபி முறையே நூலின் முன்னிருப்பு; ஷாஃபிஈ முறை இணை எடுத்துக்காட்டாகக் காட்டப்படுகிறது.",
+          "The Hanafi view is the book's default; the Shafi'i view is shown as a parallel example.",
+          "الرأي الحنفي هو الافتراضي في الكتاب، والرأي الشافعي يُعرض كمثال موازٍ.",
+        )}
+      />
+      <div className="ms-special-seg" role="group" aria-label={tx3(lang, "கருத்து", "School", "المذهب")}>
+        {(["hanafi", "shafii"] as const).map((s) => (
+          <button
+            key={s}
+            type="button"
+            aria-pressed={school === s}
+            onClick={() => setSchool(s)}
+            className={`ms-special-seg-btn ${school === s ? "is-on" : ""}`}
+          >
+            {schoolLabel(s, lang)}
+          </button>
+        ))}
+      </div>
 
       <div className="ms-special-actions">
         <LoadExampleButton onLoad={load} lang={lang} />
-        <CalcButton onClick={() => compute(estate, heirs)} lang={lang} />
+        <CalcButton onClick={() => compute(estate, heirs, school)} lang={lang} />
         <ResetButton onReset={reset} lang={lang} />
       </div>
       <CalcError message={error} lang={lang} />
 
       {result ? (
         <div className="ms-special-results">
-          {hasMaleBrothers ? (
-            <p className="ms4-flag" role="note">{ss("grandfatherBrotherAdded", lang)}</p>
-          ) : (
-            <>
-              <div className="ms4-opinions">
-                <OpinionCard title={ss("grandfatherHanafi", lang)}>
-                  <ResultTable
-                    rows={result.hanafi.rows}
-                    lang={lang}
-                    estate={estate}
-                    verifyTotal={estate}
-                    total={result.hanafi.totalDistributed}
-                  />
-                </OpinionCard>
-                <OpinionCard title={ss("grandfatherShafii", lang)}>
-                  <ResultTable
-                    rows={result.shafii.rows}
-                    lang={lang}
-                    estate={estate}
-                    verifyTotal={estate}
-                    total={result.shafii.totalDistributed}
-                  />
-                  {showCase114Flag && shafiiGf ? (
-                    <RoundingRow
-                      label={heirLabel("paternalGrandfather", lang)}
-                      amount={shafiiGf.amount}
-                      bookAmount={975}
-                      lang={lang}
-                    />
-                  ) : null}
-                </OpinionCard>
-              </div>
-              <p className="ms4-muted">{ss("grandfatherDifferentViews", lang)}</p>
-              <ResultNotes
-                notes={[...result.hanafi.notes, ...result.shafii.notes]}
-                scholarReasons={result.scholarReasons}
-                lang={lang}
-              />
-            </>
-          )}
+          <FinalAnswer>{result.summary}</FinalAnswer>
+          <ResultTable
+            rows={result[school].rows}
+            lang={lang}
+            estate={estate}
+            verifyTotal={estate}
+            title={`${tx3(lang, "தேர்ந்த கருத்து: ", "Chosen opinion: ", "الرأي المختار: ")}${schoolLabel(school, lang)}`}
+            total={result[school].totalDistributed}
+          />
+          <div className="ms-special-alt">
+            <ResultTable
+              rows={result[other].rows}
+              lang={lang}
+              estate={estate}
+              title={`${tx3(lang, "மற்ற கருத்து (ஒப்பிடுவதற்காக): ", "Other opinion (for comparison): ", "الرأي الآخر (للمقارنة): ")}${schoolLabel(other, lang)}`}
+              total={result[other].totalDistributed}
+            />
+          </div>
+          <ResultNotes notes={[...result.hanafi.notes, ...result.shafii.notes]} scholarReasons={result.scholarReasons} lang={lang} />
         </div>
       ) : null}
     </div>

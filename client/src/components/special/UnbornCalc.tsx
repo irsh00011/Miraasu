@@ -1,55 +1,32 @@
 /**
  * 6. Unborn child (book §4.6, p. 284; cases 267–268).
- * v4 rebuild (redesign spec §7): "Child (unborn)" is a locked pre-added
- * row; the "Add heir" sheet lists "Pregnant wife" first (distinct from a
- * plain wife), then mother, daughter, uncle, others. One line under the
- * title: best not to divide until birth. Result: swipeable "If boy" /
- * "If girl" cards (each with its own one-line total check), then a large
- * "Pay now" card (lesser amount each) and a large "Held until birth" box,
- * with the book-is-silent flags (twins, stillbirth, time limit) under the
- * Held box. Optional after-birth screen: two big buttons, Boy / Girl,
- * showing the final division with the held amount distributed.
- * Calculation unchanged: calculateUnbornChild (existing, tested).
+ * Side-by-side male/female scenario comparison (two columns) + pay-now
+ * (the lesser per person) + held amount.
  */
 import { useState } from "react";
-import { X } from "lucide-react";
 import { calculateUnbornChild } from "@/lib/specialMethods";
 import type { HeirInput } from "@/lib/inheritance";
-import { errEstate, errHeirs, fmt, ss, tx3, type TopicCalcProps } from "./types";
+import { errEstate, errHeirs, fmt, tHint, tx3, type TopicCalcProps } from "./types";
 import { hasAnyHeir, preloadHeirs } from "./heirMeta";
 import {
-  BranchCard,
   CalcButton,
   CalcError,
-  HeirPickerSheet,
-  HeldBox,
+  FinalAnswer,
+  HeirPicker,
+  HeldLine,
   LoadExampleButton,
   MoneyField,
   ResetButton,
   ResultNotes,
   ResultTable,
-  StepShell,
-  SwipeCards,
-  TotalCheckLine,
-  type SheetExtraOption,
+  StepHeading,
 } from "./shared";
 
-const HEIR_KEYS: (keyof HeirInput)[] = [
-  "mother", "daughters", "sons", "paternalUncles",
-  "father", "paternalGrandfather", "fullBrothers", "fullSisters",
-  "maternalBrothers", "maternalSisters",
-];
-
 export default function UnbornCalc({ topic, lang }: TopicCalcProps) {
-  const [estate, setEstate] = useState(topic.preload.estate);
-  const [heirs, setHeirs] = useState<HeirInput>(() => preloadHeirs(topic.preload.heirs));
-  const [pregnantWife, setPregnantWife] = useState((topic.preload.heirs.wives ?? 0) > 0);
-  const [openStep, setOpenStep] = useState(1);
+  const [estate, setEstate] = useState(0);
+  const [heirs, setHeirs] = useState<HeirInput>(() => preloadHeirs({}));
   const [result, setResult] = useState<ReturnType<typeof calculateUnbornChild> | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [afterBirth, setAfterBirth] = useState<"boy" | "girl" | null>(null);
-
-  const clearResult = () => setResult(null);
 
   const compute = (e: number, h: HeirInput) => {
     if (!(e > 0)) { setResult(null); setError(errEstate(lang)); return; }
@@ -57,8 +34,6 @@ export default function UnbornCalc({ topic, lang }: TopicCalcProps) {
     try {
       setResult(calculateUnbornChild({ estate: e, heirs: h }));
       setError(null);
-      setOpenStep(0);
-      setAfterBirth(null);
     } catch (err) {
       setResult(null);
       setError(err instanceof Error ? err.message : String(err));
@@ -70,91 +45,50 @@ export default function UnbornCalc({ topic, lang }: TopicCalcProps) {
     const h = preloadHeirs({ wives: 1, daughters: 1, mother: 1, paternalUncles: 1 });
     setEstate(e);
     setHeirs(h);
-    setPregnantWife(true);
     compute(e, h);
   };
 
   const reset = () => {
-    setEstate(topic.preload.estate);
-    setHeirs(preloadHeirs(topic.preload.heirs));
-    setPregnantWife((topic.preload.heirs.wives ?? 0) > 0);
+    setEstate(0);
+    setHeirs(preloadHeirs({}));
     setResult(null);
     setError(null);
-    setAfterBirth(null);
-    setOpenStep(1);
-  };
-
-  const heirCount = Object.values(heirs).reduce((s, v) => s + (v ?? 0), 0);
-
-  const pregnantOption: SheetExtraOption = {
-    id: "pregnantWife",
-    ta: ss("unbornPregnantWife", "ta"),
-    en: ss("unbornPregnantWife", "en"),
-    ar: ss("unbornPregnantWife", "ar"),
-    onPick: () => {
-      setHeirs((h) => ({ ...h, wives: 1 }));
-      setPregnantWife(true);
-      clearResult();
-    },
   };
 
   return (
     <div className="ms-special-calc-body">
-      <p className="ms-special-hint">{ss("unbornBestNotDivide", lang)}</p>
+      <p className="ms-special-hint">{tHint(topic, lang)}</p>
 
-      <StepShell
-        n={1}
-        title={ss("stepEstate", lang)}
-        summary={`₹${fmt(estate)}`}
-        open={openStep === 1}
-        onOpen={() => setOpenStep(1)}
-        lang={lang}
-      >
-        <MoneyField
-          id="unborn-estate"
-          label={ss("stepEstate", lang)}
-          value={estate}
-          onChange={(v) => { setEstate(v); clearResult(); }}
-        />
-      </StepShell>
+      <StepHeading n={1} title={tx3(lang, "சொத்து", "Estate", "التركة")} />
+      <MoneyField id="unborn-estate" label={tx3(lang, "சொத்து", "Estate", "التركة")} value={estate} onChange={setEstate} />
 
-      <StepShell
+      <StepHeading
         n={2}
-        title={ss("stepHeirs", lang)}
-        summary={heirCount > 0 ? tx3(lang, `${heirCount} வாரிசு(கள்)`, `${heirCount} heir(s)`, `${heirCount} من الورثة`) : null}
-        open={openStep === 2}
-        onOpen={() => setOpenStep(2)}
+        title={tx3(lang, "கர்ப்பமாக உள்ள மனைவியும் மற்ற வாரிசுகளும்", "Pregnant wife and other heirs", "الزوجة الحامل وبقية الورثة")}
+        help={tx3(
+          lang,
+          "பிறக்காத குழந்தைக்குத் தனி விசை இல்லை — கணக்கீட்டாளர் அதை ஆணாகவும் பெண்ணாகவும் இரு முறை கணக்கிடும்.",
+          "There is no separate key for the unborn child — the calculator computes it twice, as male and as female.",
+          "لا يوجد مفتاح مستقل للحمل، فالحاسبة تحسبه مرتين: ذكرًا وأنثى.",
+        )}
+      />
+      <HeirPicker
+        heirs={heirs}
+        onChange={setHeirs}
+        keys={["husband", "wives", "father", "mother", "paternalGrandfather", "sons", "daughters", "fullBrothers", "fullSisters", "maternalBrothers", "maternalSisters", "paternalUncles"]}
         lang={lang}
-      >
-        <div className="ms4-locked-row">
-          <span>{tx3(lang, "கர்ப்பத்திலுள்ள குழந்தை", "Child (unborn)", "الطفل في الحمل")}</span>
-          <span>{tx3(lang, "எப்போதும் சேர்க்கப்படுகிறார்", "Always included", "مضمَّن دائمًا")}</span>
-        </div>
-        {pregnantWife ? (
-          <div className="ms4-chosen-row">
-            <span className="ms4-chosen-name">{ss("unbornPregnantWife", lang)}</span>
-            <button
-              type="button"
-              className="ms4-chosen-remove"
-              aria-label={`${tx3(lang, "நீக்குக", "Remove", "احذف")} ${ss("unbornPregnantWife", lang)}`}
-              onClick={() => {
-                setHeirs((h) => ({ ...h, wives: 0 }));
-                setPregnantWife(false);
-                clearResult();
-              }}
-            >
-              <X size={16} aria-hidden="true" />
-            </button>
-          </div>
-        ) : null}
-        <HeirPickerSheet
-          heirs={heirs}
-          onChange={(h) => { setHeirs(h); clearResult(); }}
-          keys={HEIR_KEYS}
-          lang={lang}
-          extraOptions={[pregnantOption]}
-        />
-      </StepShell>
+      />
+
+      <StepHeading
+        n={3}
+        title={tx3(lang, "இரு கணக்குகள் — குறைவானதைக் கொடு, மீதத்தை நிறுத்து", "Two scenarios — pay the lesser, hold the rest", "حسابان — ادفع الأقل واحجز الباقي")}
+        help={tx3(
+          lang,
+          "குழந்தை பிறக்கும்வரை பிரிக்காமல் இருப்பதே சிறந்தது; வாரிசுகள் வற்புறுத்தினால் இந்த முறை பயன்படுத்தப்படும்.",
+          "Best course is not to divide until the child is born; this is the method when the heirs insist.",
+          "الأفضل عدم القسمة حتى الولادة، وهذه هي الطريقة عند إصرار الورثة.",
+        )}
+      />
 
       <div className="ms-special-actions">
         <LoadExampleButton onLoad={load} lang={lang} />
@@ -165,73 +99,45 @@ export default function UnbornCalc({ topic, lang }: TopicCalcProps) {
 
       {result ? (
         <div className="ms-special-results">
-          <SwipeCards
-            lang={lang}
-            cards={[
-              {
-                title: ss("unbornIfBoy", lang),
-                content: (
-                  <ResultTable
-                    rows={result.asSon.rows}
-                    lang={lang}
-                    estate={estate}
-                    verifyTotal={estate}
-                    total={result.asSon.totalDistributed}
-                  />
-                ),
-              },
-              {
-                title: ss("unbornIfGirl", lang),
-                content: (
-                  <ResultTable
-                    rows={result.asDaughter.rows}
-                    lang={lang}
-                    estate={estate}
-                    verifyTotal={estate}
-                    total={result.asDaughter.totalDistributed}
-                  />
-                ),
-              },
-            ]}
-          />
+          <FinalAnswer>{result.summary}</FinalAnswer>
+          <div className="ms-special-opinions">
+            <ResultTable
+              rows={result.asSon.rows}
+              lang={lang}
+              estate={estate}
+              verifyTotal={estate}
+              title={tx3(lang, "பிறக்காத குழந்தை ஆணாக இருந்தால்", "If the unborn child is male", "إن كان الحمل ذكرًا")}
+              total={result.asSon.totalDistributed}
+            />
+            <ResultTable
+              rows={result.asDaughter.rows}
+              lang={lang}
+              estate={estate}
+              verifyTotal={estate}
+              title={tx3(lang, "பிறக்காத குழந்தை பெண்ணாக இருந்தால்", "If the unborn child is female", "إن كان الحمل أنثى")}
+              total={result.asDaughter.totalDistributed}
+            />
+          </div>
           <ResultTable
             rows={result.payNow}
             lang={lang}
             estate={estate}
-            title={ss("payNow", lang)}
+            title={tx3(lang, "இப்போது கொடுக்க (ஒவ்வொருவருக்கும் குறைந்த தொகை)", "Pay now (the lesser amount for each person)", "ادفع الآن (الأقل لكل شخص)")}
             total={result.payNowTotal}
           />
-          <HeldBox label={ss("unbornHeldUntilBirth", lang)} amount={result.heldAmount} lang={lang} />
-          <TotalCheckLine total={estate} lang={lang} />
-          <ResultNotes notes={[]} scholarReasons={result.scholarReasons} lang={lang} />
-
-          <div className="ms4-results">
-            <h4 className="ms4-results-title">{ss("unbornAfterBirth", lang)}</h4>
-            <div className="ms4-branch-cards">
-              <BranchCard
-                title={tx3(lang, "ஆண்", "Boy", "ذكر")}
-                selected={afterBirth === "boy"}
-                onSelect={() => setAfterBirth("boy")}
-                lang={lang}
-              />
-              <BranchCard
-                title={tx3(lang, "பெண்", "Girl", "أنثى")}
-                selected={afterBirth === "girl"}
-                onSelect={() => setAfterBirth("girl")}
-                lang={lang}
-              />
-            </div>
-            {afterBirth ? (
-              <ResultTable
-                rows={afterBirth === "boy" ? result.asSon.rows : result.asDaughter.rows}
-                lang={lang}
-                estate={estate}
-                verifyTotal={estate}
-                total={estate}
-                title={tx3(lang, "இறுதிப் பிரிவு", "Final division", "القسمة النهائية")}
-              />
-            ) : null}
-          </div>
+          <HeldLine
+            label={tx3(lang, "பிறக்கும்வரை நிறுத்தி வைக்க: ", "Held until birth: ", "محجوز حتى الولادة: ")}
+            amount={result.heldAmount}
+            lang={lang}
+          />
+          <p className="ms-special-muted">
+            {tx3(lang, "இப்போது கொடுக்க மொத்தம்: ", "Pay-now total: ", "مجموع ما يُدفع الآن: ")}₹{fmt(result.payNowTotal)}
+            {" · "}
+            {tx3(lang, "நிறுத்தி வைக்க: ", "Held: ", "المحجوز: ")}₹{fmt(result.heldAmount)}
+            {" · "}
+            {tx3(lang, "இரண்டும் சேர்ந்து சொத்துக்குச் சமம்.", "Together they equal the estate.", "ومجموعهما يساوي التركة.")}
+          </p>
+          <ResultNotes notes={result.notes} scholarReasons={result.scholarReasons} lang={lang} />
         </div>
       ) : null}
     </div>

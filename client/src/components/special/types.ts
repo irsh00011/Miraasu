@@ -8,36 +8,17 @@
  * semantics through a safe cast, so they compile and behave correctly
  * whether or not those optional fields have landed yet.
  */
-import {
-  SPECIAL_STRINGS,
-  type DhawulArhamBranch,
-  type SahihFasidCategory,
-  type SpecialStringKey,
-  type SpecialTopic,
-  type WorkedExample,
+import type {
+  DhawulArhamBranch,
+  SahihFasidCategory,
+  SpecialTopic,
+  WorkedExample,
 } from "@/lib/specialMethodsContent";
 
 export type Lang = "ta" | "en" | "ar";
 
 export const tx3 = (lang: Lang, ta: string, en: string, ar: string) =>
   lang === "ta" ? ta : lang === "ar" ? ar : en;
-
-/**
- * Read one v4 shared/per-topic string (SPECIAL_STRINGS in the content
- * file) in the current language, filling `{x}` / `{n}` placeholders.
- */
-export const ss = (
-  key: SpecialStringKey,
-  lang: Lang,
-  vars?: Record<string, string | number>,
-): string => {
-  const entry = SPECIAL_STRINGS[key];
-  let out: string = lang === "ta" ? entry.ta : lang === "ar" ? entry.ar : entry.en;
-  if (vars) {
-    for (const [k, v] of Object.entries(vars)) out = out.replaceAll(`{${k}}`, String(v));
-  }
-  return out;
-};
 
 export const fmt = (n: number) =>
   n.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
