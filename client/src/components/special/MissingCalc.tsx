@@ -1,43 +1,69 @@
 /**
  * 7. Missing person / prisoner (book §4.7, p. 308; cases 274–277).
- * Alive/deceased scenario comparison + reserved/held amount.
- * Waiting period as the book states it: 70 years.
+ * v4 rebuild (redesign spec §8): Step 3 "Who is missing?" is a
+ * single-select list of the chosen heirs — tap one name, and the row
+ * carries a "Missing" badge (required). Result: swipeable "If alive" /
+ * "If dead" cards (each with its own one-line total check), then a large
+ * "Pay now" card and a large "Held" box, then a waiting-period flag card:
+ * "70 years — the book gives no start date." NO date input, NO countdown,
+ * NO calculated deadline. A prisoner known to be alive in jail has no
+ * separate rule — one-line flag where it applies. Book case 275's
+ * misprint (23,333.33 printed once as 233,333.33) is flagged; the
+ * calculator uses 23,333.33.
+ * Calculation unchanged: calculateMissingPerson (existing, tested).
  */
 import { useState } from "react";
 import { calculateMissingPerson } from "@/lib/specialMethods";
 import type { HeirInput } from "@/lib/inheritance";
-import { errEstate, errHeirs, fmt, tHint, tx3, type TopicCalcProps } from "./types";
-import { enteredHeirKeys, hasAnyHeir, heirCount, preloadHeirs } from "./heirMeta";
+import { errEstate, errHeirs, fmt, ss, tx3, type TopicCalcProps } from "./types";
+import { enteredHeirKeys, hasAnyHeir, heirCount, heirLabel, preloadHeirs } from "./heirMeta";
 import {
   CalcButton,
   CalcError,
-  FinalAnswer,
-  HeirPicker,
-  HeldLine,
+  FlagLine,
+  HeirPickerSheet,
+  HeldBox,
   LoadExampleButton,
   MoneyField,
   ResetButton,
-  ResultNotes,
   ResultTable,
-  StepHeading,
-  Stepper,
+  StepShell,
+  SwipeCards,
+  TotalCheckLine,
 } from "./shared";
+
+const HEIR_KEYS: (keyof HeirInput)[] = [
+  "husband", "wives", "father", "mother", "paternalGrandfather",
+  "sons", "daughters", "fullBrothers", "fullSisters",
+  "maternalBrothers", "maternalSisters",
+];
+
+const PRISONER_NO_RULE =
+  "The book gives the prisoner no separate rule despite the chapter heading naming him, and is silent on a prisoner known to be alive in jail.";
 
 export default function MissingCalc({ topic, lang }: TopicCalcProps) {
   const [estate, setEstate] = useState(topic.preload.estate);
   const [heirs, setHeirs] = useState<HeirInput>(() => preloadHeirs(topic.preload.heirs));
-  const [missingKey, setMissingKey] = useState<keyof HeirInput>("sons");
-  const [missingCount, setMissingCount] = useState(1);
+  const [missingKey, setMissingKey] = useState<keyof HeirInput | null>("sons");
   const [kind, setKind] = useState<"missing" | "prisoner">("missing");
+  const [openStep, setOpenStep] = useState(1);
   const [result, setResult] = useState<ReturnType<typeof calculateMissingPerson> | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const compute = (e: number, h: HeirInput, k: keyof HeirInput, c: number, kd: "missing" | "prisoner") => {
+  const clearResult = () => setResult(null);
+
+  const compute = (e: number, h: HeirInput, k: keyof HeirInput | null, kd: "missing" | "prisoner") => {
     if (!(e > 0)) { setResult(null); setError(errEstate(lang)); return; }
     if (!hasAnyHeir(h)) { setResult(null); setError(errHeirs(lang)); return; }
+    if (!k || heirCount(h, k) === 0) {
+      setResult(null);
+      setError(tx3(lang, "காணாமல் போனவர் யார் என்பதைத் தேர்ந்தெடுக்கவும்.", "Choose who is missing.", "اختر من هو المفقود."));
+      return;
+    }
     try {
-      setResult(calculateMissingPerson({ estate: e, heirs: h, missingKey: k, missingCount: c, kind: kd }));
+      setResult(calculateMissingPerson({ estate: e, heirs: h, missingKey: k, missingCount: 1, kind: kd }));
       setError(null);
+      setOpenStep(0);
     } catch (err) {
       setResult(null);
       setError(err instanceof Error ? err.message : String(err));
@@ -50,142 +76,180 @@ export default function MissingCalc({ topic, lang }: TopicCalcProps) {
     setEstate(e);
     setHeirs(h);
     setMissingKey("sons");
-    setMissingCount(1);
     setKind("missing");
-    compute(e, h, "sons", 1, "missing");
+    compute(e, h, "sons", "missing");
   };
 
   const reset = () => {
     setEstate(topic.preload.estate);
     setHeirs(preloadHeirs(topic.preload.heirs));
     setMissingKey("sons");
-    setMissingCount(1);
     setKind("missing");
     setResult(null);
     setError(null);
+    setOpenStep(1);
   };
 
+  const heirCountTotal = Object.values(heirs).reduce((s, v) => s + (v ?? 0), 0);
   const entered = enteredHeirKeys(heirs);
-  const keyCount = heirCount(heirs, missingKey);
+  const missingSelected = missingKey !== null && heirCount(heirs, missingKey) > 0;
+  // Case 275 erratum flag: the book misprints the missing sister's share
+  // as 233,333.33 in one line; the correct figure is 23,333.33.
+  const showCase275Flag =
+    !!result && estate === 120000 && Math.abs(result.heldAmount - 23333.33) < 0.01;
 
   return (
     <div className="ms-special-calc-body">
-      <p className="ms-special-hint">{tHint(topic, lang)}</p>
-
-      <StepHeading n={1} title={tx3(lang, "சொத்து", "Estate", "التركة")} />
-      <MoneyField id="missing-estate" label={tx3(lang, "சொத்து", "Estate", "التركة")} value={estate} onChange={setEstate} />
-
-      <StepHeading n={2} title={tx3(lang, "வாரிசுகள்", "Heirs", "الورثة")} />
-      <HeirPicker
-        heirs={heirs}
-        onChange={setHeirs}
-        keys={["husband", "wives", "father", "mother", "paternalGrandfather", "sons", "daughters", "fullBrothers", "fullSisters", "maternalBrothers", "maternalSisters"]}
+      <StepShell
+        n={1}
+        title={ss("stepEstate", lang)}
+        summary={`₹${fmt(estate)}`}
+        open={openStep === 1}
+        onOpen={() => setOpenStep(1)}
         lang={lang}
-      />
+      >
+        <MoneyField
+          id="missing-estate"
+          label={ss("stepEstate", lang)}
+          value={estate}
+          onChange={(v) => { setEstate(v); clearResult(); }}
+        />
+      </StepShell>
 
-      <StepHeading
+      <StepShell
+        n={2}
+        title={ss("stepHeirs", lang)}
+        summary={heirCountTotal > 0 ? tx3(lang, `${heirCountTotal} வாரிசு(கள்)`, `${heirCountTotal} heir(s)`, `${heirCountTotal} من الورثة`) : null}
+        open={openStep === 2}
+        onOpen={() => setOpenStep(2)}
+        lang={lang}
+      >
+        <HeirPickerSheet
+          heirs={heirs}
+          onChange={(h) => { setHeirs(h); clearResult(); }}
+          keys={HEIR_KEYS}
+          lang={lang}
+        />
+      </StepShell>
+
+      <StepShell
         n={3}
-        title={tx3(lang, "காணாமல் போனவர் / கைதி யார்?", "Who is missing / imprisoned?", "من هو المفقود / السجين؟")}
-        help={tx3(
-          lang,
-          "அவர் உயிருடன் இருக்கிறாரா இறந்துவிட்டாரா என்பது தெளிவாகும்வரை பிரிக்காமல் இருப்பதே சிறந்தது.",
-          "Best course is to postpone division until it is clear whether the person is alive or dead.",
-          "الأفضل تأجيل القسمة حتى يتضح إن كان الشخص حيًّا أو ميتًا.",
-        )}
-      />
-      <div className="ms-special-seg" role="group" aria-label={tx3(lang, "நிலை", "Situation", "الحالة")}>
-        {(["missing", "prisoner"] as const).map((k) => (
+        title={ss("missingWho", lang)}
+        summary={missingSelected && missingKey ? heirLabel(missingKey, lang) : null}
+        open={openStep === 3}
+        onOpen={() => setOpenStep(3)}
+        lang={lang}
+      >
+        <div className="ms-special-seg" role="group" aria-label={tx3(lang, "நிலை", "Situation", "الحالة")}>
           <button
-            key={k}
             type="button"
-            aria-pressed={kind === k}
-            onClick={() => setKind(k)}
-            className={`ms-special-seg-btn ${kind === k ? "is-on" : ""}`}
+            aria-pressed={kind === "missing"}
+            onClick={() => { setKind("missing"); clearResult(); }}
+            className={`ms-special-seg-btn ${kind === "missing" ? "is-on" : ""}`}
           >
-            {k === "missing"
-              ? tx3(lang, "காணாமல் போனவர்", "Missing person", "المفقود")
-              : tx3(lang, "கைதி", "Prisoner", "السجين")}
+            {tx3(lang, "காணாமல் போனவர்", "Missing person", "المفقود")}
           </button>
-        ))}
-      </div>
-      <label className="ms-special-field">
-        {tx3(lang, "காணாமல் போனவர் / கைதி யார்?", "Who is missing / imprisoned?", "من هو المفقود / السجين؟")}
-        <select
-          value={String(missingKey)}
-          onChange={(e) => {
-            const k = e.target.value as keyof HeirInput;
-            setMissingKey(k);
-            setMissingCount(1);
-          }}
-          className="ms-special-input"
-        >
-          {entered.map((m) => (
-            <option key={m.key} value={m.key}>{tx3(lang, m.ta, m.en, m.ar)}</option>
-          ))}
-        </select>
-      </label>
-      <Stepper
-        label={tx3(lang, "காணாமல் போனவர் எண்ணிக்கை", "How many are missing", "كم عدد المفقودين؟")}
-        value={missingCount}
-        onChange={setMissingCount}
-        min={1}
-        max={Math.max(1, keyCount)}
-      />
+          <button
+            type="button"
+            aria-pressed={kind === "prisoner"}
+            onClick={() => { setKind("prisoner"); clearResult(); }}
+            className={`ms-special-seg-btn ${kind === "prisoner" ? "is-on" : ""}`}
+          >
+            {ss("missingPrisoner", lang)}
+          </button>
+        </div>
+        {entered.length === 0 ? (
+          <p className="ms4-muted">
+            {tx3(lang, "முதலில் வாரிசுகளைச் சேர்க்கவும்.", "Add heirs first.", "أضف الورثة أولًا.")}
+          </p>
+        ) : (
+          <div className="ms4-branch-cards">
+            {entered.map((m) => {
+              const selected = missingKey === m.key;
+              const count = heirCount(heirs, m.key);
+              return (
+                <button
+                  key={m.key}
+                  type="button"
+                  className={`ms4-branch-card ${selected ? "is-selected" : ""}`}
+                  aria-pressed={selected}
+                  onClick={() => { setMissingKey(m.key); clearResult(); }}
+                >
+                  <span className="ms4-branch-card-title">
+                    {tx3(lang, m.ta, m.en, m.ar)}
+                    {count > 1 ? ` × ${count}` : ""}
+                  </span>
+                  {selected ? (
+                    <span className="ms4-pill">{tx3(lang, "காணாமல் போனவர்", "Missing", "المفقود")}</span>
+                  ) : null}
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </StepShell>
 
       <div className="ms-special-actions">
         <LoadExampleButton onLoad={load} lang={lang} />
-        <CalcButton onClick={() => compute(estate, heirs, missingKey, missingCount, kind)} lang={lang} />
+        <CalcButton onClick={() => compute(estate, heirs, missingKey, kind)} lang={lang} />
         <ResetButton onReset={reset} lang={lang} />
       </div>
       <CalcError message={error} lang={lang} />
 
       {result ? (
         <div className="ms-special-results">
-          <FinalAnswer>{result.summary}</FinalAnswer>
-          <div className="ms-special-opinions">
-            <ResultTable
-              rows={result.ifAlive.rows}
-              lang={lang}
-              estate={estate}
-              verifyTotal={estate}
-              title={tx3(lang, "உயிருடன் இருந்தால்", "If alive", "إن كان حيًّا")}
-              total={result.ifAlive.totalDistributed}
-            />
-            <ResultTable
-              rows={result.ifDead.rows}
-              lang={lang}
-              estate={estate}
-              verifyTotal={estate}
-              title={tx3(lang, "இறந்திருந்தால்", "If dead", "إن كان ميتًا")}
-              total={result.ifDead.totalDistributed}
-            />
-          </div>
+          <SwipeCards
+            lang={lang}
+            cards={[
+              {
+                title: ss("missingIfAlive", lang),
+                content: (
+                  <ResultTable
+                    rows={result.ifAlive.rows}
+                    lang={lang}
+                    estate={estate}
+                    verifyTotal={estate}
+                    total={result.ifAlive.totalDistributed}
+                  />
+                ),
+              },
+              {
+                title: ss("missingIfDead", lang),
+                content: (
+                  <ResultTable
+                    rows={result.ifDead.rows}
+                    lang={lang}
+                    estate={estate}
+                    verifyTotal={estate}
+                    total={result.ifDead.totalDistributed}
+                  />
+                ),
+              },
+            ]}
+          />
           <ResultTable
             rows={result.payNow}
             lang={lang}
             estate={estate}
-            title={tx3(lang, "இப்போது கொடுக்க (ஒவ்வொருவருக்கும் குறைந்த தொகை)", "Pay now (the lesser amount for each person)", "ادفع الآن (الأقل لكل شخص)")}
+            title={ss("payNow", lang)}
             total={result.payNowTotal}
           />
-          <HeldLine
-            label={tx3(lang, "நிறுத்தி வைக்க: ", "Held: ", "المحجوز: ")}
-            amount={result.heldAmount}
-            lang={lang}
-          />
-          <p className="ms-special-muted">
-            {tx3(
-              lang,
-              "நூல் கூறும் காத்திருப்புக் காலம்: 70 ஆண்டுகள் (இமாம்களின் ஏகோபித்த கருத்து என்று நூல் கூறுகிறது).",
-              "Waiting period as the book states it: 70 years (stated as the unanimous opinion of the imams).",
-              "مدة الانتظار كما يذكرها الكتاب: ٧٠ سنة (يذكر الكتاب أنها رأي الأئمة المتفق عليه).",
-            )}
+          <HeldBox label={ss("held", lang)} amount={result.heldAmount} lang={lang} />
+          <TotalCheckLine total={estate} lang={lang} />
+          <p className="ms4-flag" role="note">
+            <strong>{ss("missingWaitingPeriod", lang)}</strong> — {ss("missingSeventyYears", lang)}
           </p>
-          <p className="ms-special-muted">
-            {tx3(lang, "இப்போது கொடுக்க மொத்தம்: ", "Pay-now total: ", "مجموع ما يُدفع الآن: ")}₹{fmt(result.payNowTotal)}
-            {" · "}
-            {tx3(lang, "நிறுத்தி வைக்க: ", "Held: ", "المحجوز: ")}₹{fmt(result.heldAmount)}
-          </p>
-          <ResultNotes notes={result.notes} scholarReasons={result.scholarReasons} lang={lang} />
+          {kind === "prisoner" ? <FlagLine text={PRISONER_NO_RULE} lang={lang} /> : null}
+          {showCase275Flag ? (
+            <p className="ms4-flag" role="note">
+              {tx3(
+                lang,
+                "கணக்கு 275: நூலில் இந்தப் பங்கு ஒரு இடத்தில் 233,333.33 என்று அச்சாகியுள்ளது; சரியான தொகை 23,333.33.",
+                "Case 275: the book prints this share as 233,333.33 in one line; the correct figure is 23,333.33.",
+                "المسألة 275: يطبع الكتاب هذه الحصة 233,333.33 في موضع واحد؛ والرقم الصحيح 23,333.33.",
+              )}
+            </p>
+          ) : null}
         </div>
       ) : null}
     </div>

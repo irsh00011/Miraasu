@@ -1,38 +1,136 @@
 /**
- * 12. Apostate (book §4.12, p. 330; cases 282–285).
- * Three-opinion comparison + Bayt al-Mal outcomes side by side, labelled.
- * Two situations: the apostate's own estate (split by when the property
- * was earned) and an heir who left Islam (excluded, no share).
+ * 12. The Apostate (book §4.12, p. 330; cases 282–285).
+ * v4 rebuild (redesign spec §13): two modes as two big cards
+ * (single-select, required): "The deceased left Islam" / "An heir left
+ * Islam".
+ * - Estate mode, Step 1: TWO money fields — "Earned while Muslim" and
+ *   "Earned after leaving" — plus a "Not sure" link on the first
+ *   (leaves both fields editable, shows a one-line note). Step 2:
+ *   "Add heir" bottom sheet, normal family list.
+ * - Heir mode: single estate number input + heirs; Step 3 "Who left
+ *   Islam?" single-select from the chosen heirs (required).
+ * - Result, estate mode: THREE swipeable cards with page dots, equal
+ *   weight, no "recommended" tag — Hanafi, Shafi'i, Abu Yusuf &
+ *   Muhammad. Each card: its own table (amounts large) + a SEPARATE
+ *   "Bayt al-Mal" row + its own one-line total check. If "Not sure"
+ *   was tapped: the Hanafi card shows ONLY the flag ("While-Muslim
+ *   value unknown — Hanafi split cannot be calculated") and NO Hanafi
+ *   numbers; the other two cards show normally.
+ * - Result, heir mode: normal division; the apostate heir in the red
+ *   no-share card.
+ * Flags: case 282 — the book prints 170,000 for the son's share of
+ * 24,000 once, then continues with 17,000; 17,000 is correct. Case
+ * 284 — the Radd correction (paternal uncle takes the residue) needs a
+ * scholar's confirmation.
+ *
+ * Calculation unchanged: calculateApostateEstate /
+ * calculateApostateHeir (existing, tested). Book case 282, estate mode
+ * (₹54,000 = ₹24,000 while Muslim + ₹30,000 after): Hanafi wife
+ * ₹3,000, mother ₹4,000, son ₹17,000, Bayt al-Mal ₹30,000; Shafi'i
+ * Bayt al-Mal ₹54,000, heirs ₹0; Abu Yusuf & Muhammad wife ₹6,750,
+ * mother ₹9,000, son ₹38,250, Bayt al-Mal ₹0.
  */
 import { useState } from "react";
-import { calculateApostateEstate, calculateApostateHeir } from "@/lib/specialMethods";
+import { calculateApostateEstate, calculateApostateHeir, rowPercent, type SpecialRow } from "@/lib/specialMethods";
 import type { HeirInput } from "@/lib/inheritance";
-import { errEstate, errHeirs, fmt, tHint, tx3, type TopicCalcProps } from "./types";
-import { enteredHeirKeys, hasAnyHeir, heirLabel, preloadHeirs } from "./heirMeta";
+import { errEstate, errHeirs, fmt, ss, tx3, type TopicCalcProps } from "./types";
+import { enteredHeirKeys, hasAnyHeir, heirCount, heirLabel, preloadHeirs } from "./heirMeta";
 import {
+  AmountRow,
   CalcButton,
   CalcError,
   ExcludedList,
   FinalAnswer,
-  HeirPicker,
+  HeirPickerSheet,
+  HeldBox,
   LoadExampleButton,
   MoneyField,
   ResetButton,
   ResultNotes,
   ResultTable,
-  StepHeading,
+  StepShell,
+  SwipeCards,
+  TotalCheckLine,
+  rowLabel,
 } from "./shared";
 
+const HEIR_KEYS: (keyof HeirInput)[] = [
+  "husband", "wives", "father", "mother", "paternalGrandfather",
+  "sons", "daughters", "fullBrothers", "fullSisters",
+  "maternalBrothers", "maternalSisters", "paternalBrothers",
+  "paternalSisters", "paternalUncles",
+];
+
+/** One opinion card's content: heir rows + separate Bayt al-Mal row + total check. */
+function OpinionContent({
+  rows,
+  baytAlMal,
+  total,
+  lang,
+  heirsZero = false,
+}: {
+  rows: SpecialRow[];
+  baytAlMal: number;
+  total: number;
+  lang: "ta" | "en" | "ar";
+  heirsZero?: boolean;
+}) {
+  const heirRows = rows.filter((r) => r.key !== "bayt-al-mal" && r.key !== "__held__");
+  const heldRows = rows.filter((r) => r.key === "__held__");
+  return (
+    <div>
+      {heirRows.length === 0 && !heirsZero ? null : heirRows.map((row) => (
+        <AmountRow
+          key={row.key}
+          label={rowLabel(row, lang)}
+          amount={row.amount}
+          fraction={row.fraction}
+          percent={rowPercent(row)}
+          note={row.note}
+          lang={lang}
+        />
+      ))}
+      {heirsZero ? (
+        <p className="ms4-muted">
+          {tx3(lang, "வாரிசுகள்: ₹0.00", "Heirs: ₹0.00", "الورثة: ₹0.00")}
+        </p>
+      ) : null}
+      {heldRows.map((row) => (
+        <HeldBox key={row.key} label={rowLabel(row, lang)} amount={row.amount} lang={lang} />
+      ))}
+      <div className="ms4-bayt-row">
+        <span className="ms4-bayt-row-name">{ss("apostateBaytAlMal", lang)}</span>
+        <span className="ms4-bayt-row-amount">₹{fmt(baytAlMal)}</span>
+      </div>
+      <TotalCheckLine total={total} lang={lang} />
+    </div>
+  );
+}
+
 export default function ApostateCalc({ topic, lang }: TopicCalcProps) {
-  const [mode, setMode] = useState<"estate" | "heir">("estate");
+  const [mode, setMode] = useState<"estate" | "heir" | null>(null);
   const [whileMuslim, setWhileMuslim] = useState(24000);
   const [afterLeaving, setAfterLeaving] = useState(30000);
+  const [notSure, setNotSure] = useState(false);
   const [estate, setEstate] = useState(400000);
   const [heirs, setHeirs] = useState<HeirInput>(() => preloadHeirs(topic.preload.heirs));
-  const [apostateKeys, setApostateKeys] = useState<string[]>([]);
+  const [apostateKey, setApostateKey] = useState<keyof HeirInput | null>(null);
+  const [openStep, setOpenStep] = useState(1);
   const [estateResult, setEstateResult] = useState<ReturnType<typeof calculateApostateEstate> | null>(null);
   const [heirResult, setHeirResult] = useState<ReturnType<typeof calculateApostateHeir> | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const clearResults = () => {
+    setEstateResult(null);
+    setHeirResult(null);
+  };
+
+  const pickMode = (m: "estate" | "heir") => {
+    setMode(m);
+    clearResults();
+    setError(null);
+    setOpenStep(2);
+  };
 
   const computeEstate = (w: number, a: number, h: HeirInput) => {
     if (!(w + a > 0)) { setEstateResult(null); setError(errEstate(lang)); return; }
@@ -41,19 +139,26 @@ export default function ApostateCalc({ topic, lang }: TopicCalcProps) {
       setEstateResult(calculateApostateEstate({ whileMuslim: w, afterLeaving: a, heirs: h }));
       setHeirResult(null);
       setError(null);
+      setOpenStep(0);
     } catch (err) {
       setEstateResult(null);
       setError(err instanceof Error ? err.message : String(err));
     }
   };
 
-  const computeHeir = (e: number, h: HeirInput, keys: string[]) => {
+  const computeHeir = (e: number, h: HeirInput, k: keyof HeirInput | null) => {
     if (!(e > 0)) { setHeirResult(null); setError(errEstate(lang)); return; }
     if (!hasAnyHeir(h)) { setHeirResult(null); setError(errHeirs(lang)); return; }
+    if (!k || heirCount(h, k) === 0) {
+      setHeirResult(null);
+      setError(tx3(lang, "மதம் மாறியவர் யார் என்பதைத் தேர்ந்தெடுக்கவும்.", "Choose who left Islam.", "اختر من ارتد."));
+      return;
+    }
     try {
-      setHeirResult(calculateApostateHeir({ estate: e, heirs: h, apostateKeys: keys as (keyof HeirInput)[] }));
+      setHeirResult(calculateApostateHeir({ estate: e, heirs: h, apostateKeys: [k] }));
       setEstateResult(null);
       setError(null);
+      setOpenStep(0);
     } catch (err) {
       setHeirResult(null);
       setError(err instanceof Error ? err.message : String(err));
@@ -61,211 +166,299 @@ export default function ApostateCalc({ topic, lang }: TopicCalcProps) {
   };
 
   const load = () => {
-    if (mode === "estate") {
-      const h = preloadHeirs({ wives: 1, mother: 1, sons: 1 });
-      setWhileMuslim(24000);
-      setAfterLeaving(30000);
-      setHeirs(h);
-      computeEstate(24000, 30000, h);
-    } else {
+    if (mode === "heir") {
       const h = preloadHeirs({ wives: 1, fullSisters: 1, paternalSisters: 1, paternalUncles: 1 });
       setEstate(400000);
       setHeirs(h);
-      setApostateKeys(["wives"]);
-      computeHeir(400000, h, ["wives"]);
+      setApostateKey("wives");
+      computeHeir(400000, h, "wives");
+    } else {
+      setMode("estate");
+      const h = preloadHeirs({ wives: 1, mother: 1, sons: 1 });
+      setWhileMuslim(24000);
+      setAfterLeaving(30000);
+      setNotSure(false);
+      setHeirs(h);
+      computeEstate(24000, 30000, h);
     }
   };
 
   const reset = () => {
     setWhileMuslim(24000);
     setAfterLeaving(30000);
+    setNotSure(false);
     setEstate(400000);
     setHeirs(preloadHeirs(topic.preload.heirs));
-    setApostateKeys([]);
+    setApostateKey(null);
     setEstateResult(null);
     setHeirResult(null);
     setError(null);
+    setOpenStep(1);
   };
 
   const entered = enteredHeirKeys(heirs);
-  const baytLine = (amount: number) => (
-    <p className="ms-special-bayt">
-      {tx3(lang, "பைத்துல் மால் (பொதுக் கருவூலம்): ", "Bayt al-Mal (public treasury): ", "بيت المال: ")}₹{fmt(amount)}
-    </p>
-  );
+  const heirCountTotal = Object.values(heirs).reduce((s, v) => s + (v ?? 0), 0);
+  const apostateSelected = apostateKey !== null && heirCount(heirs, apostateKey) > 0;
+  const showCase282Flag =
+    !!estateResult && whileMuslim === 24000 && afterLeaving === 30000;
+  const showRaddFlag =
+    !!heirResult &&
+    heirResult.notes.some((n) => n.includes("284") || n.includes("269/284"));
 
   return (
     <div className="ms-special-calc-body">
-      <p className="ms-special-hint">{tHint(topic, lang)}</p>
-
-      <StepHeading
+      <StepShell
         n={1}
         title={tx3(lang, "நிலை எது?", "Which situation?", "أي حالة؟")}
-      />
-      <div className="ms-special-seg" role="group" aria-label={tx3(lang, "நிலை", "Situation", "الحالة")}>
-        <button
-          type="button"
-          aria-pressed={mode === "estate"}
-          onClick={() => setMode("estate")}
-          className={`ms-special-seg-btn ${mode === "estate" ? "is-on" : ""}`}
-        >
-          {tx3(lang, "இஸ்லாத்தை விட்டு வெளியேறியவரின் சொத்து", "The apostate's own estate", "تركة المرتد نفسه")}
-        </button>
-        <button
-          type="button"
-          aria-pressed={mode === "heir"}
-          onClick={() => setMode("heir")}
-          className={`ms-special-seg-btn ${mode === "heir" ? "is-on" : ""}`}
-        >
-          {tx3(lang, "இஸ்லாத்தை விட்டு வெளியேறிய வாரிசு", "An heir who left Islam", "وارث ارتد عن الإسلام")}
-        </button>
-      </div>
+        summary={
+          mode === "estate"
+            ? ss("apostateDeceasedLeft", lang)
+            : mode === "heir"
+              ? ss("apostateHeirLeft", lang)
+              : null
+        }
+        open={mode === null}
+        onOpen={() => setMode(null)}
+        lang={lang}
+      >
+        <div className="ms4-branch-cards">
+          <button
+            type="button"
+            className={`ms4-branch-card ${mode === "estate" ? "is-selected" : ""}`}
+            aria-pressed={mode === "estate"}
+            onClick={() => pickMode("estate")}
+          >
+            <span className="ms4-branch-card-title">{ss("apostateDeceasedLeft", lang)}</span>
+          </button>
+          <button
+            type="button"
+            className={`ms4-branch-card ${mode === "heir" ? "is-selected" : ""}`}
+            aria-pressed={mode === "heir"}
+            onClick={() => pickMode("heir")}
+          >
+            <span className="ms4-branch-card-title">{ss("apostateHeirLeft", lang)}</span>
+          </button>
+        </div>
+      </StepShell>
 
       {mode === "estate" ? (
         <>
-          <StepHeading
+          <StepShell
             n={2}
             title={tx3(lang, "சொத்து எப்போது சம்பாதிக்கப்பட்டது?", "When was the property earned?", "متى كُسب المال؟")}
-            help={tx3(
-              lang,
-              "இரண்டு தொகைகளையும் தனித்தனியே உள்ளிடவும் — முஸ்லிமாக இருந்தபோது சம்பாதித்தது, இஸ்லாத்தை விட்ட பிறகு சம்பாதித்தது.",
-              "Enter the two amounts separately — earned while Muslim, and earned after leaving Islam.",
-              // AR-REVIEW: wording for the two earned-when amounts.
-              "أدخل المبلغين منفصلين: ما كُسب وهو مسلم، وما كُسب بعد الردة.",
-            )}
-          />
-          <MoneyField
-            id="apos-while"
-            label={tx3(lang, "முஸ்லிமாக இருந்தபோது சம்பாதித்தது", "Earned while Muslim", "ما كسبه وهو مسلم")}
-            value={whileMuslim}
-            onChange={setWhileMuslim}
-          />
-          <MoneyField
-            id="apos-after"
-            label={tx3(lang, "இஸ்லாத்தை விட்ட பிறகு சம்பாதித்தது", "Earned after leaving Islam", "ما كسبه بعد الردة")}
-            value={afterLeaving}
-            onChange={setAfterLeaving}
-          />
-          <StepHeading n={3} title={tx3(lang, "முஸ்லிம் வாரிசுகள்", "Muslim heirs", "الورثة المسلمون")} />
-          <HeirPicker
-            heirs={heirs}
-            onChange={setHeirs}
-            keys={["husband", "wives", "father", "mother", "paternalGrandfather", "sons", "daughters", "fullBrothers", "fullSisters", "maternalBrothers", "maternalSisters"]}
+            summary={`₹${fmt(whileMuslim + afterLeaving)}`}
+            open={openStep === 2}
+            onOpen={() => setOpenStep(2)}
             lang={lang}
-          />
+          >
+            <MoneyField
+              id="apos-while"
+              label={ss("apostateEarnedWhileMuslim", lang)}
+              value={whileMuslim}
+              onChange={(v) => { setWhileMuslim(v); clearResults(); }}
+            />
+            <button
+              type="button"
+              className="ms4-load-link"
+              aria-pressed={notSure}
+              onClick={() => { setNotSure((s) => !s); clearResults(); }}
+            >
+              {ss("apostateNotSure", lang)}
+              {notSure ? " ✓" : ""}
+            </button>
+            {notSure ? (
+              <p className="ms4-muted">
+                {tx3(
+                  lang,
+                  "முஸ்லிமாக இருந்தபோது சம்பாதித்த தொகை தெரியவில்லை — ஹனஃபி பிரிவு கணக்கிடப்படாது; மற்ற இரு கருத்துகளும் காட்டப்படும்.",
+                  "While-Muslim value unknown — the Hanafi split is not calculated; the other two opinions still show.",
+                  "قيمة ما كُسب وهو مسلم غير معروفة — لن تُحسب قسمة الحنفية؛ ويظهر الرأيان الآخران.",
+                )}
+              </p>
+            ) : null}
+            <MoneyField
+              id="apos-after"
+              label={ss("apostateEarnedAfter", lang)}
+              value={afterLeaving}
+              onChange={(v) => { setAfterLeaving(v); clearResults(); }}
+            />
+          </StepShell>
+
+          <StepShell
+            n={3}
+            title={ss("stepHeirs", lang)}
+            summary={heirCountTotal > 0 ? tx3(lang, `${heirCountTotal} வாரிசு(கள்)`, `${heirCountTotal} heir(s)`, `${heirCountTotal} من الورثة`) : null}
+            open={openStep === 3}
+            onOpen={() => setOpenStep(3)}
+            lang={lang}
+          >
+            <HeirPickerSheet
+              heirs={heirs}
+              onChange={(h) => { setHeirs(h); clearResults(); }}
+              keys={HEIR_KEYS}
+              lang={lang}
+            />
+          </StepShell>
+
           <div className="ms-special-actions">
             <LoadExampleButton onLoad={load} lang={lang} />
             <CalcButton onClick={() => computeEstate(whileMuslim, afterLeaving, heirs)} lang={lang} />
             <ResetButton onReset={reset} lang={lang} />
           </div>
         </>
-      ) : (
+      ) : null}
+
+      {mode === "heir" ? (
         <>
-          <StepHeading n={2} title={tx3(lang, "சொத்தும் வாரிசுகளும்", "Estate and heirs", "التركة والورثة")} />
-          <MoneyField id="apos-estate" label={tx3(lang, "சொத்து", "Estate", "التركة")} value={estate} onChange={setEstate} />
-          <HeirPicker
-            heirs={heirs}
-            onChange={setHeirs}
-            keys={["husband", "wives", "father", "mother", "paternalGrandfather", "sons", "daughters", "fullBrothers", "fullSisters", "maternalBrothers", "maternalSisters", "paternalBrothers", "paternalSisters", "paternalUncles"]}
+          <StepShell
+            n={2}
+            title={ss("stepEstate", lang)}
+            summary={`₹${fmt(estate)}`}
+            open={openStep === 2}
+            onOpen={() => setOpenStep(2)}
             lang={lang}
-          />
-          <StepHeading
+          >
+            <MoneyField
+              id="apos-estate"
+              label={ss("stepEstate", lang)}
+              value={estate}
+              onChange={(v) => { setEstate(v); clearResults(); }}
+            />
+          </StepShell>
+
+          <StepShell
             n={3}
-            title={tx3(lang, "இஸ்லாத்தை விட்டு வெளியேறிய வாரிசுகளைக் குறிக்கவும்", "Mark the heirs who left Islam", "حدّد الورثة الذين ارتدوا عن الإسلام")}
-            help={tx3(
-              lang,
-              "மதம் மாறிய வாரிசுக்கு எதுவும் கிடைக்காது — “வாரிசாக மாட்டார்”.",
-              "An heir who left Islam gets nothing.",
-              "الوارث المرتد لا يأخذ شيئًا.",
-            )}
-          />
-          <fieldset className="ms-special-heirs">
-            <legend className="ms-special-field-label">
-              {tx3(lang, "மதம் மாறியவர்கள்", "Those who left Islam", "المرتدون")}
-            </legend>
+            title={ss("stepHeirs", lang)}
+            summary={heirCountTotal > 0 ? tx3(lang, `${heirCountTotal} வாரிசு(கள்)`, `${heirCountTotal} heir(s)`, `${heirCountTotal} من الورثة`) : null}
+            open={openStep === 3}
+            onOpen={() => setOpenStep(3)}
+            lang={lang}
+          >
+            <HeirPickerSheet
+              heirs={heirs}
+              onChange={(h) => { setHeirs(h); clearResults(); }}
+              keys={HEIR_KEYS}
+              lang={lang}
+            />
+          </StepShell>
+
+          <StepShell
+            n={4}
+            title={ss("apostateWhoLeft", lang)}
+            summary={apostateSelected && apostateKey ? heirLabel(apostateKey, lang) : null}
+            open={openStep === 4}
+            onOpen={() => setOpenStep(4)}
+            lang={lang}
+          >
             {entered.length === 0 ? (
-              <p className="ms-special-muted">{tx3(lang, "முதலில் வாரிசுகளை உள்ளிடவும்.", "Enter heirs first.", "أدخل الورثة أولًا.")}</p>
-            ) : null}
-            {entered.map((m) => (
-              <label key={m.key} className="ms-special-check-row">
-                <input
-                  type="checkbox"
-                  checked={apostateKeys.includes(m.key)}
-                  onChange={(e) =>
-                    setApostateKeys((ks) => (e.target.checked ? [...ks, m.key] : ks.filter((k) => k !== m.key)))
-                  }
-                />
-                <span>{tx3(lang, m.ta, m.en, m.ar)}</span>
-              </label>
-            ))}
-          </fieldset>
+              <p className="ms4-muted">
+                {tx3(lang, "முதலில் வாரிசுகளைச் சேர்க்கவும்.", "Add heirs first.", "أضف الورثة أولًا.")}
+              </p>
+            ) : (
+              <div className="ms4-branch-cards">
+                {entered.map((m) => {
+                  const selected = apostateKey === m.key;
+                  const count = heirCount(heirs, m.key);
+                  return (
+                    <button
+                      key={m.key}
+                      type="button"
+                      className={`ms4-branch-card ${selected ? "is-selected" : ""}`}
+                      aria-pressed={selected}
+                      onClick={() => { setApostateKey(m.key); clearResults(); }}
+                    >
+                      <span className="ms4-branch-card-title">
+                        {tx3(lang, m.ta, m.en, m.ar)}
+                        {count > 1 ? ` × ${count}` : ""}
+                      </span>
+                      {selected ? (
+                        <span className="ms4-pill">{tx3(lang, "மதம் மாறினார்", "Left Islam", "ارتد")}</span>
+                      ) : null}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </StepShell>
+
           <div className="ms-special-actions">
             <LoadExampleButton onLoad={load} lang={lang} />
-            <CalcButton onClick={() => computeHeir(estate, heirs, apostateKeys)} lang={lang} />
+            <CalcButton onClick={() => computeHeir(estate, heirs, apostateKey)} lang={lang} />
             <ResetButton onReset={reset} lang={lang} />
           </div>
         </>
-      )}
+      ) : null}
+
+      {mode === null ? (
+        <div className="ms-special-actions">
+          <LoadExampleButton onLoad={load} lang={lang} />
+          <ResetButton onReset={reset} lang={lang} />
+        </div>
+      ) : null}
 
       <CalcError message={error} lang={lang} />
 
       {estateResult ? (
         <div className="ms-special-results">
-          <FinalAnswer>{estateResult.summary}</FinalAnswer>
-          <p className="ms-special-muted">
+          <FinalAnswer lang={lang}>{estateResult.summary}</FinalAnswer>
+          <p className="ms4-muted">
             {tx3(lang, "மொத்தச் சொத்து: ", "Total estate: ", "مجموع التركة: ")}₹{fmt(estateResult.total)}
-            {" · "}
-            {tx3(lang, "முஸ்லிமாக இருந்தபோது: ", "While Muslim: ", "وهو مسلم: ")}₹{fmt(estateResult.whileMuslim)}
-            {" · "}
-            {tx3(lang, "பிறகு: ", "After leaving: ", "بعد الردة: ")}₹{fmt(estateResult.afterLeaving)}
           </p>
-          <p className="ms-special-muted">
-            {tx3(
-              lang,
-              "மூன்று கருத்துகளும் கீழே ஒன்றாகக் காட்டப்பட்டுள்ளன; நூல் ஒன்றை மட்டும் முடிவாக ஏற்கவில்லை.",
-              "All three opinions are shown together below; the book adopts none of them as the single answer.",
-              "الآراء الثلاثة معروضة معًا أدناه، والكتاب لم يعتمد واحدًا منها جوابًا وحيدًا.",
-            )}
-          </p>
-          <div className="ms-special-opinions ms-special-opinions-3">
-            <div className="ms-special-opinion-card">
-              <ResultTable
-                rows={estateResult.abuHanifa.rows}
-                lang={lang}
-                estate={estateResult.total}
-                verifyTotal={estateResult.total}
-                title={tx3(lang, "அபூ ஹனீஃபா: முஸ்லிமாக இருந்தபோது சம்பாதித்தது மட்டும் பிரிக்கப்படும்", "Abu Hanifa: only while-Muslim property is divided", "أبو حنيفة: يُقسَّم فقط ما كُسب وهو مسلم")}
-              />
-              {baytLine(estateResult.abuHanifa.baytAlMal)}
-            </div>
-            <div className="ms-special-opinion-card">
-              <ResultTable
-                rows={estateResult.shafii.rows}
-                lang={lang}
-                estate={estateResult.total}
-                verifyTotal={estateResult.total}
-                title={tx3(lang, "அஷ்-ஷாஃபிஈ: அனைத்தும் பைத்துல் மாலுக்கு", "al-Shafi'i: everything to Bayt al-Mal", "الشافعي: كل شيء لبيت المال")}
-              />
-              {baytLine(estateResult.shafii.baytAlMal)}
-            </div>
-            <div className="ms-special-opinion-card">
-              <ResultTable
-                rows={estateResult.abuYusufMuhammad.rows}
-                lang={lang}
-                estate={estateResult.total}
-                verifyTotal={estateResult.total}
-                title={tx3(lang, "அபூ யூசுஃப், முஹம்மது: அனைத்தும் வாரிசுகளுக்குப் பிரிக்கப்படும்", "Abu Yusuf & Muhammad: everything is divided among the heirs", "أبو يوسف ومحمد: كل شيء يُقسَّم على الورثة")}
-              />
-              {baytLine(estateResult.abuYusufMuhammad.baytAlMal)}
-            </div>
-          </div>
+          <SwipeCards
+            lang={lang}
+            cards={[
+              {
+                title: tx3(lang, "ஹனஃபி", "Hanafi", "الحنفي"),
+                content: notSure ? (
+                  <p className="ms4-flag" role="note">
+                    {ss("apostateHanafiCannotCalc", lang)}
+                  </p>
+                ) : (
+                  <OpinionContent
+                    rows={estateResult.abuHanifa.rows}
+                    baytAlMal={estateResult.abuHanifa.baytAlMal}
+                    total={estateResult.total}
+                    lang={lang}
+                  />
+                ),
+              },
+              {
+                title: tx3(lang, "ஷாஃபிஈ", "Shafi'i", "الشافعي"),
+                content: (
+                  <OpinionContent
+                    rows={estateResult.shafii.rows}
+                    baytAlMal={estateResult.shafii.baytAlMal}
+                    total={estateResult.total}
+                    lang={lang}
+                    heirsZero
+                  />
+                ),
+              },
+              {
+                title: tx3(lang, "அபூ யூசுஃப், முஹம்மது", "Abu Yusuf & Muhammad", "أبو يوسف ومحمد"),
+                content: (
+                  <OpinionContent
+                    rows={estateResult.abuYusufMuhammad.rows}
+                    baytAlMal={estateResult.abuYusufMuhammad.baytAlMal}
+                    total={estateResult.total}
+                    lang={lang}
+                  />
+                ),
+              },
+            ]}
+          />
+          {showCase282Flag ? (
+            <p className="ms4-flag" role="note">
+              {ss("apostateCase282Flag", lang)}
+            </p>
+          ) : null}
           <ResultNotes notes={estateResult.notes} scholarReasons={estateResult.scholarReasons} lang={lang} />
         </div>
       ) : null}
 
       {heirResult ? (
         <div className="ms-special-results">
-          <FinalAnswer>{heirResult.summary}</FinalAnswer>
+          <FinalAnswer lang={lang}>{heirResult.summary}</FinalAnswer>
           <ResultTable
             rows={heirResult.rows}
             lang={lang}
@@ -278,6 +471,11 @@ export default function ApostateCalc({ topic, lang }: TopicCalcProps) {
             items={heirResult.excluded.map((x) => ({ label: heirLabel(x.key, lang), rule: x.rule }))}
             lang={lang}
           />
+          {showRaddFlag ? (
+            <p className="ms4-flag" role="note">
+              {ss("raddCorrectionFlag", lang)}
+            </p>
+          ) : null}
           <ResultNotes notes={heirResult.notes} scholarReasons={heirResult.scholarReasons} lang={lang} />
         </div>
       ) : null}

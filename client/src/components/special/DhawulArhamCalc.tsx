@@ -1,7 +1,13 @@
 /**
- * 1. Dhawul Arham — four-branch hierarchy (book §4.1, p. 279).
- * Branch cards 1–4 with their members; claimants added per branch + degree;
- * the winning branch is highlighted, blocked branches shown as excluded.
+ * 1. Dhawul Arham — distant relatives (book p. 279; cases 260–266).
+ * v4 rebuild (redesign spec §2): Step 1 estate → Step 2 fixed-share heirs
+ * (bottom-sheet picker) → Step 3 four big branch cards (single-select),
+ * then "Add relative" bottom sheet listing only that branch's relations.
+ * Result: amount cards (fixed heirs first, then the winning branch),
+ * blocked claimants muted as excluded, and a small 4-branch ladder
+ * highlighting the answering branch. Branches 2 and 4 carry the
+ * "Not in the book" flag — no numbers are invented for them.
+ * Calculation unchanged: calculateDhawulArham (existing, tested).
  */
 import { useState } from "react";
 import {
@@ -9,68 +15,111 @@ import {
   type DhawulArhamClaimant,
 } from "@/lib/specialMethods";
 import type { HeirInput } from "@/lib/inheritance";
-import { errEstate, errHeirsOrClaimants, fmt, tBranchItems, tBranchTitle, tHint, tx3, type TopicCalcProps } from "./types";
-import { heirLabel, preloadHeirs } from "./heirMeta";
+import { errEstate, errHeirsOrClaimants, fmt, ss, tBranchTitle, tx3, type Lang, type TopicCalcProps } from "./types";
+import { hasAnyHeir, preloadHeirs } from "./heirMeta";
 import {
   AddButton,
+  BranchCard,
   CalcButton,
   CalcError,
   ExcludedList,
-  FinalAnswer,
-  HeirPicker,
-  HeldLine,
+  HeirPickerSheet,
   LoadExampleButton,
   MoneyField,
   RemoveButton,
   ResetButton,
   ResultNotes,
   ResultTable,
-  StepHeading,
+  StepShell,
   Stepper,
 } from "./shared";
 
-const BRANCH_NO = [1, 2, 3, 4] as const;
-
 type ClaimantForm = { label: string; branch: 1 | 2 | 3 | 4; degree: number; sex: "male" | "female"; count: number };
 
-const defaultClaimants = (lang: TopicCalcProps["lang"]): ClaimantForm[] => [
+type RelationOption = { ta: string; en: string; ar: string; sex: "male" | "female"; degree: number };
+
+const BRANCH_RELATIONS: Record<1 | 2 | 3 | 4, RelationOption[]> = {
+  1: [
+    { ta: "மகளின் மகன்", en: "Daughter's son", ar: "ابن البنت", sex: "male", degree: 1 },
+    { ta: "மகளின் மகள்", en: "Daughter's daughter", ar: "بنت البنت", sex: "female", degree: 1 },
+    { ta: "மகளின் மகனின் மகன்", en: "Daughter's son's son", ar: "ابن ابن البنت", sex: "male", degree: 2 },
+    { ta: "மகளின் மகனின் மகள்", en: "Daughter's son's daughter", ar: "بنت ابن البنت", sex: "female", degree: 2 },
+    { ta: "மகளின் மகளின் மகன்", en: "Daughter's daughter's son", ar: "ابن بنت البنت", sex: "male", degree: 2 },
+    { ta: "மகளின் மகளின் மகள்", en: "Daughter's daughter's daughter", ar: "بنت بنت البنت", sex: "female", degree: 2 },
+    { ta: "மகனின் மகளின் மகன்", en: "Son's daughter's son", ar: "ابن بنت الابن", sex: "male", degree: 2 },
+    { ta: "மகனின் மகளின் மகள்", en: "Son's daughter's daughter", ar: "بنت بنت الابن", sex: "female", degree: 2 },
+  ],
+  2: [
+    { ta: "தாயின் தந்தை", en: "Mother's father", ar: "أبو الأم", sex: "male", degree: 1 },
+    { ta: "தாயின் தாய்", en: "Mother's mother", ar: "أم الأم", sex: "female", degree: 1 },
+    { ta: "தந்தையின் தாயின் தந்தை", en: "Father's mother's father", ar: "أبو أم الأب", sex: "male", degree: 2 },
+    { ta: "தந்தையின் தாயின் தாய்", en: "Father's mother's mother", ar: "أم أم الأب", sex: "female", degree: 2 },
+  ],
+  3: [
+    { ta: "சகோதரனின் மகள்", en: "Brother's daughter", ar: "بنت الأخ", sex: "female", degree: 1 },
+    { ta: "சகோதரியின் மகன்", en: "Sister's son", ar: "ابن الأخت", sex: "male", degree: 1 },
+    { ta: "சகோதரியின் மகள்", en: "Sister's daughter", ar: "بنت الأخت", sex: "female", degree: 1 },
+    { ta: "சகோதரனின் மகளின் மகன்", en: "Brother's daughter's son", ar: "ابن بنت الأخ", sex: "male", degree: 2 },
+    { ta: "சகோதரனின் மகளின் மகள்", en: "Brother's daughter's daughter", ar: "بنت بنت الأخ", sex: "female", degree: 2 },
+    { ta: "சகோதரியின் மகனின் மகன்", en: "Sister's son's son", ar: "ابن ابن الأخت", sex: "male", degree: 2 },
+    { ta: "சகோதரியின் மகனின் மகள்", en: "Sister's son's daughter", ar: "بنت ابن الأخت", sex: "female", degree: 2 },
+    { ta: "சகோதரியின் மகளின் மகன்", en: "Sister's daughter's son", ar: "ابن بنت الأخت", sex: "male", degree: 2 },
+    { ta: "சகோதரியின் மகளின் மகள்", en: "Sister's daughter's daughter", ar: "بنت بنت الأخت", sex: "female", degree: 2 },
+  ],
+  4: [
+    { ta: "தந்தையின் தாய் வழி சகோதரர்", en: "Father's maternal uncle", ar: "خال الأب", sex: "male", degree: 1 },
+    { ta: "தந்தையின் தாய் வழி சகோதரி", en: "Father's maternal aunt", ar: "خالة الأب", sex: "female", degree: 1 },
+    { ta: "தாயின் சகோதரர்", en: "Mother's brother", ar: "خال الأم", sex: "male", degree: 1 },
+    { ta: "தாயின் சகோதரி", en: "Mother's sister", ar: "خالة الأم", sex: "female", degree: 1 },
+    { ta: "தாயின் தாய் வழி சகோதரர்", en: "Mother's maternal uncle", ar: "خال أم الأم", sex: "male", degree: 2 },
+    { ta: "தாயின் தாய் வழி சகோதரி", en: "Mother's maternal aunt", ar: "خالة أم الأم", sex: "female", degree: 2 },
+  ],
+};
+
+const defaultClaimants = (lang: Lang): ClaimantForm[] => [
   { label: tx3(lang, "மகளின் மகன்", "Daughter's son", "ابن البنت"), branch: 1, degree: 1, sex: "male", count: 1 },
   { label: tx3(lang, "மகளின் மகள்", "Daughter's daughter", "بنت البنت"), branch: 1, degree: 1, sex: "female", count: 1 },
 ];
 
+const FIXED_KEYS: (keyof HeirInput)[] = [
+  "husband", "wives", "father", "mother", "sons", "daughters",
+  "fullBrothers", "fullSisters", "maternalBrothers", "maternalSisters",
+];
+
 export default function DhawulArhamCalc({ topic, lang }: TopicCalcProps) {
-  const defaults = () => ({
-    estate: topic.preload.estate,
-    fixedHeirs: preloadHeirs(topic.preload.heirs),
-    claimants: defaultClaimants(lang),
-  });
   const [estate, setEstate] = useState(topic.preload.estate);
   const [fixedHeirs, setFixedHeirs] = useState<HeirInput>(() => preloadHeirs(topic.preload.heirs));
   const [claimants, setClaimants] = useState<ClaimantForm[]>(() => defaultClaimants(lang));
+  const [branch, setBranch] = useState<1 | 2 | 3 | 4>(1);
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [openStep, setOpenStep] = useState(1);
   const [result, setResult] = useState<ReturnType<typeof calculateDhawulArham> | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const clearResult = () => setResult(null);
+
   const compute = (e: number, fh: HeirInput, cl: ClaimantForm[]) => {
     if (!(e > 0)) { setResult(null); setError(errEstate(lang)); return; }
-    const hasFixed = Object.values(fh).some((v) => (v ?? 0) > 0);
-    if (!hasFixed && cl.length === 0) { setResult(null); setError(errHeirsOrClaimants(lang)); return; }
+    if (!hasAnyHeir(fh) && cl.length === 0) { setResult(null); setError(errHeirsOrClaimants(lang)); return; }
     try {
-      const input = {
-        estate: e,
-        fixedHeirs: fh,
-        claimants: cl.map(
-          (c) =>
-            ({
-              label: c.label || tx3(lang, "தூரத்து உறவினர்", "Distant relative", "ذو رحم"),
-              branch: c.branch,
-              degree: c.degree,
-              sex: c.sex,
-              count: c.count,
-            }) as DhawulArhamClaimant,
-        ),
-      };
-      setResult(calculateDhawulArham(input));
+      setResult(
+        calculateDhawulArham({
+          estate: e,
+          fixedHeirs: fh,
+          claimants: cl.map(
+            (c) =>
+              ({
+                label: c.label || tx3(lang, "தூரத்து உறவினர்", "Distant relative", "ذو رحم"),
+                branch: c.branch,
+                degree: c.degree,
+                sex: c.sex,
+                count: c.count,
+              }) as DhawulArhamClaimant,
+          ),
+        }),
+      );
       setError(null);
+      setOpenStep(0);
     } catch (err) {
       setResult(null);
       setError(err instanceof Error ? err.message : String(err));
@@ -84,158 +133,182 @@ export default function DhawulArhamCalc({ topic, lang }: TopicCalcProps) {
     setEstate(e);
     setFixedHeirs(fh);
     setClaimants(cl);
+    setBranch(1);
     compute(e, fh, cl);
   };
 
   const reset = () => {
-    const d = defaults();
-    setEstate(d.estate);
-    setFixedHeirs(d.fixedHeirs);
-    setClaimants(d.claimants);
+    setEstate(topic.preload.estate);
+    setFixedHeirs(preloadHeirs(topic.preload.heirs));
+    setClaimants(defaultClaimants(lang));
+    setBranch(1);
     setResult(null);
     setError(null);
+    setOpenStep(1);
   };
 
   const updateClaimant = (i: number, patch: Partial<ClaimantForm>) =>
     setClaimants((cs) => cs.map((c, j) => (j === i ? { ...c, ...patch } : c)));
 
-  const claimedBranches = new Set(claimants.map((c) => c.branch));
-  const residue = result ? result.residueShare : null;
+  const fixedCount = Object.values(fixedHeirs).reduce((s, v) => s + (v ?? 0), 0);
 
   return (
     <div className="ms-special-calc-body">
-      <p className="ms-special-hint">{tHint(topic, lang)}</p>
+      <StepShell
+        n={1}
+        title={ss("stepEstate", lang)}
+        summary={`₹${fmt(estate)}`}
+        open={openStep === 1}
+        onOpen={() => setOpenStep(1)}
+        lang={lang}
+      >
+        <MoneyField
+          id="dhawul-estate"
+          label={ss("stepEstate", lang)}
+          value={estate}
+          onChange={(v) => { setEstate(v); clearResult(); }}
+        />
+      </StepShell>
 
-      <StepHeading n={1} title={tx3(lang, "சொத்து", "Estate", "التركة")} />
-      <MoneyField id="dhawul-estate" label={tx3(lang, "சொத்து", "Estate", "التركة")} value={estate} onChange={setEstate} />
-
-      <StepHeading
+      <StepShell
         n={2}
         title={tx3(lang, "நிலையான பங்கு பெறும் வாரிசுகள்", "Fixed-share heirs", "أصحاب الفروض")}
-        help={tx3(
-          lang,
-          "இவர்கள் முதலில் தங்கள் பங்கைப் பெறுகிறார்கள்; மீதம்தான் தூரத்து உறவினர்களுக்குச் செல்கிறது.",
-          "These heirs take their fixed shares first; only the residue goes to the distant relatives.",
-          "هؤلاء يأخذون فروضهم أولًا، والباقي فقط يذهب إلى ذوي الأرحام.",
-        )}
-      />
-      <HeirPicker
-        heirs={fixedHeirs}
-        onChange={setFixedHeirs}
-        keys={["husband", "wives", "father", "mother", "paternalGrandfather", "sons", "daughters", "fullBrothers", "fullSisters", "maternalBrothers", "maternalSisters"]}
+        summary={fixedCount > 0 ? tx3(lang, `${fixedCount} வாரிசு(கள்)`, `${fixedCount} heir(s)`, `${fixedCount} من الورثة`) : null}
+        open={openStep === 2}
+        onOpen={() => setOpenStep(2)}
         lang={lang}
-      />
+      >
+        <p className="ms4-muted">
+          {tx3(
+            lang,
+            "இவர்கள் முதலில் தங்கள் பங்கைப் பெறுகிறார்கள்; மீதம்தான் தூரத்து உறவினர்களுக்குச் செல்கிறது.",
+            "These heirs take their fixed shares first; only the residue goes to the distant relatives.",
+            "هؤلاء يأخذون فروضهم أولًا، والباقي فقط يذهب إلى ذوي الأرحام.",
+          )}
+        </p>
+        <HeirPickerSheet
+          heirs={fixedHeirs}
+          onChange={(h) => { setFixedHeirs(h); clearResult(); }}
+          keys={FIXED_KEYS}
+          lang={lang}
+        />
+      </StepShell>
 
-      <StepHeading
+      <StepShell
         n={3}
-        title={tx3(lang, "தூரத்து உறவினர்கள் — கிளை, படிநிலை", "Distant relatives — branch & degree", "ذوو الأرحام — الفرع والدرجة")}
-        help={tx3(
-          lang,
-          "முந்தைய கிளை இருந்தால் பிந்தைய கிளைக்கு எதுவும் இல்லை; ஒரே கிளைக்குள் நெருங்கிய படிநிலையில் உள்ளவர் முழுவதையும் பெறுகிறார்.",
-          "An earlier branch blocks a later one; within a branch the nearer in degree takes everything.",
-          "الفرع الأقرب يحجب الفرع الأبعد، وداخل الفرع الواحد يأخذ الأقرب درجةً كل شيء.",
-        )}
-      />
-      {/* Four-branch hierarchy cards */}
-      <div className="ms-special-branch-cards" role="list">
-        {(topic.branches ?? []).map((branch, i) => {
-          const no = BRANCH_NO[i] ?? ((i + 1) as 1 | 2 | 3 | 4);
-          const isWinner = result?.winningBranch === no;
-          const isBlocked = result !== null && claimedBranches.has(no) && !isWinner;
-          return (
-            <article
-              key={no}
-              role="listitem"
-              className={`ms-special-branch-card ${isWinner ? "is-winner" : ""} ${isBlocked ? "is-blocked" : ""}`}
-            >
-              <h4 className="ms-special-branch-title">
-                {tBranchTitle(branch, lang)}
-                {isWinner ? (
-                  <span className="ms-special-winner-tag">
-                    {tx3(lang, "வென்ற கிளை", "Winning branch", "الفرع الفائز")}
-                  </span>
-                ) : null}
-                {isBlocked ? (
-                  <span className="ms-special-blocked-tag">
-                    {tx3(lang, "தடுக்கப்பட்டது", "Blocked", "محجوب")}
-                  </span>
-                ) : null}
-              </h4>
-              <ul>
-                {tBranchItems(branch, lang).map((item, j) => (
-                  <li key={j}>{item}</li>
-                ))}
-              </ul>
-              {!claimedBranches.has(no) ? (
-                <p className="ms-special-muted">
-                  {tx3(lang, "இந்தக் கிளையில் உரிமை கோருபவர் யாரும் இல்லை.", "No claimant in this branch.", "لا مدّعٍ في هذا الفرع.")}
-                </p>
-              ) : null}
-            </article>
-          );
-        })}
-      </div>
+        title={tx3(lang, "கிளை — தூரத்து உறவினர்கள்", "Branch — distant relatives", "الفرع — ذوو الأرحام")}
+        summary={claimants.length > 0 ? tx3(lang, `கிளை ${branch} · ${claimants.length} உறவினர்(கள்)`, `Branch ${branch} · ${claimants.length} relative(s)`, `الفرع ${branch} · ${claimants.length} من الأقارب`) : null}
+        open={openStep === 3}
+        onOpen={() => setOpenStep(3)}
+        lang={lang}
+      >
+        <div className="ms4-branch-cards" role="group" aria-label={tx3(lang, "கிளைகள்", "Branches", "الفروع")}>
+          {(topic.branches ?? []).map((b, i) => {
+            const no = ((i + 1) as 1 | 2 | 3 | 4);
+            return (
+              <BranchCard
+                key={no}
+                title={tBranchTitle(b, lang)}
+                sub={ss(`dhawulBranch${no}` as "dhawulBranch1" | "dhawulBranch2" | "dhawulBranch3" | "dhawulBranch4", lang)}
+                selected={branch === no}
+                onSelect={() => { setBranch(no); clearResult(); }}
+                flag={no === 2 || no === 4 ? "Not in the book" : null}
+                lang={lang}
+              />
+            );
+          })}
+        </div>
+        <p className="ms4-muted">
+          {tx3(
+            lang,
+            "முந்தைய கிளை இருந்தால் பிந்தைய கிளைக்கு எதுவும் இல்லை; ஒரே கிளைக்குள் நெருங்கிய படிநிலையில் உள்ளவர் முழுவதையும் பெறுகிறார்.",
+            "An earlier branch blocks a later one; within a branch the nearer in degree takes everything.",
+            "الفرع الأسبق يحجب الفرع اللاحق، وداخل الفرع الواحد يأخذ الأقرب درجةً كل شيء.",
+          )}
+        </p>
 
-      <fieldset className="ms-special-heirs">
-        <legend className="ms-special-field-label">
-          {tx3(lang, "உரிமை கோருபவர்களைச் சேர்", "Add claimants", "أضف المدّعين")}
-        </legend>
-        {claimants.map((c, i) => (
-          <div key={i} className="ms-special-claimant">
-            <input
-              type="text"
-              aria-label={tx3(lang, "பெயர் / உறவு", "Name / relation", "الاسم / القرابة")}
-              value={c.label}
-              onChange={(e) => updateClaimant(i, { label: e.target.value })}
-              className="ms-special-input"
-              placeholder={tx3(lang, "எ.கா. மகளின் மகன்", "e.g. Daughter's son", "مثال: ابن البنت")}
-            />
-            <label className="ms-special-field">
-              {tx3(lang, "கிளை", "Branch", "الفرع")}
-              <select
-                value={c.branch}
-                onChange={(e) => updateClaimant(i, { branch: Number(e.target.value) as 1 | 2 | 3 | 4 })}
-                className="ms-special-input"
-              >
-                {BRANCH_NO.map((b) => (
-                  <option key={b} value={b}>
-                    {tx3(lang, `கிளை ${b}`, `Branch ${b}`, `الفرع ${b}`)}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <Stepper
-              label={tx3(lang, "படிநிலை", "Degree", "الدرجة")}
-              value={c.degree}
-              onChange={(v) => updateClaimant(i, { degree: v })}
-              min={1}
-              max={6}
-            />
-            <label className="ms-special-field">
-              {tx3(lang, "பாலினம்", "Sex", "الجنس")}
-              <select
-                value={c.sex}
-                onChange={(e) => updateClaimant(i, { sex: e.target.value as "male" | "female" })}
-                className="ms-special-input"
-              >
-                <option value="male">{tx3(lang, "ஆண்", "Male", "ذكر")}</option>
-                <option value="female">{tx3(lang, "பெண்", "Female", "أنثى")}</option>
-              </select>
-            </label>
-            <Stepper
-              label={tx3(lang, "எண்ணிக்கை", "Count", "العدد")}
-              value={c.count}
-              onChange={(v) => updateClaimant(i, { count: v })}
-              min={1}
-              max={20}
-            />
-            <RemoveButton onClick={() => setClaimants((cs) => cs.filter((_, j) => j !== i))} label={tx3(lang, "நீக்கு", "Remove", "احذف")} />
+        {claimants.length > 0 ? (
+          <div className="ms4-chosen-list">
+            {claimants.map((c, i) => (
+              <div key={i} className="ms4-claimant-row">
+                <input
+                  type="text"
+                  aria-label={tx3(lang, "பெயர் / உறவு", "Name / relation", "الاسم / القرابة")}
+                  value={c.label}
+                  onChange={(e) => { updateClaimant(i, { label: e.target.value }); clearResult(); }}
+                  className="ms-special-input"
+                  placeholder={tx3(lang, "எ.கா. மகளின் மகன்", "e.g. Daughter's son", "مثال: ابن البنت")}
+                />
+                <div className="ms4-row-controls">
+                  <span className="ms4-muted">
+                    {tx3(lang, `கிளை ${c.branch}`, `Branch ${c.branch}`, `الفرع ${c.branch}`)}
+                  </span>
+                  <Stepper
+                    label={tx3(lang, "படிநிலை", "Degree", "الدرجة")}
+                    value={c.degree}
+                    onChange={(v) => { updateClaimant(i, { degree: v }); clearResult(); }}
+                    min={1}
+                    max={6}
+                  />
+                  <label className="ms-special-field">
+                    {tx3(lang, "பாலினம்", "Sex", "الجنس")}
+                    <select
+                      value={c.sex}
+                      onChange={(e) => { updateClaimant(i, { sex: e.target.value as "male" | "female" }); clearResult(); }}
+                      className="ms-special-input"
+                    >
+                      <option value="male">{tx3(lang, "ஆண்", "Male", "ذكر")}</option>
+                      <option value="female">{tx3(lang, "பெண்", "Female", "أنثى")}</option>
+                    </select>
+                  </label>
+                  <Stepper
+                    label={tx3(lang, "எண்ணிக்கை", "Count", "العدد")}
+                    value={c.count}
+                    onChange={(v) => { updateClaimant(i, { count: v }); clearResult(); }}
+                    min={1}
+                    max={20}
+                  />
+                  <RemoveButton onClick={() => { setClaimants((cs) => cs.filter((_, j) => j !== i)); clearResult(); }} label={tx3(lang, "நீக்கு", "Remove", "احذف")} />
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
-        <AddButton onClick={() => setClaimants((cs) => [...cs, { label: "", branch: 1, degree: 1, sex: "male", count: 1 }])}>
-          {tx3(lang, "உறவினரைச் சேர்", "Add relative", "أضف قريبًا")}
-        </AddButton>
-      </fieldset>
+        ) : null}
+
+        <div className="ms4-picker-wrap">
+          <button type="button" className="ms4-add-heir-btn" onClick={() => setSheetOpen(true)} aria-expanded={sheetOpen}>
+            {tx3(lang, "உறவினரைச் சேர்", "Add relative", "أضف قريبًا")}
+          </button>
+          {sheetOpen ? (
+            <>
+              <div className="ms4-sheet-backdrop" onClick={() => setSheetOpen(false)} aria-hidden="true" />
+              <div className="ms4-sheet" role="dialog" aria-modal="true" aria-label={tx3(lang, "உறவினரைச் சேர்", "Add relative", "أضف قريبًا")}>
+                <h4 className="ms4-sheet-title">
+                  {tBranchTitle((topic.branches ?? [])[branch - 1], lang)} — {ss(`dhawulBranch${branch}` as "dhawulBranch1" | "dhawulBranch2" | "dhawulBranch3" | "dhawulBranch4", lang)}
+                </h4>
+                <div className="ms4-sheet-list">
+                  {BRANCH_RELATIONS[branch].map((rel) => (
+                    <button
+                      key={rel.en}
+                      type="button"
+                      className="ms4-sheet-item"
+                      onClick={() => {
+                        setClaimants((cs) => [...cs, { label: tx3(lang, rel.ta, rel.en, rel.ar), branch, degree: rel.degree, sex: rel.sex, count: 1 }]);
+                        clearResult();
+                      }}
+                    >
+                      {tx3(lang, rel.ta, rel.en, rel.ar)}
+                    </button>
+                  ))}
+                </div>
+                <button type="button" className="ms4-sheet-close" onClick={() => setSheetOpen(false)}>
+                  {tx3(lang, "மூடுக", "Close", "إغلاق")}
+                </button>
+              </div>
+            </>
+          ) : null}
+        </div>
+      </StepShell>
 
       <div className="ms-special-actions">
         <LoadExampleButton onLoad={load} lang={lang} />
@@ -246,29 +319,6 @@ export default function DhawulArhamCalc({ topic, lang }: TopicCalcProps) {
 
       {result ? (
         <div className="ms-special-results">
-          <FinalAnswer>{result.summary}</FinalAnswer>
-          {residue ? (
-            <p className="ms-special-muted">
-              {tx3(lang, "நிலையான பங்கு பெறும் வாரிசுகளுக்குப் பிறகு மீதம்: ", "Residue after the fixed-share heirs: ", "الباقي بعد أصحاب الفروض: ")}
-              {residue.n}/{residue.d}
-            </p>
-          ) : null}
-          {result.fixedRows.length > 0 ? (
-            <ResultTable
-              rows={result.fixedRows}
-              lang={lang}
-              estate={estate}
-              title={tx3(lang, "நிலையான பங்கு / மீதம் பெறும் வாரிசுகள்", "Fixed-share / residuary heirs", "أصحاب الفروض والعصبة")}
-            />
-          ) : null}
-          {result.distantRows.length > 0 ? (
-            <ResultTable
-              rows={result.distantRows}
-              lang={lang}
-              estate={estate}
-              title={tx3(lang, "தூரத்து உறவினர்கள் — வென்ற கிளை", "Distant relatives — winning branch", "ذوو الأرحام — الفرع الفائز")}
-            />
-          ) : null}
           <ResultTable
             rows={result.rows}
             lang={lang}
@@ -277,21 +327,27 @@ export default function DhawulArhamCalc({ topic, lang }: TopicCalcProps) {
             title={tx3(lang, "முழு பங்கீடு", "Full distribution", "التوزيع الكامل")}
           />
           <ExcludedList
-            title={tx3(lang, "தடுக்கப்பட்டவர்கள் — பங்கு இல்லை", "Blocked — no share", "المحجوبون — لا حصة لهم")}
+            title={tx3(lang, "தடுக்கப்பட்டவர்கள் — பங்கு இல்லை", "Excluded — no share", "المستبعدون — لا حصة لهم")}
             items={result.blockedClaimants.map((b) => ({ label: b.label, rule: b.reason }))}
             lang={lang}
           />
-          {result.rows.some((r) => r.key === "__held__") ? (
-            <HeldLine
-              label={tx3(lang, "நிறுத்தி வைக்கப்பட்டது:", "Held:", "المحجوز:")}
-              amount={result.rows.find((r) => r.key === "__held__")?.amount ?? 0}
-              lang={lang}
-            />
-          ) : null}
-          <p className="ms-special-muted">
-            {tx3(lang, "தகுதியுள்ள வாரிசுகள்: ", "Eligible heirs: ", "الورثة المستحقون: ")}
-            {result.rows.filter((r) => r.key !== "__held__").map((r) => `${heirLabel(r.key, lang)}${r.count > 1 ? ` × ${r.count}` : ""}`).join(", ") || "—"}
-          </p>
+          <div className="ms4-ladder" aria-label={tx3(lang, "கிளை ஏணி", "Branch ladder", "سلم الفروع")}>
+            {([1, 2, 3, 4] as const).map((no) => {
+              const answered = result.winningBranch === no;
+              return (
+                <div key={no} className={`ms4-ladder-row ${answered ? "is-answered" : ""}`}>
+                  <span>
+                    {tBranchTitle((topic.branches ?? [])[no - 1], lang)} —{" "}
+                    {ss(`dhawulBranch${no}` as "dhawulBranch1" | "dhawulBranch2" | "dhawulBranch3" | "dhawulBranch4", lang)}
+                  </span>
+                  <span className="ms4-ladder-status">
+                    {answered ? ss("dhawulBranchAnswered", lang, { n: no }) : ss("noShare", lang)}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+          <p className="ms4-muted">{ss("dhawulSplit21", lang)}</p>
           <ResultNotes notes={result.notes} scholarReasons={result.scholarReasons} lang={lang} />
         </div>
       ) : null}
