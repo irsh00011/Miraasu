@@ -100,6 +100,10 @@ export type SpecialTopic = {
   arabicTerm: string;
   /** Book reference, e.g. "p. 279; cases 260–266". */
   bookRef: string;
+  /** One short plain line for the hub card — max ~12 words, factual, no marketing. */
+  cardLineTa: string;
+  cardLineEn: string;
+  cardLineAr?: string;
   /** 2–4 short paragraphs. Fluent standard Tamil. */
   explanationTa: string[];
   /** 2–4 short paragraphs. Clear, plain English. */
@@ -163,6 +167,9 @@ export const SPECIAL_TOPICS: SpecialTopic[] = [
     titleAr: "ذوو الأرحام",
     arabicTerm: "ذوو الأرحام",
     bookRef: "p. 279; cases 260–266",
+    cardLineTa: "நிலையான பங்கு, மீதம் பெறும் வாரிசு இல்லாதபோது தூரத்து உறவினர்கள் வாரிசாகிறார்கள்.",
+    cardLineEn: "Distant relatives inherit when no fixed or residuary heir exists.",
+    cardLineAr: "يرث ذوو الأرحام عند عدم وجود وارث ذي فرض أو عاصب.",
     explanationTa: [
       "நிலையான பங்கு பெறும் வாரிசுகளோ (அஸ்ஹாபுல் ஃபுரூழ்) மீதம் பெறும் வாரிசுகளோ (அஸபா) இல்லாதபோது மட்டுமே தூரத்து உறவினர்கள் வாரிசாகிறார்கள். குர்ஆனிலோ ஹதீஸிலோ இவர்களுக்கு நிலையான பங்கு கூறப்படவில்லை; எனவே நூல் “நடைமுறையில் உள்ள பிரபலமான முறை” என்று கூறும் நான்கு கிளை முறையைப் பயன்படுத்துகிறது.",
       "உறவினர்கள் நான்கு கிளைகளாகப் பிரிக்கப்படுகிறார்கள்; முந்தைய கிளை இருந்தால் பிந்தைய கிளைக்கு எதுவும் கிடைக்காது. ஒரே கிளைக்குள் நெருங்கிய படிநிலையில் (அந்தஸ்து) உள்ளவர் முழுவதையும் பெறுகிறார்; படிநிலை சமமாக இருந்தால் ஆணுக்கு இரண்டு பங்கு, பெண்ணுக்கு ஒரு பங்கு என்ற விகிதத்தில் பிரிக்கப்படுகிறது.",
@@ -284,20 +291,23 @@ export const SPECIAL_TOPICS: SpecialTopic[] = [
     titleAr: "الجد مع الإخوة والأخوات",
     arabicTerm: "الجد مع الإخوة والأخوات",
     bookRef: "rules 5.4.7, 5.5.11 (pp. 156, 177); cases 113/114, 138/139",
+    cardLineTa: "பாட்டன் சகோதர சகோதரிகளுடன் பங்கு பெறுதல்; இரு கருத்துகளும் காட்டப்பட்டுள்ளன.",
+    cardLineEn: "Grandfather sharing with brothers and sisters, both schools shown.",
+    cardLineAr: "الجد مع الإخوة والأخوات، مع عرض رأيي المذهبين.",
     explanationTa: [
-      "தந்தை வழி பாட்டன், உடன் பிறந்த சகோதரிகளுடன் சேர்ந்து வாரிசாகும்போது இமாம்களின் கருத்து வேறுபடுகிறது. இமாம் அபூ ஹனீஃபா (ரஹ்) கருத்துப்படி பாட்டன் சகோதரிகளை முற்றிலும் தடுத்து, மீதம் முழுவதையும் தாமே பெறுகிறார்.",
+      "தந்தை வழி பாட்டன், உடன் பிறந்த சகோதரிகளுடன் சேர்ந்து வாரிசாகும்போது இமாம்களின் கருத்து வேறுபடுகிறது. இமாம் அபூ ஹனீஃபா (ரஹ்) கருத்துப்படி பாட்டன் சகோதரிகளைத் தடுத்து, மீதம் முழுவதையும் தாமே பெறுகிறார்.",
       "இமாம் ஷாஃபிஈ (ரஹ்) கருத்துப்படி சகோதரிகள் தங்கள் நிலையான பங்குகளைப் பெறுகிறார்கள்; பாட்டன் எஞ்சிய மீதத்தைப் பெறுகிறார். நூல் இரண்டு கருத்துகளையும் இணைந்த எடுத்துக்காட்டுகளாகக் கணக்கிட்டுக் காட்டுகிறது — முழு சகோதரிகளுக்கு கணக்கு 113/114, தந்தை வழி சகோதரிகளுக்கு கணக்கு 138/139.",
-      "நூலின் எல்லா எடுத்துக்காட்டுகளிலும் இயல்பான முறை ஹனஃபி முறையே; ஷாஃபிஈ முறை இணை எடுத்துக்காட்டாக மட்டுமே காட்டப்படுகிறது. கணக்கீட்டாளரில் எந்தக் கருத்தைப் பின்பற்றுவது என்பதைத் தேர்ந்தெடுக்கவும்.",
+      "நூலின் எல்லா எடுத்துக்காட்டுகளிலும் ஹனஃபி முறையே பயன்படுத்தப்படுகிறது; ஷாஃபிஈ முறை இணை எடுத்துக்காட்டாகக் காட்டப்படுகிறது. கணக்கீட்டாளரில் எந்தக் கருத்தைப் பின்பற்றுவது என்பதைத் தேர்ந்தெடுக்கவும்.",
     ],
     explanationEn: [
-      "When a paternal grandfather inherits together with full or paternal sisters, the schools differ. According to Imam Abu Hanifa, the grandfather blocks the sisters entirely and takes the whole residue himself.",
+      "When a paternal grandfather inherits together with full or paternal sisters, the schools differ. According to Imam Abu Hanifa, the grandfather blocks the sisters and takes the whole residue himself.",
       "According to Imam al-Shafi'i, the sisters keep their fixed shares and the grandfather takes the remaining residue. The book works both views as parallel examples — cases 113/114 for full sisters and cases 138/139 for paternal sisters.",
-      "The book's default in every worked example is the Hanafi view; the Shafi'i view is shown only as a parallel example. Choose which opinion to follow in the calculator.",
+      "In every worked example the book uses the Hanafi view; the Shafi'i view is a parallel example. Choose which opinion to follow in the calculator.",
     ],
     explanationAr: [
-      "عندما يرث الجد من جهة الأب مع الأخوات الشقيقات أو لأب، تختلف المذاهب. فعلى رأي الإمام أبي حنيفة، يحجب الجد الأخوات تمامًا ويأخذ كل الباقي بنفسه.",
+      "عندما يرث الجد من جهة الأب مع الأخوات الشقيقات أو لأب، تختلف المذاهب. فعلى رأي الإمام أبي حنيفة، يحجب الجد الأخوات ويأخذ كل الباقي بنفسه.",
       "وعلى رأي الإمام الشافعي، تحتفظ الأخوات بفروضهن الثابتة ويأخذ الجد الباقي المتبقي. وقد حسب الكتاب الرأيين معًا كمثالين متوازيين — المسألتان 113/114 للأخوات الشقيقات، والمسألتان 138/139 للأخوات لأب.",
-      "والمعتمد في الكتاب في كل مثال محلول هو رأي الحنفية؛ ويُعرض رأي الشافعية كمثال موازٍ فقط. اختر في الحاسبة أيَّ الرأيين تتبع.",
+      "وفي كل مثال محلول يستخدم الكتاب رأي الحنفية؛ ويُعرض رأي الشافعية كمثال موازٍ. اختر في الحاسبة أيَّ الرأيين تتبع.",
     ],
     formulaTa:
       "ஹனஃபி: சகோதரிகள் 0; பாட்டன் மீதம் முழுவதையும் பெறுகிறார். ஷாஃபிஈ: சகோதரிகள் தங்கள் நிலையான பங்கைப் பெறுகிறார்கள் (ஒருவர் 1/2; இருவர் அல்லது அதற்கு மேல் 2/3); பாட்டன் எஞ்சிய மீதத்தைப் பெறுகிறார்.",
@@ -367,19 +377,22 @@ export const SPECIAL_TOPICS: SpecialTopic[] = [
     titleAr: "تركة المدين",
     arabicTerm: "المدين",
     bookRef: "p. 305; cases 272–273",
+    cardLineTa: "கடன் கொடுத்தவர்கள் சொத்தைத் தங்கள் கடன் விகிதத்தில் பகிர்கிறார்கள்.",
+    cardLineEn: "Creditors share the estate in proportion to their debts.",
+    cardLineAr: "يتقاسم الدائنون التركة بنسبة ديونهم.",
     explanationTa: [
       "இறந்தவர் கடனுடன் இறந்திருந்தால், முதலில் கடனைச் செலுத்த வேண்டும். சொத்தும் கடனும் சமமாக இருந்தால் வாரிசுகளுக்கு எதுவும் கிடைக்காது.",
-      "கடன் சொத்தைவிட அதிகமாக இருந்தால், கடன் கொடுத்தவர்களுக்கு ஒருவருக்கு முழுமையாகக் கொடுத்துவிட்டு அடுத்தவருக்கு என்று செலுத்தக்கூடாது; மொத்தச் சொத்தையும் கடன்களின் விகிதத்தில் பிரித்துக் கொடுக்க வேண்டும்.",
+      "கடன் சொத்தைவிட அதிகமாக இருந்தால், கடன் கொடுத்தவர்களுக்கு ஒவ்வொருவராக முழுமையாகச் செலுத்தக்கூடாது; மொத்தச் சொத்தையும் கடன்களின் விகிதத்தில் பிரித்துக் கொடுக்க வேண்டும்.",
       "சொத்து கடனைவிட அதிகமாக இருந்தால், கடன்களை முழுமையாகச் செலுத்திவிட்டு, மீதத்தை வாரிசுகளுக்கு வழக்கம்போல் பிரிக்க வேண்டும். கடனில் குறைவை வாரிசுகள் தங்கள் பணத்திலிருந்து நிரப்புவது நல்ல செயல் (சாலச் சிறந்தது), கட்டாயம் அல்ல.",
     ],
     explanationEn: [
-      "When the deceased died in debt, the debts must be paid first. If the estate equals the debt, the heirs get nothing at all.",
-      "If the debt exceeds the estate, the creditors must not be paid one by one in full until the money runs out; the whole estate must be divided among them in proportion to their debts.",
+      "When the deceased died in debt, the debts must be paid first. If the estate equals the debt, the heirs get nothing.",
+      "If the debt exceeds the estate, do not pay creditors one by one in full; divide the whole estate among them in proportion to their debts.",
       "If the estate exceeds the debt, pay the debts in full, then divide the remainder among the heirs in the normal way. Heirs topping up an unpaid shortfall from their own money is commendable, not obligatory.",
     ],
     explanationAr: [
-      "عندما يموت المتوفى وعليه دين، يجب سداد الديون أولًا. فإن ساوت التركة الدين لم يحصل الورثة على شيء أبدًا.",
-      "وإن زاد الدين على التركة، فلا يجوز سداد الدائنين واحدًا تلو الآخر بالكامل حتى ينفد المال؛ بل يجب تقسيم التركة كلها بينهم بنسبة ديونهم.",
+      "عندما يموت المتوفى وعليه دين، يجب سداد الديون أولًا. فإن ساوت التركة الدين لم يحصل الورثة على شيء.",
+      "وإن زاد الدين على التركة، فلا يجوز سداد الدائنين واحدًا تلو الآخر بالكامل؛ بل يجب تقسيم التركة كلها بينهم بنسبة ديونهم.",
       "وإن زادت التركة على الدين، فاسدد الديون بالكامل، ثم اقسم الباقي بين الورثة بالطريقة المعتادة. وتكميل الورثة للنقص غير المسدد من أموالهم الخاصة أمر مستحب، وليس واجبًا.",
     ],
     formulaTa: "விட்டுப்போன சொத்து × ஒவ்வொருவருக்கும் கொடுக்க வேண்டிய கடன் / மொத்தக் கடன்",
@@ -425,9 +438,9 @@ export const SPECIAL_TOPICS: SpecialTopic[] = [
     },
     scholarFlag: {
       needed: false,
-      textTa: "இந்த விதியில் நூல் தெளிவாக உள்ளது; மூன்று நிலைகளும் சூத்திரமும் எடுத்துக்காட்டுகளுடன் தரப்பட்டுள்ளன. அறிஞர் உறுதி தேவையில்லை.",
-      textEn: "The book is clear on this rule; all three states, the formula and the worked examples are given. No scholar confirmation is needed.",
-      textAr: "الكتاب واضح في هذه القاعدة؛ فالحالات الثلاث والصيغة والأمثلة المحلولة كلها مذكورة. ولا حاجة إلى تأكيد من عالم.",
+      textTa: "மூன்று நிலைகளும் சூத்திரமும் எடுத்துக்காட்டுகளுடன் தரப்பட்டுள்ளன. அறிஞர் உறுதி தேவையில்லை.",
+      textEn: "The book gives all three states, the formula and the worked examples. No scholar confirmation is needed.",
+      textAr: "الحالات الثلاث والصيغة والأمثلة المحلولة كلها مذكورة. ولا حاجة إلى تأكيد من عالم.",
     },
     hintTa:
       "மொத்தச் சொத்தையும் ஒவ்வொரு கடன் கொடுத்தவருக்கும் செலுத்த வேண்டிய கடன் தொகையையும் உள்ளிடவும்; கடன் சொத்தைவிட அதிகமாக இருந்தால் கணக்கீட்டாளர் விகிதப்படி பிரித்துக் காட்டும்.",
@@ -442,6 +455,9 @@ export const SPECIAL_TOPICS: SpecialTopic[] = [
     titleAr: "الممنوعون من الإرث",
     arabicTerm: "موانع الإرث",
     bookRef: "p. 38",
+    cardLineTa: "கொலை, அடிமை நிலை, மத வேறுபாடு ஆகியவற்றால் தடுக்கப்பட்ட வாரிசுகள்.",
+    cardLineEn: "Heirs barred by murder, slavery, or difference of religion.",
+    cardLineAr: "الورثة الممنوعون بالقتل أو الرق أو اختلاف الدين.",
     explanationTa: [
       "நூல் மூன்று தகுதியின்மைக் காரணங்களை மட்டுமே கூறுகிறது: (1) அடிமை நிலை — இப்போது பொருந்தாது என்று நூலே கூறுகிறது; (2) கொலை — சொத்துக்குரியவரைக் கொன்ற வாரிசு அந்தச் சொத்தில் வாரிசாக மாட்டார்; (3) மத வேறுபாடு — முஸ்லிம் முஸ்லிம் அல்லாதவரிடமிருந்தும், முஸ்லிம் அல்லாதவர் முஸ்லிமிடமிருந்தும் வாரிசாக மாட்டார்.",
       "இது தனி கணக்கீடு அல்ல; வாரிசுகளை உள்ளிடும் படியில் தகுதியற்றவரைக் குறித்து நீக்கும் படி. தகுதியற்றவராகக் குறிக்கப்பட்டவர் பங்கீட்டிலிருந்து முற்றிலும் நீக்கப்படுவார்; கணக்கீடு மீதமுள்ள தகுதியுள்ள வாரிசுகளைக் கொண்டு மட்டுமே செய்யப்படும்.",
@@ -492,6 +508,9 @@ export const SPECIAL_TOPICS: SpecialTopic[] = [
     titleAr: "تصنيف الجد والجدة صحيح / فاسد",
     arabicTerm: "الجد الصحيح والجد الفاسد",
     bookRef: "lines 805–834",
+    cardLineTa: "தொடர்புச் சங்கிலியால் பாட்டன் பாட்டிகள் ஸஹீஹ், ஃபாஸித் என வகைப்படுத்தப்படுகிறார்கள்.",
+    cardLineEn: "Grandparents classed sound or unsound by their chain of relation.",
+    cardLineAr: "يُصنَّف الأجداد والجدات صحيحًا أو فاسدًا بحسب سلسلة القرابة.",
     explanationTa: [
       "பாட்டன்/பாட்டி வகைகளைப் பிரிப்பது அவர்களின் தொடர்புச் சங்கிலியில் பெண் தொடர்பு வருகிறதா என்பதைப் பொறுத்தது. தந்தையின் தந்தை போன்ற தூய ஆண் வழித் தொடர்பு ஸஹீஹ் (சரியானது); தந்தையின் தாயின் தந்தை போன்ற தொடர்பு ஃபாஸித் (சரியற்றது).",
       "இந்த வகைப்பாடே ஒருவர் நிலையான பங்கு பெறும் வாரிசா, மீதம் பெறும் வாரிசா (அஸபா), அல்லது தூரத்து உறவினரா என்பதைத் தீர்மானிக்கிறது. தாய் வழி பாட்டன் (தாயின் தந்தை) “ஸஹீஹ்” என்று கூறப்பட்டாலும், அவர் தூரத்து உறவினர் வகையைச் சேர்ந்தவர்; நிலையான பங்கு, மீதம் பெறும் வாரிசுகள் இல்லாதபோது மட்டுமே வாரிசாகிறார்.",
@@ -526,10 +545,10 @@ export const SPECIAL_TOPICS: SpecialTopic[] = [
     scholarFlag: {
       needed: true,
       textTa:
-        "நூலின் விளக்கம் இங்கு சுருக்கமாகவும் ஓரளவு வட்டமாகவும் (partly circular) உள்ளது; சில வகைகளின் முடிவுகள் தனியாகக் கூறப்படவில்லை. வகைப்பாட்டைப் பயன்படுத்துவதற்கு முன் அறிஞரிடம் உறுதி செய்க.",
+        "சில வகைகளின் முடிவுகள் தனியாகக் கூறப்படவில்லை. வகைப்பாட்டைப் பயன்படுத்துவதற்கு முன் அறிஞரிடம் உறுதி செய்க.",
       textEn:
-        "The book's wording here is terse and partly circular; the outcomes of some categories are not stated separately. Confirm the classification with a scholar before relying on it.",
-      textAr: "عبارة الكتاب هنا موجزة ودائرية جزئيًا؛ ونتائج بعض الأصناف غير مذكورة على حدة. تأكد من التصنيف مع عالم قبل الاعتماد عليه.",
+        "The outcomes of some categories are not stated separately. Confirm the classification with a scholar before relying on it.",
+      textAr: "نتائج بعض الأصناف غير مذكورة على حدة. تأكد من التصنيف مع عالم قبل الاعتماد عليه.",
     },
     hintTa:
       "பாட்டன்/பாட்டியின் தொடர்புச் சங்கிலியை உள்ளிடவும்; கணக்கீட்டாளர் அவரை ஸஹீஹ் அல்லது ஃபாஸித் என்று வகைப்படுத்தி, நிலையான பங்கு வாரிசா, மீதம் பெறும் வாரிசா, தூரத்து உறவினரா என்பதைக் காட்டும்.",
@@ -610,16 +629,19 @@ export const SPECIAL_TOPICS: SpecialTopic[] = [
     titleAr: "الحمل",
     arabicTerm: "ميراث الحمل",
     bookRef: "p. 284; cases 267–268",
+    cardLineTa: "பிறப்புவரை பிரிக்காமல் இருத்தல், அல்லது ஆண் பெண் கணக்குகள்.",
+    cardLineEn: "Division waits for birth, or uses male and female scenarios.",
+    cardLineAr: "يُؤجَّل التقسيم حتى الولادة، أو يُحسب بسيناريو الذكر والأنثى.",
     explanationTa: [
-      "கணவர் இறக்கும்போது மனைவி கர்ப்பமாக இருந்தால், குழந்தை பிறக்கும்வரை பிரிக்காமல் இருப்பதே சிறந்தது. வாரிசுகள் பிரிக்க வேண்டும் என்று வற்புறுத்தினால், இரண்டு முறை கணக்கிட வேண்டும்: குழந்தையை ஆணாகக் கொண்டு ஒரு முறை, பெண்ணாகக் கொண்டு ஒரு முறை.",
+      "கணவர் இறக்கும்போது மனைவி கர்ப்பமாக இருந்தால், குழந்தை பிறக்கும்வரை பிரிக்காமல் இருப்பதே நூலின் அறிவுரை. வாரிசுகள் பிரிக்க வேண்டும் என்று வற்புறுத்தினால், இரண்டு முறை கணக்கிட வேண்டும்: குழந்தையை ஆணாகக் கொண்டு ஒரு முறை, பெண்ணாகக் கொண்டு ஒரு முறை.",
       "ஒவ்வொரு வாரிசுக்கும் இரண்டு கணக்குகளில் குறைவான தொகையை இப்போது கொடுக்க வேண்டும்; மீதத்தைத் தாய் பிரசவிக்கும்வரை நிறுத்தி வைக்க வேண்டும். பிறந்த பிறகு, குழந்தையின் உண்மையான பாலினத்திற்கு ஏற்ப நிறுத்தி வைத்த தொகை பிரிக்கப்படும்.",
     ],
     explanationEn: [
-      "If the wife is pregnant when the husband dies, the best course is not to divide until the child is born. If the heirs insist on dividing, compute twice: once treating the unborn child as male, once as female.",
+      "If the wife is pregnant when the husband dies, the book advises not dividing until the child is born. If the heirs insist on dividing, compute twice: once treating the unborn child as male, once as female.",
       "Pay each heir the smaller of the two amounts now, and hold the rest until the mother gives birth. After birth, the held amount is distributed according to the child's actual sex.",
     ],
     explanationAr: [
-      "إذا كانت الزوجة حاملًا عند وفاة الزوج، فالأفضل عدم التقسيم حتى يولد الطفل. وإن أصر الورثة على التقسيم، فاحسب مرتين: مرة باعتبار الحمل ذكرًا، ومرة باعتبارها أنثى.",
+      "إذا كانت الزوجة حاملًا عند وفاة الزوج، فينصح الكتاب بعدم التقسيم حتى يولد الطفل. وإن أصر الورثة على التقسيم، فاحسب مرتين: مرة باعتبار الحمل ذكرًا، ومرة باعتبارها أنثى.",
       "ادفع لكل وارث أقل المبلغين الآن، وأوقف الباقي حتى تلد الأم. وبعد الولادة يُوزَّع المبلغ الموقوف بحسب جنس الطفل الحقيقي.",
     ],
     formulaTa: "ஆண் கணக்கு, பெண் கணக்கு என இரண்டு முறை கணக்கிடுக; ஒவ்வொருவருக்கும் குறைவான தொகையைக் கொடுத்து, மீதத்தை நிறுத்தி வைக்கவும்.",
@@ -687,18 +709,21 @@ export const SPECIAL_TOPICS: SpecialTopic[] = [
     titleAr: "المفقود / السجين",
     arabicTerm: "المفقود",
     bookRef: "p. 308; cases 274–277",
+    cardLineTa: "காணாமல் போன வாரிசின் பங்கு உயிர் மரணம் தெரியும்வரை நிறுத்தி வைக்கப்படும்.",
+    cardLineEn: "A missing heir's share is held until life or death is known.",
+    cardLineAr: "تُوقف حصة الوارث المفقود حتى يُعرف أنه حي أو ميت.",
     explanationTa: [
-      "வாரிசுகளில் ஒருவர் காணாமல் போயிருந்தாலோ, சிறையில் இருந்து அவரைப் பற்றிய செய்தி இல்லாமல் இருந்தாலோ, அவர் உயிருடன் இருக்கிறாரா இறந்துவிட்டாரா என்பது தெளிவாகும்வரை பிரிக்காமல் இருப்பதே சிறந்தது.",
+      "வாரிசுகளில் ஒருவர் காணாமல் போயிருந்தாலோ, சிறையில் இருந்து அவரைப் பற்றிய செய்தி இல்லாமல் இருந்தாலோ, அவர் உயிருடன் இருக்கிறாரா இறந்துவிட்டாரா என்பது தெளிவாகும்வரை பிரிக்காமல் இருப்பதே நூலின் அறிவுரை.",
       "மற்ற வாரிசுகள் பிரிக்க வேண்டும் என்று வற்புறுத்தினால், கர்ப்பக் குழந்தை விதியைப் போலவே இரண்டு முறை கணக்கிட வேண்டும்: அவர் உயிருடன் இருப்பதாகக் கொண்டு ஒரு முறை, இறந்துவிட்டதாகக் கொண்டு ஒரு முறை; ஒவ்வொருவருக்கும் குறைவான தொகையைக் கொடுத்து, வித்தியாசத்தை நிறுத்தி வைக்க வேண்டும்.",
       "காத்திருப்புக் காலம் பற்றி அறிஞர்கள் வேறுபடுகிறார்கள்; 70 ஆண்டுகள் என்பது இமாம்களின் ஏகோபித்த கருத்து என்று நூல் கூறுகிறது. 70 ஆண்டுகளை எப்போதிருந்து எண்ணுவது, காலம் முடிந்த பிறகு நிறுத்தி வைத்த பங்கு என்ன ஆகும் என்பதை நூல் கூறவில்லை.",
     ],
     explanationEn: [
-      "If one of the heirs is missing, or imprisoned with no news of him, the best course is to postpone division until it is clear whether he is alive or dead.",
+      "If one of the heirs is missing, or imprisoned with no news of him, the book advises postponing division until it is clear whether he is alive or dead.",
       "If the other heirs insist, compute twice — exactly like the unborn-child rule: once as if he is alive, once as if he is dead; pay each heir the smaller amount and hold the difference.",
       "Scholars differ on the waiting period, but the book states 70 years as the unanimous opinion of the imams. It gives no start date for counting the 70 years and no rule for what happens to the held share when the period ends.",
     ],
     explanationAr: [
-      "إذا كان أحد الورثة مفقودًا، أو مسجونًا ولا خبر عنه، فالأفضل تأجيل التقسيم حتى يتضح ما إذا كان حيًا أو ميتًا.",
+      "إذا كان أحد الورثة مفقودًا، أو مسجونًا ولا خبر عنه، فينصح الكتاب بتأجيل التقسيم حتى يتضح ما إذا كان حيًا أو ميتًا.",
       "وإن أصر الورثة الآخرون على التقسيم، فاحسب مرتين — تمامًا كحكم الحمل: مرة باعتباره حيًا، ومرة باعتباره ميتًا؛ وادفع لكل وارث المبلغ الأصغر، وأوقف الفرق.",
       "يختلف العلماء في مدة الانتظار، لكن الكتاب يذكر 70 سنة باعتبارها رأي الأئمة المتفق عليه. ولا يعطي تاريخًا لبدء عدّ السبعين سنة، ولا حكمًا لما يحدث للحصة الموقوفة عند انتهاء المدة.",
     ],
@@ -787,20 +812,23 @@ export const SPECIAL_TOPICS: SpecialTopic[] = [
     titleAr: "الخنثى",
     arabicTerm: "الخنثى",
     bookRef: "p. 323; cases 280–281",
+    cardLineTa: "குஃன்ஃதாவின் பங்கு ஆண் பெண் கணக்குகளால் முடிவு செய்யப்படுகிறது.",
+    cardLineEn: "An intersex heir's share, by male and female scenarios.",
+    cardLineAr: "حصة الخنثى بحسب سيناريو الذكر والأنثى.",
     explanationTa: [
       "ஆண், பெண் உறுப்புகள் இரண்டும் சேர்ந்து பிறந்தவர், அல்லது இரண்டு உறுப்புகளும் இல்லாமல் பிறந்தவர் குஃன்ஃதா எனப்படுகிறார். இந்த வரையறை உடல் அமைப்பைப் பற்றியது; பாலின அடையாளம், அறுவை சிகிச்சை, சட்ட அங்கீகாரம் பற்றி நூல் எதுவும் கூறவில்லை.",
       "பருவ வயது வரை காத்திருக்க வேண்டும்: ஆண் தன்மைகள் மிகைத்திருந்தால் ஆணாகவும், பெண் தன்மைகள் மிகைத்திருந்தால் பெண்ணாகவும் முடிவு செய்ய வேண்டும். எந்த அடையாளங்களைக் கொண்டு முடிவு செய்வது என்பதை நூல் குறிப்பிடவில்லை.",
-      "பிரிக்காமல் இருக்க முடியாவிட்டால் இரண்டு இமாம்களின் கருத்துகள் உள்ளன. இமாம் ஷாஃபிஈ: ஆண்/பெண் இரு கணக்குகளையும் செய்து, குஃன்ஃதா உட்பட ஒவ்வொருவருக்கும் குறைவான தொகையைக் கொடுத்து, வித்தியாசத்தை நிறுத்தி வைக்க வேண்டும். இமாம் அபூ ஹனீஃபா: குஃன்ஃதாவுக்கு அவரது இரு தொகைகளில் குறைவானதைக் கொடுத்து, மீதத்தை மற்ற வாரிசுகளுக்குப் பிரித்துக் கொடுக்க வேண்டும்; எதுவும் நிறுத்தி வைக்கப்படுவதில்லை. குஃன்ஃதாவுக்குப் பெரிய தொகையை ஒதுக்கி வைப்பதே மேலோங்கும் கருத்து என்று நூல் கூறுகிறது. ஆண்/பெண் பங்குகளின் சராசரி எடுக்கும் விதி நூலில் இல்லை — எப்போதும் குறைவானதையே எடுக்க வேண்டும் அல்லது வித்தியாசத்தை நிறுத்தி வைக்க வேண்டும்.",
+      "பிரிக்காமல் இருக்க முடியாவிட்டால் இரண்டு இமாம்களின் கருத்துகள் உள்ளன. இமாம் ஷாஃபிஈ: ஆண்/பெண் இரு கணக்குகளையும் செய்து, குஃன்ஃதா உட்பட ஒவ்வொருவருக்கும் குறைவான தொகையைக் கொடுத்து, வித்தியாசத்தை நிறுத்தி வைக்க வேண்டும். இமாம் அபூ ஹனீஃபா: குஃன்ஃதாவுக்கு அவரது இரு தொகைகளில் குறைவானதைக் கொடுத்து, மீதத்தை மற்ற வாரிசுகளுக்குப் பிரித்துக் கொடுக்க வேண்டும்; எதுவும் நிறுத்தி வைக்கப்படுவதில்லை. குஃன்ஃதாவுக்குப் பெரிய தொகையை ஒதுக்கி வைப்பதே மேலோங்கும் கருத்து என்று நூல் கூறுகிறது. ஆண்/பெண் பங்குகளின் சராசரி எடுக்கும் விதி நூலில் இல்லை — குறைவானதை எடுக்க வேண்டும் அல்லது வித்தியாசத்தை நிறுத்தி வைக்க வேண்டும்.",
     ],
     explanationEn: [
       "A person born with both male and female organs together, or with neither organ, is called a khuntha. The definition is anatomical; the book says nothing about gender identity, surgery, or legal gender recognition.",
       "Wait until puberty: if male traits predominate, decide male; if female traits predominate, decide female. The book does not specify which traits or signs count.",
-      "If division cannot wait, there are two imams' opinions. Imam al-Shafi'i: compute the male and female scenarios, pay every heir — including the khuntha — the lesser amount, and hold the difference until the sex is known. Imam Abu Hanifa: pay the khuntha the lesser of the khuntha's two amounts, distribute the rest to the other heirs, and hold nothing back. The book says the view that prevails is to reserve the larger amount for the khuntha and give the other heirs the lesser. No “average of the male and female share” rule appears — the book never averages; it always takes the lesser and/or holds the difference.",
+      "If division cannot wait, there are two imams' opinions. Imam al-Shafi'i: compute the male and female scenarios, pay every heir — including the khuntha — the lesser amount, and hold the difference until the sex is known. Imam Abu Hanifa: pay the khuntha the lesser of the khuntha's two amounts, distribute the rest to the other heirs, and hold nothing back. The book says the view that prevails is to reserve the larger amount for the khuntha and give the other heirs the lesser. No “average of the male and female share” rule appears — the book takes the lesser and/or holds the difference.",
     ],
     explanationAr: [
       "الشخص المولود بعضوي الذكورة والأنوثة معًا، أو بلا عضوين، يُسمى خنثى. والتعريف تشريحي؛ والكتاب لا يقول شيئًا عن الهوية الجنسية، ولا عن الجراحة، ولا عن الاعتراف القانوني بالجنس.",
       "انتظر حتى البلوغ: فإن غلبت صفات الذكورة فاحكم بأنه ذكر؛ وإن غلبت صفات الأنوثة فاحكم بأنها أنثى. ولا يحدد الكتاب أي الصفات أو العلامات تُعتمد.",
-      "وإن تعذر تأجيل التقسيم، فهناك رأيان للإمامين. الإمام الشافعي: احسب سيناريو الذكر والأنثى، وادفع لكل وارث — ومنهم الخنثى — المبلغ الأقل، وأوقف الفرق حتى يُعرف الجنس. والإمام أبو حنيفة: ادفع للخنثى أقل مبلغيه، ووزّع الباقي على الورثة الآخرين، ولا توقف شيئًا. ويقول الكتاب إن الرأي الراجح هو حجز المبلغ الأكبر للخنثى وإعطاء الورثة الآخرين الأقل. ولا توجد قاعدة «متوسط حصة الذكر والأنثى» — فالكتاب لا يأخذ المتوسط أبدًا؛ بل يأخذ الأقل دائمًا و/أو يوقف الفرق.",
+      "وإن تعذر تأجيل التقسيم، فهناك رأيان للإمامين. الإمام الشافعي: احسب سيناريو الذكر والأنثى، وادفع لكل وارث — ومنهم الخنثى — المبلغ الأقل، وأوقف الفرق حتى يُعرف الجنس. والإمام أبو حنيفة: ادفع للخنثى أقل مبلغيه، ووزّع الباقي على الورثة الآخرين، ولا توقف شيئًا. ويقول الكتاب إن الرأي الراجح هو حجز المبلغ الأكبر للخنثى وإعطاء الورثة الآخرين الأقل. ولا توجد قاعدة «متوسط حصة الذكر والأنثى» — بل يأخذ الكتاب الأقل و/أو يوقف الفرق.",
     ],
     formulaTa:
       "ஷாஃபிஈ: ஒவ்வொருவருக்கும் குறைவான தொகை; வித்தியாசத்தை நிறுத்தி வைக்கவும். அபூ ஹனீஃபா: குஃன்ஃதாவுக்குக் குறைவான தொகை; மீதத்தை மற்றவர்களுக்குப் பிரித்துக் கொடுக்கவும்; நிறுத்தி வைப்பது இல்லை. மேலோங்கும் கருத்து: குஃன்ஃதாவுக்குப் பெரிய தொகையை ஒதுக்கி வைக்கவும். சராசரி எடுக்கக்கூடாது.",
@@ -904,6 +932,9 @@ export const SPECIAL_TOPICS: SpecialTopic[] = [
     titleAr: "المناسخة (تقسيم متعدد الأجيال)",
     arabicTerm: "المناسخة",
     bookRef: "p. 292; cases 269–270",
+    cardLineTa: "தலைமுறைகளாகப் பிரிக்கப்படாத சொத்து மரணம் மரணமாகப் பிரிக்கப்படுகிறது.",
+    cardLineEn: "Estates divided death by death across generations.",
+    cardLineAr: "تُقسَّم التركة وفاةً وفاةً عبر الأجيال.",
     explanationTa: [
       "குடும்பச் சொத்து பல தலைமுறைகளாகப் பிரிக்கப்படாமல் இருந்து, பங்கீட்டுக்கு முன்பே வாரிசுகள் இறந்துகொண்டே இருந்தால், முனாஸஹா முறை பயன்படுத்தப்படுகிறது.",
       "முதலில் முதலில் இறந்தவரின் சொத்தை அவரது வாரிசுகளுக்கு வழக்கம்போல் பிரிக்க வேண்டும். பிறகு பங்கீட்டுக்கு முன் இறந்த ஒவ்வொரு வாரிசின் பங்கும் அவரது சொத்தாகி, அவரது சொந்த வாரிசுகளுக்குப் பிரிக்கப்படுகிறது — அவர்களில் முதலில் இறந்தவரின் வாரிசுகளாக இல்லாதவர்களும் இருக்கலாம் (எடுத்துக்காட்டாக இரண்டாவது கணவர்/மனைவி, வேறு திருமணத்தின் பிள்ளை).",
@@ -976,9 +1007,9 @@ export const SPECIAL_TOPICS: SpecialTopic[] = [
     },
     scholarFlag: {
       needed: false,
-      textTa: "நூல் மரணம் மரணமாகக் கணக்கிடும் முறையை இரண்டு எடுத்துக்காட்டுகளுடன் முழுமையாகத் தருகிறது. அறிஞர் உறுதி தேவையில்லை.",
-      textEn: "The book gives the death-by-death method completely, with two worked examples. No scholar confirmation is needed.",
-      textAr: "يعطي الكتاب طريقة الوفاة تلو الوفاة كاملة، مع مثالين محلولين. ولا حاجة إلى تأكيد من عالم.",
+      textTa: "நூல் மரணம் மரணமாகக் கணக்கிடும் முறையை இரண்டு எடுத்துக்காட்டுகளுடன் தருகிறது. அறிஞர் உறுதி தேவையில்லை.",
+      textEn: "The book gives the death-by-death method with two worked examples. No scholar confirmation is needed.",
+      textAr: "يعطي الكتاب طريقة الوفاة تلو الوفاة، مع مثالين محلولين. ولا حاجة إلى تأكيد من عالم.",
     },
     hintTa:
       "முதலில் இறந்தவரையும் அவரது வாரிசுகளையும் உள்ளிடவும்; பிறகு ஒவ்வொரு அடுத்த மரணத்தையும் தனித்தனியே சேர்க்கவும் — இறந்த வாரிசின் பங்கு அவரது சொத்தாகும்.",
@@ -993,6 +1024,9 @@ export const SPECIAL_TOPICS: SpecialTopic[] = [
     titleAr: "موت الجماعة",
     arabicTerm: "موت الجماعة",
     bookRef: "p. 318; cases 278–279",
+    cardLineTa: "ஒன்றாக இறந்த குடும்பத்தினர்; மரண வரிசை தெரிந்ததா இல்லையா.",
+    cardLineEn: "Family members dying together, order known or unknown.",
+    cardLineAr: "وفاة أفراد الأسرة معًا، بترتيب معروف أو غير معروف.",
     explanationTa: [
       "ஒரே குடும்பத்தினர் ஒன்றாக இறந்தால், மரண வரிசை தெரிந்தால் முனாஸஹா முறையில் கணக்கிட வேண்டும்: முதலில் இறந்தவரின் பங்கு அடுத்து இறந்தவரின் சொத்தில் சேரும்.",
       "மரண வரிசை தெரியாவிட்டால், ஒவ்வொருவரின் சொத்தும் தனித்தனியே, வழக்கம்போல், அவரவர் சொந்த வாரிசுகளுக்குப் பிரிக்கப்படும்; ஒன்றாக இறந்தவர்கள் ஒருவரிடமிருந்து ஒருவர் வாரிசாக மாட்டார்கள்.",
@@ -1090,6 +1124,9 @@ export const SPECIAL_TOPICS: SpecialTopic[] = [
     titleAr: "التنازل عن الحصة",
     arabicTerm: "التنازل عن الإرث",
     bookRef: "p. 301; case 271",
+    cardLineTa: "மறுக்கப்பட்ட பங்கு மீதமுள்ள வாரிசுகளுக்கு மீண்டும் பிரிக்கப்படுகிறது.",
+    cardLineEn: "A refused share is re-divided among the remaining heirs.",
+    cardLineAr: "تُعاد قسمة الحصة المتنازل عنها بين الورثة الباقين.",
     explanationTa: [
       "ஒரு வாரிசு தமது பங்கு வேண்டாம் என்று மறுத்து விலகினால், முதல் பங்கீட்டை மறுப்பவரையும் சேர்த்தே செய்ய வேண்டும். அவரை முதலிலேயே நீக்கிவிட்டுக் கணக்கிடுவது தவறு.",
       "பிறகு மறுப்பவரின் பங்கை எடுத்து, மீதமுள்ள வாரிசுகளின் பங்குகளின் விகிதத்தில் அவர்களுக்குப் பிரித்துக் கொடுக்க வேண்டும். மறுக்கப்பட்ட பங்கு மற்ற வாரிசுகளுக்குச் செல்கிறது; அது அரசுக்கோ (பைத்துல் மால்) தர்மத்துக்கோ செல்லும் என்று நூல் கூறவில்லை.",
@@ -1131,9 +1168,9 @@ export const SPECIAL_TOPICS: SpecialTopic[] = [
     },
     scholarFlag: {
       needed: false,
-      textTa: "நூல் இந்த விதியையும் தவறான முறையையும் தெளிவாகக் கூறுகிறது. அறிஞர் உறுதி தேவையில்லை.",
-      textEn: "The book states this rule and the wrong method clearly. No scholar confirmation is needed.",
-      textAr: "يذكر الكتاب هذه القاعدة والطريقة الخاطئة بوضوح. ولا حاجة إلى تأكيد من عالم.",
+      textTa: "நூல் இந்த விதியையும் தவறான முறையையும் கூறுகிறது. அறிஞர் உறுதி தேவையில்லை.",
+      textEn: "The book states this rule and the wrong method. No scholar confirmation is needed.",
+      textAr: "يذكر الكتاب هذه القاعدة والطريقة الخاطئة. ولا حاجة إلى تأكيد من عالم.",
     },
     hintTa:
       "மறுக்கும் வாரிசையும் சேர்த்து வாரிசுகளை உள்ளிடவும்; பிறகு யார் மறுக்கிறார் என்பதைத் தேர்ந்தெடுக்கவும் — கணக்கீட்டாளர் முதலில் அவரையும் சேர்த்துப் பிரித்து, பிறகு அவரது பங்கை மற்றவர்களுக்குப் பகிரும்.",
@@ -1148,6 +1185,9 @@ export const SPECIAL_TOPICS: SpecialTopic[] = [
     titleAr: "المرتد",
     arabicTerm: "المرتد",
     bookRef: "p. 330; cases 282–285",
+    cardLineTa: "மதம் மாறியவரின் சொத்து, சொத்து எப்போது சம்பாதிக்கப்பட்டது என்பதைப் பொறுத்தது.",
+    cardLineEn: "An apostate's estate, by when the property was earned.",
+    cardLineAr: "تركة المرتد بحسب وقت كسب المال.",
     explanationTa: [
       "முஸ்லிம் முஸ்லிம் அல்லாதவரிடமிருந்து வாரிசாக மாட்டார்; மத வேறுபாடு வாரிசுரிமையைத் தடுக்கிறது. மதம் மாறியவரின் சொத்தைப் பற்றி இமாம்கள் மூன்று கருத்துகளைக் கூறுகிறார்கள் — சொத்து எப்போது சம்பாதிக்கப்பட்டது என்பதைப் பொறுத்தது.",
       "இமாம் அபூ ஹனீஃபா: முஸ்லிமாக இருந்தபோது சம்பாதித்த சொத்து (அதன் மதிப்பு அறிய முடிந்தால்) முஸ்லிம் வாரிசுகளுக்குப் பிரிக்கப்படும்; மதம் மாறிய பிறகு சம்பாதித்தது பைத்துல் மாலுக்கு (பொதுக் கருவூலம்) செல்லும். இமாம் ஷாஃபிஈ: இரண்டும் பைத்துல் மாலுக்கே; வாரிசுகளுக்கு எதுவும் இல்லை. இமாம் அபூ யூசுஃப், இமாம் முஹம்மது: இரண்டும் வாரிசுகளுக்குப் பிரிக்கப்படும்.",
@@ -1302,11 +1342,9 @@ export const SPECIAL_METHODS_PAGE_COPY: SpecialMethodsPageCopy = {
   pageTitleTa: "சிறப்பு வாரிசுரிமை முறைகள்",
   pageTitleEn: "Special Inheritance Methods",
   pageTitleAr: "طرق الإرث الخاصة",
-  pageIntroTa:
-    "பொதுவான பங்கீட்டு முறைக்கு அப்பால், நூல் விளக்கும் பன்னிரண்டு சிறப்பு நிலைகள் இவை. ஒவ்வொரு பகுதியிலும் விதி, நூலின் எடுத்துக்காட்டுக் கணக்குகள், கணக்கீட்டாளரில் உள்ளிடும் வழி ஆகியவை உள்ளன. கணக்கீட்டாளரே முக்கியம்; விளக்கங்கள் அதற்குத் துணையாகச் சுருக்கமாகத் தரப்பட்டுள்ளன.",
-  pageIntroEn:
-    "Beyond the general division method, these are the twelve special situations the book explains. Each section gives the rule, the book's worked examples, and how to enter the case in the calculator. The calculator is the core; the explanations are kept short to support it.",
-  pageIntroAr: "إلى جانب طريقة التقسيم العامة، هذه هي الحالات الخاصة الاثنتا عشرة التي يشرحها الكتاب. ويعطي كل قسم القاعدة، وأمثلة الكتاب المحلولة، وكيفية إدخال المسألة في الحاسبة. والحاسبة هي الأساس؛ والشروح مختصرة لدعمها.",
+  pageIntroTa: "நூலிலுள்ள பன்னிரண்டு சிறப்பு நிலைகள்; ஒவ்வொன்றுக்கும் தனிக் கணக்கீட்டாளர்.",
+  pageIntroEn: "Twelve special cases from the book, each with its own calculator.",
+  pageIntroAr: "اثنتا عشرة حالة خاصة من الكتاب، ولكل منها حاسبتها الخاصة.",
   topicGridHeadingTa: "பன்னிரண்டு சிறப்பு முறைகள்",
   topicGridHeadingEn: "Twelve special methods",
   topicGridHeadingAr: "الطرق الخاصة الاثنتا عشرة",

@@ -49,6 +49,10 @@ export const tri = (
 export const tTitle = (topic: SpecialTopic, lang: Lang): string =>
   tri(lang, topic.titleTa, topic.titleEn, "titleAr", topic);
 
+/** One short plain line for the hub card (max ~12 words, factual). */
+export const tCardLine = (topic: SpecialTopic, lang: Lang): string =>
+  tri(lang, topic.cardLineTa, topic.cardLineEn, "cardLineAr", topic);
+
 export const tFormula = (topic: SpecialTopic, lang: Lang): string =>
   tri(lang, topic.formulaTa, topic.formulaEn, "formulaAr", topic);
 

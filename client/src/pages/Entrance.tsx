@@ -6,7 +6,7 @@
  * Frontend only: no calculation or routing logic is changed. Language cards still open /ta, /en, /ar, /ur.
  */
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, ChevronRight, Feather, Globe, Landmark, MoonStar } from "lucide-react";
+import { ArrowLeft, ArrowRight, Calculator, ChevronRight, Feather, Globe, Landmark, MoonStar } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useLocation } from "wouter";
 import Splash from "../components/Splash";
@@ -143,8 +143,13 @@ export default function Entrance() {
                 <button type="button" onClick={() => setStep("language")} className="ent-start">
                   Start <ArrowRight size={18} />
                 </button>
-                <a href="/special" className="ent-special-link">
-                  Special Inheritance Methods · சிறப்பு வாரிசுரிமை முறைகள்
+                <a href="/special" className="ent-card ent-special-card" aria-label="Special Inheritance Methods">
+                  <span className="ent-mark" aria-hidden="true"><Calculator size={26} strokeWidth={1.9} /></span>
+                  <span className="ent-lang-text">
+                    <span className="ent-lang-native">Special Inheritance Methods</span>
+                    <span className="ent-lang-label">சிறப்பு வாரிசுரிமை முறைகள்</span>
+                  </span>
+                  <span className="ent-go" aria-hidden="true"><ChevronRight size={18} className="rtl:rotate-180" /></span>
                 </a>
               </div>
             </section>

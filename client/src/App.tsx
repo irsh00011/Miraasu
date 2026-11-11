@@ -50,6 +50,7 @@ function Router() {
         <Route path={"/ar"} component={ArabicHome} />
         <Route path={"/ur"} component={UrduHome} />
         <Route path={"/research"} component={ResearchPage} />
+        <Route path={"/special/:topic"} component={SpecialMethodsPage} />
         <Route path={"/special"} component={SpecialMethodsPage} />
         <Route path={"/404"} component={NotFound} />
         {/* Final fallback route */}

@@ -1545,8 +1545,6 @@ button.ms-chip-top { background: transparent; border: 0; padding: 0; font: inher
 @media (max-width: 560px) { .ms-special-link span { display: none; } .ms-special-link { padding: 0.45rem 0.55rem; } }
 
 /* Entrance welcome-step link. */
-.ent-special-link { display: inline-block; margin-top: 0.9rem; color: #16467e; font-size: 0.9rem; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
-.ent-special-link:hover { color: #0e3260; }
 
 /* Page shell. */
 .ms-special-page { min-height: 100vh; background: #f7f8fb; color: #0f172a; }
@@ -1763,3 +1761,9 @@ select.ms-special-input { cursor: pointer; }
 .ms-special-death-summary { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; cursor: pointer; }
 .ms-special-death-summary .ms-special-result-title { margin-bottom: 0; }
 details.ms-special-death > .ms-special-field:first-of-type { margin-top: 0.9rem; }
+
+/* Special Methods v3 — hub-and-spoke + entrance card (appended, unlayered). */
+.ms-special-grid-line { color: #475569; font-size: 0.85rem; line-height: 1.5; }
+.ms-special-detail-back { margin-top: 1.5rem; }
+.ent-start-dock { flex-direction: column; align-items: center; gap: 0.75rem; }
+.ent-special-card { width: min(100%, 22rem); align-items: center; gap: 1rem; min-height: 4.75rem; padding: 0.875rem 1.125rem; text-decoration: none; }
