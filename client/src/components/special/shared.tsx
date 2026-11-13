@@ -52,7 +52,7 @@ export function MoneyField({
           inputMode="decimal"
           min={min}
           step="any"
-          value={Number.isFinite(value) ? value : ""}
+          value={value ? value : ""}
           onChange={(e) => onChange(Math.max(0, Number(e.target.value) || 0))}
           className="ms-special-input"
         />
@@ -81,7 +81,8 @@ export function Stepper({
       <span className="ms-special-stepper-label">{label}</span>
       <span className="ms-special-stepper-controls">
         <button type="button" aria-label={`${label} −`} disabled={disabled || value <= min} onClick={() => onChange(Math.max(min, value - 1))} className="ms-special-step-btn">−</button>
-        <span className="ms-special-step-value" aria-live="polite">{value}</span>
+        {/* No default zero on a fresh sum: a 0 count shows blank until the user taps +. */}
+        <span className="ms-special-step-value" aria-live="polite">{value === 0 ? "" : value}</span>
         <button type="button" aria-label={`${label} +`} disabled={disabled || value >= max} onClick={() => onChange(Math.min(max, value + 1))} className="ms-special-step-btn">+</button>
       </span>
     </div>
